@@ -13,12 +13,14 @@ import {
   Modal,
 } from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
+import Fastfood from '@material-ui/icons/Fastfood'
 import EditIcon from '@material-ui/icons/Edit'
 import DeleteRecipe from './DeleteRecipe'
 import EditRecipe from './EditRecipe'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
+    background: theme.palette.primary.main,
     padding: theme.spacing(4),
     marginBottom: theme.spacing(3),
   },
@@ -29,15 +31,24 @@ const useStyles = makeStyles((theme) => ({
       textAlign: 'center',
     },
   },
-  avatar: {
-    width: theme.spacing(9),
-    height: theme.spacing(9),
+  foodIcon: {
+    fontSize: theme.spacing(9),
+    color: '#fff',
   },
   title: {
-    marginBottom: theme.spacing(1),
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: theme.spacing(3),
+    textDecoration: 'none',
   },
   description: {
+    color: '#fff',
+    marginTop: theme.spacing(1),
     marginBottom: theme.spacing(3),
+  },
+  author: {
+    color: '#fff',
+    opacity: 0.5,
   },
   fullHeight: {
     height: '100%',
@@ -56,6 +67,16 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(8, 6),
     [theme.breakpoints.only('xs')]: {
       margin: theme.spacing(4, 2),
+    },
+  },
+  editBtn: {
+    color: '#fff',
+  },
+  recipeBtn: {
+    background: '#fff',
+    color: theme.palette.primary.main,
+    '&:hover': {
+      backgroundColor: '#fff',
     },
   },
 }))
@@ -82,17 +103,18 @@ export default function Recipe({ recipe }) {
   }, [])
 
   return (
-    <Paper className={classes.paper} elevation={3}>
+    <Paper className={classes.paper} elevation={0}>
       <Grid container wrap="wrap" spacing={3} className={classes.recipe}>
         <Grid item>
-          <Avatar
-            alt="Remy Sharp"
-            src="https://images.pexels.com/photos/196643/pexels-photo-196643.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
-            className={classes.avatar}
-          />
+          <Fastfood className={classes.foodIcon} />
         </Grid>
         <Grid item xs>
-          <Typography component="h2" variant="h5" className={classes.title}>
+          <Typography
+            component={Link}
+            to={'/recipe/' + recipe.id}
+            variant="h2"
+            className={classes.title}
+          >
             {recipe.title}
           </Typography>
           <Typography
@@ -102,7 +124,7 @@ export default function Recipe({ recipe }) {
           >
             {recipe.description}
           </Typography>
-          <Typography component="h2" variant="body1" color="textSecondary">
+          <Typography component="h2" variant="body1" className={classes.author}>
             Published by {recipe.username}
           </Typography>
         </Grid>
@@ -124,7 +146,7 @@ export default function Recipe({ recipe }) {
                   className={classes.buttonGroup}
                 >
                   <IconButton
-                    color="primary"
+                    className={classes.editBtn}
                     disabled={deleting}
                     onClick={() => setEditOpen(true)}
                   >
@@ -169,10 +191,10 @@ export default function Recipe({ recipe }) {
               ) : null
             ) : null}
             <Button
-              variant="outlined"
-              color="primary"
+              variant="contained"
               disabled={deleting}
               component={Link}
+              className={classes.recipeBtn}
               to={'/recipe/' + recipe.id}
             >
               Full Recipe

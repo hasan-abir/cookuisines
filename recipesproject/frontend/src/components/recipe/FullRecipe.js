@@ -8,6 +8,7 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  Container,
 } from '@material-ui/core'
 import TimeIcon from '@material-ui/icons/AccessTime'
 import StarIcon from '@material-ui/icons/Star'
@@ -16,6 +17,7 @@ import { formatCookingTime } from '../../common/helpers'
 
 const useStyles = makeStyles((theme) => ({
   title: {
+    fontWeight: 'bold',
     [theme.breakpoints.only('xs')]: {
       fontSize: theme.typography.h5.fontSize,
       textAlign: 'center',
@@ -28,9 +30,16 @@ const useStyles = makeStyles((theme) => ({
   step: {
     padding: theme.spacing(2),
     marginBottom: theme.spacing(1),
+    background: theme.palette.primary.main,
+    color: '#fff',
   },
   ingredient: {
     marginBottom: theme.spacing(1),
+    background: theme.palette.primary.main,
+    color: '#fff',
+  },
+  icon: {
+    color: '#fff',
   },
 }))
 
@@ -44,7 +53,7 @@ export default function FullRecipe({ recipe }) {
   const timeObj = formatCookingTime(hours, minutes, seconds)
 
   return (
-    <>
+    <Container maxWidth="md">
       <Typography component="h1" variant="h4" className={classes.title}>
         {recipe.title}
       </Typography>
@@ -69,7 +78,7 @@ export default function FullRecipe({ recipe }) {
                 <Paper className={classes.step} key={index} elevation={2}>
                   <ListItem>
                     <ListItemIcon>
-                      <StarIcon color="primary" />
+                      <StarIcon className={classes.icon} />
                     </ListItemIcon>
                     <ListItemText>{item.description}</ListItemText>
                   </ListItem>
@@ -114,10 +123,10 @@ export default function FullRecipe({ recipe }) {
           <List>
             {recipe.ingredients.map((item, index) => {
               return (
-                <Paper className={classes.ingredient} key={index} elevation={2}>
+                <Paper className={classes.ingredient} key={index} elevation={0}>
                   <ListItem>
                     <ListItemIcon>
-                      <BookMarkIcon color="primary" />
+                      <BookMarkIcon className={classes.icon} />
                     </ListItemIcon>
                     <ListItemText>{item.name}</ListItemText>
                   </ListItem>
@@ -127,6 +136,6 @@ export default function FullRecipe({ recipe }) {
           </List>
         </Grid>
       </Grid>
-    </>
+    </Container>
   )
 }

@@ -19,6 +19,7 @@ import { addRecipe } from '../../actions/recipe'
 
 const useStyles = makeStyles((theme) => ({
   header: {
+    fontWeight: 'bold',
     [theme.breakpoints.only('xs')]: {
       fontSize: theme.typography.h5.fontSize,
       textAlign: 'center',

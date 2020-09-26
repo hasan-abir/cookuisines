@@ -11,12 +11,13 @@ import {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    paddingTop: theme.spacing(16),
+    paddingTop: theme.spacing(12),
     [theme.breakpoints.only('xs')]: {
-      paddingTop: theme.spacing(8),
+      paddingTop: theme.spacing(6),
     },
   },
   header: {
+    fontWeight: 'bold',
     [theme.breakpoints.only('xs')]: {
       fontSize: theme.typography.h5.fontSize,
       textAlign: 'center',
@@ -52,8 +53,8 @@ export default function RecipeList() {
             Shared Recipes
           </Typography>
           <Typography
-            component="h1"
-            variant="h5"
+            component="p"
+            variant="body1"
             className={classes.secondHeader}
           >
             By all users

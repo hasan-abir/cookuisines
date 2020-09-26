@@ -13,6 +13,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Container,
 } from '@material-ui/core/'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -27,9 +28,6 @@ const useStyles = makeStyles((theme) => ({
   },
   appbar: {
     boxShadow: 'none',
-  },
-  toolbar: {
-    padding: theme.spacing(0, 6),
   },
   title: {
     flexGrow: 1,
@@ -68,45 +66,50 @@ export default function Navbar() {
   return (
     <div className={classes.root}>
       <AppBar position="fixed" color="default" className={classes.appbar}>
-        <Toolbar className={classes.toolbar}>
-          <Typography
-            component={Link}
-            to="/"
-            variant="h6"
-            className={classes.title}
-          >
-            Cookuisines
-          </Typography>
-          <Box display={{ xs: 'inline', sm: 'none' }}>
-            <IconButton
-              onClick={() => setDrawerOpen(true)}
-              display={{ xs: 'inline', sm: 'none' }}
+        <Container maxWidth="md">
+          <Toolbar disableGutters>
+            <Typography
+              component={Link}
+              to="/"
+              variant="h6"
+              className={classes.title}
             >
-              <MenuIcon />
-            </IconButton>
-          </Box>
-          <Box component="div" display={{ xs: 'none', sm: 'inline' }}>
-            {userLoading ? null : isLoggedIn ? (
-              <>
-                <Button component={Link} to="/dashboard" color="primary">
-                  Dashboard
-                </Button>
-                <Button color="primary" onClick={() => dispatch(logoutUser())}>
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button component={Link} to="/login" color="primary">
-                  Login
-                </Button>
-                <Button component={Link} to="/register" color="primary">
-                  Register
-                </Button>
-              </>
-            )}
-          </Box>
-        </Toolbar>
+              Cookuisines
+            </Typography>
+            <Box display={{ xs: 'inline', sm: 'none' }}>
+              <IconButton
+                onClick={() => setDrawerOpen(true)}
+                display={{ xs: 'inline', sm: 'none' }}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Box>
+            <Box component="div" display={{ xs: 'none', sm: 'inline' }}>
+              {userLoading ? null : isLoggedIn ? (
+                <>
+                  <Button component={Link} to="/dashboard" color="primary">
+                    Dashboard
+                  </Button>
+                  <Button
+                    color="primary"
+                    onClick={() => dispatch(logoutUser())}
+                  >
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button component={Link} to="/login" color="primary">
+                    Login
+                  </Button>
+                  <Button component={Link} to="/register" color="primary">
+                    Register
+                  </Button>
+                </>
+              )}
+            </Box>
+          </Toolbar>
+        </Container>
       </AppBar>
       <Drawer
         className={classes.drawer}
