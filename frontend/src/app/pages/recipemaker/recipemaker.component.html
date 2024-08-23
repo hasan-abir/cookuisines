@@ -1,6 +1,6 @@
 <h1 class="title is-1 pb-4">Recipe Maker</h1>
 
-<form>
+<form [formGroup]="makerForm" (ngSubmit)="onSubmit()">
   <div class="columns">
     <div class="field column is-half">
       <label class="label title is-4"
@@ -10,13 +10,13 @@
         <input
           class="input"
           type="text"
+          formControlName="title"
           placeholder="Text..."
           value=""
-          required
         />
       </div>
-      <p class="help">
-        As much you'd like to call it "Whatever", a proper title is a must
+      <p *ngIf="titleErrs().required" class="help">
+        You might not bother with it, but a proper title is a must
       </p>
     </div>
   </div>
