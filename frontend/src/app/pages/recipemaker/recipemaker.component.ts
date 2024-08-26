@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import {
+  FormArray,
   FormBuilder,
+  FormControl,
   FormsModule,
   ReactiveFormsModule,
   Validators,
@@ -17,6 +19,7 @@ import {
 export class RecipemakerComponent {
   makerForm = this.formBuilder.group({
     title: ['', Validators.required],
+    ingredients: this.formBuilder.array([], Validators.required),
   });
 
   constructor(private formBuilder: FormBuilder) {}
@@ -26,7 +29,30 @@ export class RecipemakerComponent {
       console.log(this.makerForm.value);
 
       this.makerForm.reset();
+      this.makerForm.controls.ingredients.clear();
     }
+  }
+
+  addIngredient(value: string, event?: Event) {
+    if (event) {
+      event.preventDefault();
+
+      value = (event.target as HTMLInputElement).value;
+    }
+
+    if (value) {
+      this.makerForm.controls.ingredients.push(
+        this.formBuilder.nonNullable.control(value)
+      );
+    }
+
+    if (value && event) {
+      (event.target as HTMLInputElement).value = '';
+    }
+  }
+
+  removeIngredient(index: number) {
+    this.makerForm.controls.ingredients.removeAt(index);
   }
 
   titleErrs(): { required: boolean } {

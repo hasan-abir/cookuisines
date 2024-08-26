@@ -19,6 +19,50 @@
         You might not bother with it, but a proper title is a must
       </p>
     </div>
+    <div class="field column is-half">
+      <label class="label title is-4"
+        >Add ingredient<span class="has-text-danger">*</span></label
+      >
+      <div class="field has-addons">
+        <div class="control is-flex-grow-1">
+          <input
+            class="input"
+            type="text"
+            #ingredientInput
+            placeholder="Text..."
+            value=""
+            (keydown.enter)="addIngredient('', $event)"
+          />
+        </div>
+        <div class="control">
+          <button
+            class="button is-primary is-outlined"
+            type="button"
+            (click)="
+              addIngredient(ingredientInput.value); ingredientInput.value = ''
+            "
+          >
+            Add
+          </button>
+        </div>
+      </div>
+      <div formArrayName="ingredients">
+        <span
+          class="tag is-primary is-medium m-1"
+          *ngFor="
+            let control of makerForm.controls.ingredients.controls;
+            let i = index
+          "
+        >
+          {{ control.value }}
+          <button
+            class="delete is-small"
+            type="button"
+            (click)="removeIngredient(i)"
+          ></button>
+        </span>
+      </div>
+    </div>
   </div>
   <button class="button is-primary" type="submit">Make</button>
 </form>
