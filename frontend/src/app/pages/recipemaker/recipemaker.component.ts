@@ -4,6 +4,7 @@ import {
   FormArray,
   FormBuilder,
   FormControl,
+  FormGroup,
   FormsModule,
   ReactiveFormsModule,
   Validators,
@@ -33,22 +34,17 @@ export class RecipemakerComponent {
     }
   }
 
-  addIngredient(value: string, event?: Event) {
-    if (event) {
-      event.preventDefault();
+  get ingredients() {
+    return this.makerForm.get('ingredients') as FormArray<FormGroup>;
+  }
 
-      value = (event.target as HTMLInputElement).value;
-    }
+  addIngredient() {
+    const ingredientForm = this.formBuilder.group({
+      name: ['', Validators.required],
+      quantity: ['', Validators.required],
+    });
 
-    if (value) {
-      this.makerForm.controls.ingredients.push(
-        this.formBuilder.nonNullable.control(value)
-      );
-    }
-
-    if (value && event) {
-      (event.target as HTMLInputElement).value = '';
-    }
+    this.ingredients.push(ingredientForm);
   }
 
   removeIngredient(index: number) {
@@ -59,6 +55,16 @@ export class RecipemakerComponent {
     const required =
       this.makerForm.controls.title.errors &&
       this.makerForm.controls.title.errors['required'];
+
+    return {
+      required,
+    };
+  }
+
+  ingredientsErrs(): { required: boolean } {
+    const required =
+      this.makerForm.controls.ingredients.errors &&
+      this.makerForm.controls.ingredients.errors['required'];
 
     return {
       required,
