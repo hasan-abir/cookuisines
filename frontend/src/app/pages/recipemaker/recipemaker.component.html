@@ -19,77 +19,11 @@
         You might not bother with it, but a proper title is a must
       </p>
     </div>
-    <div class="field column is-half" [formGroup]="makerForm">
-      <div formArrayName="ingredients">
-        <label class="label title is-4"
-          >Add ingredient<span class="has-text-danger">*</span></label
-        >
-        <ng-container
-          *ngFor="let ingredientForm of ingredients.controls; let i = index"
-        >
-          <div class="columns" [formGroup]="ingredientForm">
-            <div class="column">
-              <div class="field has-addons">
-                <div class="control is-flex-grow-1">
-                  <label *ngIf="i === 0" class="label title is-6"
-                    >Name<span class="has-text-danger">*</span></label
-                  >
-                  <input
-                    class="input is-small"
-                    type="text"
-                    placeholder="Text..."
-                    (keydown.enter)="$event.preventDefault()"
-                    formControlName="name"
-                  />
-                  <!-- <p *ngIf="ingredientsErrs().required" class="help">
-                Ingredients are what makes the food; you have to provide them
-              </p> -->
-                </div>
-              </div>
-            </div>
-
-            <div class="column">
-              <div class="field has-addons">
-                <div class="control is-flex-grow-1">
-                  <label *ngIf="i === 0" class="label title is-6"
-                    >Quantity<span class="has-text-danger">*</span></label
-                  >
-                  <input
-                    class="input is-small"
-                    type="text"
-                    placeholder="Text..."
-                    (keydown.enter)="$event.preventDefault()"
-                    formControlName="quantity"
-                  />
-                </div>
-              </div>
-            </div>
-            <div
-              class="column is-narrow is-flex is-justify-content-center is-align-items-end"
-            >
-              <button
-                type="button"
-                class="button is-danger is-small"
-                (click)="removeIngredient(i)"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </ng-container>
-
-        <button
-          class="button is-fullwidth is-primary is-outlined mb-2"
-          type="button"
-          (click)="addIngredient()"
-        >
-          Add
-        </button>
-        <p *ngIf="ingredientsErrs().required" class="help">
-          Ingredients are what makes the meal; you have to provide them
-        </p>
-      </div>
-    </div>
+    <app-ingredientsformarray
+      class="field column is-half"
+      [makerForm]="makerForm"
+      [ingredients]="ingredients"
+    />
   </div>
   <button class="button is-primary" type="submit">Make</button>
 </form>
