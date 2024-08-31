@@ -6,7 +6,7 @@
       <label class="label title is-4"
         >Title<span class="has-text-danger">*</span></label
       >
-      <div class="control">
+      <div class="control mb-4">
         <input
           class="input"
           type="text"
@@ -14,16 +14,21 @@
           placeholder="Text..."
           value=""
         />
+        <p *ngIf="titleErrs().required" class="help">
+          You might not bother with it, but a proper title is a must
+        </p>
       </div>
-      <p *ngIf="titleErrs().required" class="help">
-        You might not bother with it, but a proper title is a must
-      </p>
+      <app-instructionsformarray
+        [makerForm]="makerForm"
+        [instructions]="instructions"
+      />
     </div>
-    <app-ingredientsformarray
-      class="field column is-half"
-      [makerForm]="makerForm"
-      [ingredients]="ingredients"
-    />
+    <div class="field column is-half">
+      <app-ingredientsformarray
+        [makerForm]="makerForm"
+        [ingredients]="ingredients"
+      />
+    </div>
   </div>
   <button class="button is-primary" type="submit">Make</button>
 </form>

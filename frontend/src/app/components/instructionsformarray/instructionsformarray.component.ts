@@ -5,7 +5,6 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
-  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -15,34 +14,33 @@ import {
 } from '../../pages/recipemaker/recipemaker.component';
 
 @Component({
-  selector: 'app-ingredientsformarray',
+  selector: 'app-instructionsformarray',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './ingredientsformarray.component.html',
-  styleUrl: './ingredientsformarray.component.css',
+  templateUrl: './instructionsformarray.component.html',
+  styleUrl: './instructionsformarray.component.css',
 })
-export class IngredientsformarrayComponent {
-  @Input() ingredients: FormArray<FormGroup> = new FormArray<any>([]);
+export class InstructionsformarrayComponent {
+  @Input() instructions: FormArray<FormGroup> = new FormArray<any>([]);
   @Input() makerForm: MakerForm = initialMakerForm;
 
   constructor(private formBuilder: FormBuilder) {}
 
-  addIngredient() {
+  addInstruction() {
     const ingredientForm = this.formBuilder.group({
-      name: ['', Validators.required],
-      quantity: ['', Validators.required],
+      step: ['', Validators.required],
     });
 
-    this.ingredients.push(ingredientForm);
+    this.instructions.push(ingredientForm);
   }
 
-  removeIngredient(index: number) {
-    this.ingredients.removeAt(index);
+  removeInstruction(index: number) {
+    this.instructions.removeAt(index);
   }
 
-  ingredientsErrs(): { required: boolean } {
+  instructionsErrs(): { required: boolean } {
     const required =
-      this.ingredients.errors && this.ingredients.errors['required'];
+      this.instructions.errors && this.instructions.errors['required'];
 
     return {
       required,
