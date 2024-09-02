@@ -11,17 +11,41 @@ import {
 } from '@angular/forms';
 import { IngredientsformarrayComponent } from '../../components/ingredientsformarray/ingredientsformarray.component';
 import { InstructionsformarrayComponent } from '../../components/instructionsformarray/instructionsformarray.component';
+import {
+  checkDurationGreaterThanZero,
+  DurationpickerComponent,
+} from '../../components/durationpicker/durationpicker.component';
 
 export type MakerForm = FormGroup<{
   title: FormControl<string | null>;
   ingredients: FormArray<FormControl<unknown>>;
   instructions: FormArray<FormControl<unknown>>;
+  preparationTime: FormGroup<{
+    hours: FormControl<number | null>;
+    minutes: FormControl<number | null>;
+    seconds: FormControl<number | null>;
+  }>;
+  cookingTime: FormGroup<{
+    hours: FormControl<number | null>;
+    minutes: FormControl<number | null>;
+    seconds: FormControl<number | null>;
+  }>;
 }>;
 
-export const initialMakerForm = new FormGroup({
+export const initialMakerForm: MakerForm = new FormGroup({
   title: new FormControl(''),
   ingredients: new FormArray<FormControl<unknown>>([]),
   instructions: new FormArray<FormControl<unknown>>([]),
+  preparationTime: new FormGroup({
+    hours: new FormControl(0),
+    minutes: new FormControl(0),
+    seconds: new FormControl(0),
+  }),
+  cookingTime: new FormGroup({
+    hours: new FormControl(0),
+    minutes: new FormControl(0),
+    seconds: new FormControl(0),
+  }),
 });
 
 @Component({
@@ -33,6 +57,7 @@ export const initialMakerForm = new FormGroup({
     CommonModule,
     IngredientsformarrayComponent,
     InstructionsformarrayComponent,
+    DurationpickerComponent,
   ],
   templateUrl: './recipemaker.component.html',
   styleUrl: './recipemaker.component.css',
@@ -42,6 +67,40 @@ export class RecipemakerComponent {
     title: ['', Validators.required],
     ingredients: this.formBuilder.array([], Validators.required),
     instructions: this.formBuilder.array([], Validators.required),
+    preparationTime: this.formBuilder.group(
+      {
+        hours: [
+          0,
+          [Validators.required, Validators.min(0), Validators.max(23)],
+        ],
+        minutes: [
+          0,
+          [Validators.required, Validators.min(0), Validators.max(59)],
+        ],
+        seconds: [
+          0,
+          [Validators.required, Validators.min(0), Validators.max(59)],
+        ],
+      },
+      { validators: checkDurationGreaterThanZero() }
+    ),
+    cookingTime: this.formBuilder.group(
+      {
+        hours: [
+          0,
+          [Validators.required, Validators.min(0), Validators.max(23)],
+        ],
+        minutes: [
+          0,
+          [Validators.required, Validators.min(0), Validators.max(59)],
+        ],
+        seconds: [
+          0,
+          [Validators.required, Validators.min(0), Validators.max(59)],
+        ],
+      },
+      { validators: checkDurationGreaterThanZero() }
+    ),
   });
 
   constructor(private formBuilder: FormBuilder) {}
@@ -50,7 +109,10 @@ export class RecipemakerComponent {
     if (this.makerForm.valid) {
       console.log(this.makerForm.value);
 
-      this.makerForm.reset();
+      this.makerForm.reset({
+        preparationTime: { hours: 0, minutes: 0, seconds: 0 },
+        cookingTime: { hours: 0, minutes: 0, seconds: 0 },
+      });
       this.ingredients.clear();
       this.instructions.clear();
     }

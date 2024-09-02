@@ -1,0 +1,37 @@
+<div [formGroup]="form">
+  <div class="columns" [formGroupName]="fgName">
+    <div class="control column">
+      <input
+        type="number"
+        class="input is-small"
+        min="0"
+        max="60"
+        value="0"
+        formControlName="hours"
+      />
+      <p class="help">Hours</p>
+    </div>
+    <div class="control column">
+      <input
+        type="number"
+        class="input is-small"
+        min="0"
+        max="60"
+        value="0"
+        formControlName="minutes"
+      />
+      <p class="help">Minutes</p>
+    </div>
+    <div class="control column">
+      <input
+        type="number"
+        class="input is-small"
+        min="0"
+        max="60"
+        value="0"
+        formControlName="seconds"
+      />
+      <p class="help">Seconds</p>
+    </div>
+  </div>
+</div>

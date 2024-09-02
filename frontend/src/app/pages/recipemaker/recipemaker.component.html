@@ -28,6 +28,24 @@
         [makerForm]="makerForm"
         [ingredients]="ingredients"
       />
+      <label class="label mt-4 title is-4"
+        >Time<span class="has-text-danger">*</span></label
+      >
+      <div class="columns">
+        <div class="column is-half">
+          <label class="label"
+            >For prepation<span class="has-text-danger">*</span></label
+          >
+
+          <app-durationpicker [form]="makerForm" [fgName]="'preparationTime'" />
+        </div>
+        <div class="column is-half">
+          <label class="label"
+            >For cooking<span class="has-text-danger">*</span></label
+          >
+          <app-durationpicker [form]="makerForm" [fgName]="'cookingTime'" />
+        </div>
+      </div>
     </div>
   </div>
   <button class="button is-primary" type="submit">Make</button>
