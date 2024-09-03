@@ -3,11 +3,12 @@
 <form [formGroup]="makerForm" (ngSubmit)="onSubmit()">
   <div class="columns">
     <div class="field column is-half">
-      <label class="label title is-4"
+      <label for="title" class="label title is-4"
         >Title<span class="has-text-danger">*</span></label
       >
       <div class="control mb-4">
         <input
+          id="title"
           class="input"
           type="text"
           formControlName="title"
@@ -22,15 +23,27 @@
         [makerForm]="makerForm"
         [instructions]="instructions"
       />
+      <div class="control mt-4">
+        <label for="difficulty" class="label title is-4">Difficulty</label>
+        <div class="select is-primary">
+          <select
+            id="difficulty"
+            formControlName="difficulty"
+            class="is-capitalized"
+          >
+            <option *ngFor="let option of difficulties" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+        </div>
+      </div>
     </div>
     <div class="field column is-half">
       <app-ingredientsformarray
         [makerForm]="makerForm"
         [ingredients]="ingredients"
       />
-      <label class="label mt-4 title is-4"
-        >Time<span class="has-text-danger">*</span></label
-      >
+      <label class="label mt-4 title is-4">Time</label>
       <div class="columns">
         <div class="column is-half">
           <label class="label"
@@ -48,5 +61,14 @@
       </div>
     </div>
   </div>
-  <button class="button is-primary" type="submit">Make</button>
+  <div class="columns">
+    <div class="column is-half">
+      <button
+        class="button is-primary is-uppercase has-text-weight-bold is-fullwidth"
+        type="submit"
+      >
+        Make
+      </button>
+    </div>
+  </div>
 </form>

@@ -30,6 +30,7 @@ export type MakerForm = FormGroup<{
     minutes: FormControl<number | null>;
     seconds: FormControl<number | null>;
   }>;
+  difficulty: FormControl<string | null>;
 }>;
 
 export const initialMakerForm: MakerForm = new FormGroup({
@@ -46,6 +47,7 @@ export const initialMakerForm: MakerForm = new FormGroup({
     minutes: new FormControl(0),
     seconds: new FormControl(0),
   }),
+  difficulty: new FormControl(''),
 });
 
 @Component({
@@ -63,6 +65,8 @@ export const initialMakerForm: MakerForm = new FormGroup({
   styleUrl: './recipemaker.component.css',
 })
 export class RecipemakerComponent {
+  difficulties = ['easy', 'medium', 'hard'];
+
   makerForm = this.formBuilder.group({
     title: ['', Validators.required],
     ingredients: this.formBuilder.array([], Validators.required),
@@ -101,6 +105,7 @@ export class RecipemakerComponent {
       },
       { validators: checkDurationGreaterThanZero() }
     ),
+    difficulty: [this.difficulties[0], Validators.required],
   });
 
   constructor(private formBuilder: FormBuilder) {}
@@ -112,6 +117,7 @@ export class RecipemakerComponent {
       this.makerForm.reset({
         preparationTime: { hours: 0, minutes: 0, seconds: 0 },
         cookingTime: { hours: 0, minutes: 0, seconds: 0 },
+        difficulty: 'easy',
       });
       this.ingredients.clear();
       this.instructions.clear();

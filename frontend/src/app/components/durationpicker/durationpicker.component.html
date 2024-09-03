@@ -1,7 +1,11 @@
 <div [formGroup]="form">
   <div class="columns" [formGroupName]="fgName">
     <div class="control column">
+      <label [attr.for]="fgName + '-duration-hours'" class="label is-size-7"
+        >Hours</label
+      >
       <input
+        [id]="fgName + '-duration-hours'"
         type="number"
         class="input is-small"
         min="0"
@@ -9,10 +13,13 @@
         value="0"
         formControlName="hours"
       />
-      <p class="help">Hours</p>
     </div>
     <div class="control column">
+      <label [attr.for]="fgName + '-duration-minutes'" class="label is-size-7"
+        >Minutes</label
+      >
       <input
+        [id]="fgName + '-duration-minutes'"
         type="number"
         class="input is-small"
         min="0"
@@ -20,10 +27,13 @@
         value="0"
         formControlName="minutes"
       />
-      <p class="help">Minutes</p>
     </div>
     <div class="control column">
+      <label [attr.for]="fgName + '-duration-seconds'" class="label is-size-7"
+        >Seconds</label
+      >
       <input
+        [id]="fgName + '-duration-seconds'"
         type="number"
         class="input is-small"
         min="0"
@@ -31,7 +41,6 @@
         value="0"
         formControlName="seconds"
       />
-      <p class="help">Seconds</p>
     </div>
   </div>
 </div>
