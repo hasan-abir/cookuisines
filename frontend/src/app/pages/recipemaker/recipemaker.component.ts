@@ -31,6 +31,7 @@ export type MakerForm = FormGroup<{
     seconds: FormControl<number | null>;
   }>;
   difficulty: FormControl<string | null>;
+  image: FormControl<string | null>;
 }>;
 
 export const initialMakerForm: MakerForm = new FormGroup({
@@ -48,6 +49,7 @@ export const initialMakerForm: MakerForm = new FormGroup({
     seconds: new FormControl(0),
   }),
   difficulty: new FormControl(''),
+  image: new FormControl(''),
 });
 
 @Component({
@@ -106,18 +108,18 @@ export class RecipemakerComponent {
       { validators: checkDurationGreaterThanZero() }
     ),
     difficulty: [this.difficulties[0], Validators.required],
+    image: [''],
   });
 
   constructor(private formBuilder: FormBuilder) {}
 
   onSubmit() {
+    console.log(this.makerForm.value);
     if (this.makerForm.valid) {
-      console.log(this.makerForm.value);
-
       this.makerForm.reset({
         preparationTime: { hours: 0, minutes: 0, seconds: 0 },
         cookingTime: { hours: 0, minutes: 0, seconds: 0 },
-        difficulty: 'easy',
+        difficulty: this.difficulties[0],
       });
       this.ingredients.clear();
       this.instructions.clear();
@@ -132,10 +134,13 @@ export class RecipemakerComponent {
     return this.makerForm.get('instructions') as FormArray<FormGroup>;
   }
 
+  onFileChange(event: Event) {
+    console.log((event.target as HTMLInputElement).files);
+  }
+
   titleErrs(): { required: boolean } {
-    const required =
-      this.makerForm.controls.title.errors &&
-      this.makerForm.controls.title.errors['required'];
+    const control = this.makerForm.get('title');
+    const required = control && control.errors && control.errors['required'];
 
     return {
       required,

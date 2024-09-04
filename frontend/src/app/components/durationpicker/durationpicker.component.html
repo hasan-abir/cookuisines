@@ -1,5 +1,5 @@
 <div [formGroup]="form">
-  <div class="columns" [formGroupName]="fgName">
+  <div class="columns is-1" [formGroupName]="fgName">
     <div class="control column">
       <label [attr.for]="fgName + '-duration-hours'" class="label is-size-7"
         >Hours</label
@@ -9,8 +9,7 @@
         type="number"
         class="input is-small"
         min="0"
-        max="60"
-        value="0"
+        max="23"
         formControlName="hours"
       />
     </div>
@@ -24,7 +23,6 @@
         class="input is-small"
         min="0"
         max="60"
-        value="0"
         formControlName="minutes"
       />
     </div>
@@ -38,9 +36,11 @@
         class="input is-small"
         min="0"
         max="60"
-        value="0"
         formControlName="seconds"
       />
     </div>
   </div>
+  <p class="help" *ngIf="timeErrs().durationGreaterThanZero">
+    It couldn't literally take no time at all
+  </p>
 </div>

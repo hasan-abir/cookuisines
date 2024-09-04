@@ -9,6 +9,7 @@ import {
   ValidationErrors,
   ValidatorFn,
 } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 export function checkDurationGreaterThanZero(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -27,11 +28,22 @@ export function checkDurationGreaterThanZero(): ValidatorFn {
 @Component({
   selector: 'app-durationpicker',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './durationpicker.component.html',
   styleUrl: './durationpicker.component.css',
 })
 export class DurationpickerComponent {
   @Input() fgName: string = '';
   @Input() form: MakerForm = initialMakerForm;
+
+  timeErrs(): { durationGreaterThanZero: boolean } {
+    const control = this.form.get(this.fgName);
+
+    const durationGreaterThanZero =
+      control && control.errors && control.errors['durationGreaterThanZero'];
+
+    return {
+      durationGreaterThanZero,
+    };
+  }
 }
