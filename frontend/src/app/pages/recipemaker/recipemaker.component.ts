@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import {
+  AbstractControl,
   FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { IngredientsformarrayComponent } from '../../components/ingredientsformarray/ingredientsformarray.component';
@@ -31,7 +34,7 @@ export type MakerForm = FormGroup<{
     seconds: FormControl<number | null>;
   }>;
   difficulty: FormControl<string | null>;
-  image: FormControl<string | null>;
+  image: FormControl<File | null>;
 }>;
 
 export const initialMakerForm: MakerForm = new FormGroup({
@@ -49,8 +52,32 @@ export const initialMakerForm: MakerForm = new FormGroup({
     seconds: new FormControl(0),
   }),
   difficulty: new FormControl(''),
-  image: new FormControl(''),
+  image: new FormControl<File | null>(null),
 });
+
+function validateImageFile(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const file = control.value as File;
+
+    if (!file) {
+      return null;
+    }
+    const validTypes = ['image/jpeg', 'image/png'];
+
+    const isValidType = validTypes.includes(file.type);
+    const isValidSize = file.size <= 2000000;
+
+    if (isValidType && isValidSize) {
+      return null;
+    } else if (!isValidType && isValidSize) {
+      return { invalidFileType: true };
+    } else if (isValidType && !isValidSize) {
+      return { invalidFileSize: true };
+    } else {
+      return { invalidFileType: true };
+    }
+  };
+}
 
 @Component({
   selector: 'app-recipemaker',
@@ -70,52 +97,68 @@ export class RecipemakerComponent {
   difficulties = ['easy', 'medium', 'hard'];
 
   makerForm = this.formBuilder.group({
-    title: ['', Validators.required],
-    ingredients: this.formBuilder.array([], Validators.required),
-    instructions: this.formBuilder.array([], Validators.required),
+    title: new FormControl<string | null>(null, Validators.required),
+    ingredients: this.formBuilder.array<FormControl<unknown>>(
+      [],
+      Validators.required
+    ),
+    instructions: this.formBuilder.array<FormControl<unknown>>(
+      [],
+      Validators.required
+    ),
     preparationTime: this.formBuilder.group(
       {
-        hours: [
-          0,
-          [Validators.required, Validators.min(0), Validators.max(23)],
-        ],
-        minutes: [
-          0,
-          [Validators.required, Validators.min(0), Validators.max(59)],
-        ],
-        seconds: [
-          0,
-          [Validators.required, Validators.min(0), Validators.max(59)],
-        ],
+        hours: new FormControl<number | null>(0, [
+          Validators.required,
+          Validators.min(0),
+          Validators.max(23),
+        ]),
+        minutes: new FormControl<number | null>(0, [
+          Validators.required,
+          Validators.min(0),
+          Validators.max(59),
+        ]),
+        seconds: new FormControl<number | null>(0, [
+          Validators.required,
+          Validators.min(0),
+          Validators.max(59),
+        ]),
       },
       { validators: checkDurationGreaterThanZero() }
     ),
     cookingTime: this.formBuilder.group(
       {
-        hours: [
-          0,
-          [Validators.required, Validators.min(0), Validators.max(23)],
-        ],
-        minutes: [
-          0,
-          [Validators.required, Validators.min(0), Validators.max(59)],
-        ],
-        seconds: [
-          0,
-          [Validators.required, Validators.min(0), Validators.max(59)],
-        ],
+        hours: new FormControl<number | null>(0, [
+          Validators.required,
+          Validators.min(0),
+          Validators.max(23),
+        ]),
+        minutes: new FormControl<number | null>(0, [
+          Validators.required,
+          Validators.min(0),
+          Validators.max(59),
+        ]),
+        seconds: new FormControl<number | null>(0, [
+          Validators.required,
+          Validators.min(0),
+          Validators.max(59),
+        ]),
       },
       { validators: checkDurationGreaterThanZero() }
     ),
-    difficulty: [this.difficulties[0], Validators.required],
-    image: [''],
+    difficulty: new FormControl<string | null>(
+      this.difficulties[0],
+      Validators.required
+    ),
+    image: new FormControl<File | null>(null, [validateImageFile()]),
   });
 
   constructor(private formBuilder: FormBuilder) {}
 
   onSubmit() {
-    console.log(this.makerForm.value);
     if (this.makerForm.valid) {
+      console.log(this.makerForm.value);
+
       this.makerForm.reset({
         preparationTime: { hours: 0, minutes: 0, seconds: 0 },
         cookingTime: { hours: 0, minutes: 0, seconds: 0 },
@@ -134,8 +177,16 @@ export class RecipemakerComponent {
     return this.makerForm.get('instructions') as FormArray<FormGroup>;
   }
 
+  get image() {
+    return this.makerForm.get('image') as FormControl<File | null>;
+  }
+
   onFileChange(event: Event) {
-    console.log((event.target as HTMLInputElement).files);
+    const target = event.target as HTMLInputElement;
+    const file = target.files && target.files.item(0);
+    this.makerForm.get('image')?.setValue(file);
+
+    console.log(file);
   }
 
   titleErrs(): { required: boolean } {
@@ -144,6 +195,18 @@ export class RecipemakerComponent {
 
     return {
       required,
+    };
+  }
+  imageErrs(): { invalidFileType: boolean; invalidFileSize: boolean } {
+    const control = this.makerForm.get('image');
+    const invalidFileType =
+      control && control.errors && control.errors['invalidFileType'];
+    const invalidFileSize =
+      control && control.errors && control.errors['invalidFileSize'];
+
+    return {
+      invalidFileType,
+      invalidFileSize,
     };
   }
 }
