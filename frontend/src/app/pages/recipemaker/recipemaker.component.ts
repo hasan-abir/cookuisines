@@ -1,23 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import {
-  AbstractControl,
   FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { IngredientsformarrayComponent } from '../../components/ingredientsformarray/ingredientsformarray.component';
-import { InstructionsformarrayComponent } from '../../components/instructionsformarray/instructionsformarray.component';
 import {
   checkDurationGreaterThanZero,
   DurationpickerComponent,
 } from '../../components/durationpicker/durationpicker.component';
+import {
+  FileuploadComponent,
+  validateImageFile,
+} from '../../components/fileupload/fileupload.component';
+import { IngredientsformarrayComponent } from '../../components/ingredientsformarray/ingredientsformarray.component';
+import { InstructionsformarrayComponent } from '../../components/instructionsformarray/instructionsformarray.component';
 
 export type MakerForm = FormGroup<{
   title: FormControl<string | null>;
@@ -55,30 +56,6 @@ export const initialMakerForm: MakerForm = new FormGroup({
   image: new FormControl<File | null>(null),
 });
 
-function validateImageFile(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const file = control.value as File;
-
-    if (!file) {
-      return null;
-    }
-    const validTypes = ['image/jpeg', 'image/png'];
-
-    const isValidType = validTypes.includes(file.type);
-    const isValidSize = file.size <= 2000000;
-
-    if (isValidType && isValidSize) {
-      return null;
-    } else if (!isValidType && isValidSize) {
-      return { invalidFileType: true };
-    } else if (isValidType && !isValidSize) {
-      return { invalidFileSize: true };
-    } else {
-      return { invalidFileType: true };
-    }
-  };
-}
-
 @Component({
   selector: 'app-recipemaker',
   standalone: true,
@@ -89,6 +66,7 @@ function validateImageFile(): ValidatorFn {
     IngredientsformarrayComponent,
     InstructionsformarrayComponent,
     DurationpickerComponent,
+    FileuploadComponent,
   ],
   templateUrl: './recipemaker.component.html',
   styleUrl: './recipemaker.component.css',
@@ -177,36 +155,12 @@ export class RecipemakerComponent {
     return this.makerForm.get('instructions') as FormArray<FormGroup>;
   }
 
-  get image() {
-    return this.makerForm.get('image') as FormControl<File | null>;
-  }
-
-  onFileChange(event: Event) {
-    const target = event.target as HTMLInputElement;
-    const file = target.files && target.files.item(0);
-    this.makerForm.get('image')?.setValue(file);
-
-    console.log(file);
-  }
-
   titleErrs(): { required: boolean } {
     const control = this.makerForm.get('title');
     const required = control && control.errors && control.errors['required'];
 
     return {
       required,
-    };
-  }
-  imageErrs(): { invalidFileType: boolean; invalidFileSize: boolean } {
-    const control = this.makerForm.get('image');
-    const invalidFileType =
-      control && control.errors && control.errors['invalidFileType'];
-    const invalidFileSize =
-      control && control.errors && control.errors['invalidFileSize'];
-
-    return {
-      invalidFileType,
-      invalidFileSize,
     };
   }
 }

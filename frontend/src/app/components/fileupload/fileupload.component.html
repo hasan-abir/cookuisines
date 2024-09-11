@@ -1,0 +1,33 @@
+<div class="control">
+  <label for="image" class="label title is-4">Image</label>
+  <div class="file is-outlined has-name">
+    <label class="file-label">
+      <input
+        id="image"
+        class="file-input"
+        type="file"
+        (change)="onFileChange($event)"
+      />
+      <span class="file-cta">
+        <span class="file-label"> Upload an image... </span>
+      </span>
+      <span *ngIf="image.value" class="file-name" [title]="image.value.name">
+        {{ image.value.name }}
+      </span>
+    </label>
+  </div>
+  <div *ngIf="previewImg">
+    <figure class="image is-128x128 mb-2">
+      <img [src]="previewImg" style="object-fit: cover; height: 100%" />
+    </figure>
+    <button class="button is-danger is-small" (click)="removeImage()">
+      Remove
+    </button>
+  </div>
+  <p *ngIf="imageErrs().invalidFileType" class="help">
+    File must of be of image type
+  </p>
+  <p *ngIf="imageErrs().invalidFileSize" class="help">
+    File size must be under 2 mb
+  </p>
+</div>

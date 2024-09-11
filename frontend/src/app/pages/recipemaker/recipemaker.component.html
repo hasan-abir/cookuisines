@@ -23,35 +23,7 @@
         [makerForm]="makerForm"
         [instructions]="instructions"
       />
-      <div class="control mt-4">
-        <label for="image" class="label title is-4">Image</label>
-        <div class="file is-outlined has-name">
-          <label class="file-label">
-            <input
-              id="image"
-              class="file-input"
-              type="file"
-              (change)="onFileChange($event)"
-            />
-            <span class="file-cta">
-              <span class="file-label"> Upload an image... </span>
-            </span>
-            <span
-              *ngIf="image.value"
-              class="file-name"
-              [title]="image.value.name"
-            >
-              {{ image.value.name }}
-            </span>
-          </label>
-        </div>
-        <p *ngIf="imageErrs().invalidFileType" class="help">
-          File must of be of image type
-        </p>
-        <p *ngIf="imageErrs().invalidFileSize" class="help">
-          File size must under 2 mb
-        </p>
-      </div>
+      <app-fileupload [makerForm]="makerForm" />
     </div>
     <div class="field column is-half">
       <app-ingredientsformarray
