@@ -24,6 +24,7 @@
         [instructions]="instructions"
       />
       <app-fileupload [makerForm]="makerForm" />
+      <app-mealtypes [makerForm]="makerForm" />
     </div>
     <div class="field column is-half">
       <app-ingredientsformarray
@@ -34,7 +35,7 @@
       <div class="columns">
         <div class="column is-half">
           <label class="label"
-            >For prepation<span class="has-text-danger">*</span></label
+            >For preparing<span class="has-text-danger">*</span></label
           >
 
           <app-durationpicker [form]="makerForm" [fgName]="'preparationTime'" />

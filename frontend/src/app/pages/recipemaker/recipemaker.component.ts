@@ -19,24 +19,11 @@ import {
 } from '../../components/fileupload/fileupload.component';
 import { IngredientsformarrayComponent } from '../../components/ingredientsformarray/ingredientsformarray.component';
 import { InstructionsformarrayComponent } from '../../components/instructionsformarray/instructionsformarray.component';
-
-export type MakerForm = FormGroup<{
-  title: FormControl<string | null>;
-  ingredients: FormArray<FormControl<unknown>>;
-  instructions: FormArray<FormControl<unknown>>;
-  preparationTime: FormGroup<{
-    hours: FormControl<number | null>;
-    minutes: FormControl<number | null>;
-    seconds: FormControl<number | null>;
-  }>;
-  cookingTime: FormGroup<{
-    hours: FormControl<number | null>;
-    minutes: FormControl<number | null>;
-    seconds: FormControl<number | null>;
-  }>;
-  difficulty: FormControl<string | null>;
-  image: FormControl<File | null>;
-}>;
+import { MakerForm } from '../../types/MakerForm';
+import {
+  checkAMealTypeExists,
+  MealtypesComponent,
+} from '../../components/mealtypes/mealtypes.component';
 
 export const initialMakerForm: MakerForm = new FormGroup({
   title: new FormControl(''),
@@ -54,6 +41,12 @@ export const initialMakerForm: MakerForm = new FormGroup({
   }),
   difficulty: new FormControl(''),
   image: new FormControl<File | null>(null),
+  mealType: new FormGroup({
+    breakfast: new FormControl(false),
+    brunch: new FormControl(false),
+    lunch: new FormControl(false),
+    dinner: new FormControl(false),
+  }),
 });
 
 @Component({
@@ -67,6 +60,7 @@ export const initialMakerForm: MakerForm = new FormGroup({
     InstructionsformarrayComponent,
     DurationpickerComponent,
     FileuploadComponent,
+    MealtypesComponent,
   ],
   templateUrl: './recipemaker.component.html',
   styleUrl: './recipemaker.component.css',
@@ -129,6 +123,15 @@ export class RecipemakerComponent {
       Validators.required
     ),
     image: new FormControl<File | null>(null, [validateImageFile()]),
+    mealType: this.formBuilder.group(
+      {
+        breakfast: new FormControl<boolean | null>(false),
+        brunch: new FormControl<boolean | null>(false),
+        lunch: new FormControl<boolean | null>(false),
+        dinner: new FormControl<boolean | null>(false),
+      },
+      { validators: checkAMealTypeExists() }
+    ),
   });
 
   constructor(private formBuilder: FormBuilder) {}

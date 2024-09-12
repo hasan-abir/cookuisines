@@ -8,10 +8,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  initialMakerForm,
-  MakerForm,
-} from '../../pages/recipemaker/recipemaker.component';
+import { initialMakerForm } from '../../pages/recipemaker/recipemaker.component';
+import { MakerForm } from '../../types/MakerForm';
 
 @Component({
   selector: 'app-instructionsformarray',

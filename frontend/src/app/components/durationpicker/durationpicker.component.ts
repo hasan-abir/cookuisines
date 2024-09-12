@@ -1,8 +1,5 @@
 import { Component, Input } from '@angular/core';
-import {
-  initialMakerForm,
-  MakerForm,
-} from '../../pages/recipemaker/recipemaker.component';
+import { initialMakerForm } from '../../pages/recipemaker/recipemaker.component';
 import {
   AbstractControl,
   ReactiveFormsModule,
@@ -10,6 +7,7 @@ import {
   ValidatorFn,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { MakerForm } from '../../types/MakerForm';
 
 export function checkDurationGreaterThanZero(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
