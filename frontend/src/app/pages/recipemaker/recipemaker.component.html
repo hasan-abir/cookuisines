@@ -32,7 +32,7 @@
         [ingredients]="ingredients"
       />
       <label class="label mt-4 title is-4">Time</label>
-      <div class="columns">
+      <div class="columns mb-4">
         <div class="column is-half">
           <label class="label"
             >For preparing<span class="has-text-danger">*</span></label
@@ -47,7 +47,7 @@
           <app-durationpicker [form]="makerForm" [fgName]="'cookingTime'" />
         </div>
       </div>
-      <div class="control mt-4">
+      <div class="control mb-4">
         <label for="difficulty" class="label title is-4">Difficulty</label>
         <div class="select is-primary">
           <select
@@ -61,6 +61,7 @@
           </select>
         </div>
       </div>
+      <app-dietarypreferences [makerForm]="makerForm" />
     </div>
   </div>
   <div class="columns">

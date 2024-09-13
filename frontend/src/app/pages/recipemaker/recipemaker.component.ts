@@ -24,6 +24,7 @@ import {
   checkAMealTypeExists,
   MealtypesComponent,
 } from '../../components/mealtypes/mealtypes.component';
+import { DietarypreferencesComponent } from '../../components/dietarypreferences/dietarypreferences.component';
 
 export const initialMakerForm: MakerForm = new FormGroup({
   title: new FormControl(''),
@@ -47,6 +48,10 @@ export const initialMakerForm: MakerForm = new FormGroup({
     lunch: new FormControl(false),
     dinner: new FormControl(false),
   }),
+  dietaryPreference: new FormGroup({
+    vegan: new FormControl(false),
+    glutenfree: new FormControl(false),
+  }),
 });
 
 @Component({
@@ -61,6 +66,7 @@ export const initialMakerForm: MakerForm = new FormGroup({
     DurationpickerComponent,
     FileuploadComponent,
     MealtypesComponent,
+    DietarypreferencesComponent,
   ],
   templateUrl: './recipemaker.component.html',
   styleUrl: './recipemaker.component.css',
@@ -132,6 +138,10 @@ export class RecipemakerComponent {
       },
       { validators: checkAMealTypeExists() }
     ),
+    dietaryPreference: this.formBuilder.group({
+      vegan: new FormControl<boolean | null>(false),
+      glutenfree: new FormControl<boolean | null>(false),
+    }),
   });
 
   constructor(private formBuilder: FormBuilder) {}
@@ -144,6 +154,16 @@ export class RecipemakerComponent {
         preparationTime: { hours: 0, minutes: 0, seconds: 0 },
         cookingTime: { hours: 0, minutes: 0, seconds: 0 },
         difficulty: this.difficulties[0],
+        mealType: {
+          breakfast: false,
+          brunch: false,
+          lunch: false,
+          dinner: false,
+        },
+        dietaryPreference: {
+          vegan: false,
+          glutenfree: false,
+        },
       });
       this.ingredients.clear();
       this.instructions.clear();

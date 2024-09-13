@@ -22,4 +22,8 @@ export type MakerForm = FormGroup<{
     lunch: FormControl<boolean | null>;
     dinner: FormControl<boolean | null>;
   }>;
+  dietaryPreference: FormGroup<{
+    vegan: FormControl<boolean | null>;
+    glutenfree: FormControl<boolean | null>;
+  }>;
 }>;
