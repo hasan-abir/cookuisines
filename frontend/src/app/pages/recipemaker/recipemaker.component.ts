@@ -12,19 +12,19 @@ import {
 import {
   checkDurationGreaterThanZero,
   DurationpickerComponent,
-} from '../../components/durationpicker/durationpicker.component';
+} from '../../components/makerform/durationpicker/durationpicker.component';
 import {
   FileuploadComponent,
   validateImageFile,
-} from '../../components/fileupload/fileupload.component';
-import { IngredientsformarrayComponent } from '../../components/ingredientsformarray/ingredientsformarray.component';
-import { InstructionsformarrayComponent } from '../../components/instructionsformarray/instructionsformarray.component';
+} from '../../components/makerform/fileupload/fileupload.component';
+import { IngredientsformarrayComponent } from '../../components/makerform/ingredientsformarray/ingredientsformarray.component';
+import { InstructionsformarrayComponent } from '../../components/makerform/instructionsformarray/instructionsformarray.component';
 import { MakerForm } from '../../types/MakerForm';
 import {
   checkAMealTypeExists,
   MealtypesComponent,
-} from '../../components/mealtypes/mealtypes.component';
-import { DietarypreferencesComponent } from '../../components/dietarypreferences/dietarypreferences.component';
+} from '../../components/makerform/mealtypes/mealtypes.component';
+import { DietarypreferencesComponent } from '../../components/makerform/dietarypreferences/dietarypreferences.component';
 
 export const initialMakerForm: MakerForm = new FormGroup({
   title: new FormControl(''),

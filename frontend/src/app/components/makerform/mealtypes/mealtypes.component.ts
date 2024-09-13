@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { MakerForm } from '../../types/MakerForm';
-import { initialMakerForm } from '../../pages/recipemaker/recipemaker.component';
+import { MakerForm } from '../../../types/MakerForm';
+import { initialMakerForm } from '../../../pages/recipemaker/recipemaker.component';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,

@@ -1,4 +1,4 @@
-<div [formGroup]="makerForm" class="mb-4">
+<div [formGroup]="makerForm" class="mb-5">
   <div formArrayName="instructions">
     <label class="label title is-4"
       >Add Instruction<span class="has-text-danger">*</span></label
@@ -45,7 +45,7 @@
       Add
     </button>
     <p *ngIf="instructionsErrs().required" class="help">
-      How do you actually make it? Please tell us the steps.
+      How do you actually make it? Please tell us the steps
     </p>
   </div>
 </div>
