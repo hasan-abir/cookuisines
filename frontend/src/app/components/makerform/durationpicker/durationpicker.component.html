@@ -1,11 +1,11 @@
-<div [formGroup]="form">
+<div [formGroup]="makerForm">
   <div class="columns is-1" [formGroupName]="fgName">
     <div class="control column">
-      <label [attr.for]="fgName + '-duration-hours'" class="label is-size-7"
+      <label [attr.for]="fgName + '-hours'" class="label is-size-7"
         >Hours</label
       >
       <input
-        [id]="fgName + '-duration-hours'"
+        [id]="fgName + '-hours'"
         type="number"
         class="input is-small"
         min="0"
@@ -14,11 +14,11 @@
       />
     </div>
     <div class="control column">
-      <label [attr.for]="fgName + '-duration-minutes'" class="label is-size-7"
+      <label [attr.for]="fgName + '-minutes'" class="label is-size-7"
         >Minutes</label
       >
       <input
-        [id]="fgName + '-duration-minutes'"
+        [id]="fgName + '-minutes'"
         type="number"
         class="input is-small"
         min="0"
@@ -27,11 +27,11 @@
       />
     </div>
     <div class="control column">
-      <label [attr.for]="fgName + '-duration-seconds'" class="label is-size-7"
+      <label [attr.for]="fgName + '-seconds'" class="label is-size-7"
         >Seconds</label
       >
       <input
-        [id]="fgName + '-duration-seconds'"
+        [id]="fgName + '-seconds'"
         type="number"
         class="input is-small"
         min="0"

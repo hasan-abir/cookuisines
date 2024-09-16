@@ -32,10 +32,10 @@ export function checkDurationGreaterThanZero(): ValidatorFn {
 })
 export class DurationpickerComponent {
   @Input() fgName: string = '';
-  @Input() form: MakerForm = initialMakerForm;
+  @Input() makerForm: MakerForm = initialMakerForm;
 
   timeErrs(): { durationGreaterThanZero: boolean } {
-    const control = this.form.get(this.fgName);
+    const control = this.makerForm.get(this.fgName);
 
     const durationGreaterThanZero =
       control && control.errors && control.errors['durationGreaterThanZero'];

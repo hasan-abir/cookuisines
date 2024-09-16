@@ -38,13 +38,19 @@
             >For preparing<span class="has-text-danger">*</span></label
           >
 
-          <app-durationpicker [form]="makerForm" [fgName]="'preparationTime'" />
+          <app-durationpicker
+            [makerForm]="makerForm"
+            [fgName]="'preparationTime'"
+          />
         </div>
         <div class="column is-half">
           <label class="label"
             >For cooking<span class="has-text-danger">*</span></label
           >
-          <app-durationpicker [form]="makerForm" [fgName]="'cookingTime'" />
+          <app-durationpicker
+            [makerForm]="makerForm"
+            [fgName]="'cookingTime'"
+          />
         </div>
       </div>
       <div class="control mb-5">
