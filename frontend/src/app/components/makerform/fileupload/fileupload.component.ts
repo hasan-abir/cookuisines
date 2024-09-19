@@ -46,22 +46,26 @@ export class FileuploadComponent {
   previewImg: string | null = null;
 
   onFileChange(event: Event) {
-    const target = event.target as HTMLInputElement;
-    const file = target.files && target.files.item(0);
-    this.image?.setValue(file);
+    return new Promise((resolve) => {
+      const target = event.target as HTMLInputElement;
+      const file = target.files && target.files.item(0);
+      this.image?.setValue(file);
 
-    if (this.image && this.image.value && this.image.valid) {
-      const reader = new FileReader();
+      if (this.image && this.image.value && this.image.valid) {
+        const reader = new FileReader();
 
-      reader.readAsDataURL(this.image.value);
-      reader.onload = (e) => {
-        if (e.target && typeof e.target.result === 'string') {
-          this.previewImg = e.target.result;
-        }
-      };
-    } else {
-      this.previewImg = null;
-    }
+        reader.onload = (e) => {
+          if (e.target && typeof e.target.result === 'string') {
+            this.previewImg = e.target.result;
+            resolve(null);
+          }
+        };
+        reader.readAsDataURL(this.image.value);
+      } else {
+        this.previewImg = null;
+        resolve(null);
+      }
+    });
   }
 
   get image() {
