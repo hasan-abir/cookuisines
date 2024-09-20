@@ -19,18 +19,12 @@
           You might not bother with it, but a proper title is a must
         </p>
       </div>
-      <app-instructionsformarray
-        [makerForm]="makerForm"
-        [instructions]="instructions"
-      />
+      <app-instructionsformarray [makerForm]="makerForm" />
       <app-fileupload [makerForm]="makerForm" />
       <app-mealtypes [makerForm]="makerForm" />
     </div>
     <div class="field column is-half">
-      <app-ingredientsformarray
-        [makerForm]="makerForm"
-        [ingredients]="ingredients"
-      />
+      <app-ingredientsformarray [makerForm]="makerForm" />
       <label class="label mt-4 title is-4">Time</label>
       <div class="columns mb-5">
         <div class="column is-half">

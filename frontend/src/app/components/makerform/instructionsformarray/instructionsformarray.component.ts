@@ -19,7 +19,6 @@ import { MakerForm } from '../../../types/MakerForm';
   styleUrl: './instructionsformarray.component.css',
 })
 export class InstructionsformarrayComponent {
-  @Input() instructions: FormArray<FormGroup> = new FormArray<any>([]);
   @Input() makerForm: MakerForm = initialMakerForm;
 
   constructor(private formBuilder: FormBuilder) {}
@@ -43,5 +42,9 @@ export class InstructionsformarrayComponent {
     return {
       required,
     };
+  }
+
+  get instructions() {
+    return this.makerForm.get('instructions') as FormArray<FormGroup>;
   }
 }

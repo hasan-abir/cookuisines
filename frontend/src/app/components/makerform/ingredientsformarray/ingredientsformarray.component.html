@@ -10,11 +10,11 @@
         <div class="column">
           <div class="field has-addons">
             <div class="control is-flex-grow-1">
-              <label for="ingredient-name" *ngIf="i === 0" class="label"
+              <label *ngIf="i === 0" class="label"
                 >Name<span class="has-text-danger">*</span></label
               >
               <input
-                id="ingredient-name"
+                [id]="'ingredient-name-' + i"
                 class="input is-small"
                 type="text"
                 placeholder="Text..."
@@ -28,11 +28,11 @@
         <div class="column">
           <div class="field has-addons">
             <div class="control is-flex-grow-1">
-              <label for="ingredient-quantity" *ngIf="i === 0" class="label"
+              <label *ngIf="i === 0" class="label"
                 >Quantity<span class="has-text-danger">*</span></label
               >
               <input
-                id="ingredient-quantity"
+                [id]="'ingredient-quantity-' + i"
                 class="input is-small"
                 type="text"
                 placeholder="Text..."

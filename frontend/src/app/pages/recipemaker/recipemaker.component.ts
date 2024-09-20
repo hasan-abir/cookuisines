@@ -165,17 +165,9 @@ export class RecipemakerComponent {
           glutenfree: false,
         },
       });
-      this.ingredients.clear();
-      this.instructions.clear();
+      (this.makerForm.get('ingredients') as FormArray)?.clear();
+      (this.makerForm.get('instructions') as FormArray)?.clear();
     }
-  }
-
-  get ingredients() {
-    return this.makerForm.get('ingredients') as FormArray<FormGroup>;
-  }
-
-  get instructions() {
-    return this.makerForm.get('instructions') as FormArray<FormGroup>;
   }
 
   titleErrs(): { required: boolean } {

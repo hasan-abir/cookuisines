@@ -10,11 +10,11 @@
         <div class="column">
           <div class="field has-addons">
             <div class="control is-flex-grow-1">
-              <label for="instruction-step" *ngIf="i === 0" class="label"
+              <label *ngIf="i === 0" class="label"
                 >Step<span class="has-text-danger">*</span></label
               >
               <textarea
-                id="instruction-step"
+                [id]="'instruction-step-' + i"
                 class="textarea"
                 placeholder="Text..."
                 formControlName="step"

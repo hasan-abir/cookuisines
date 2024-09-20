@@ -52,7 +52,7 @@ describe('FileuploadComponent', () => {
     fixture
       .whenStable()
       .then(() => {
-        return new Promise((resolve) => setTimeout(resolve, 10));
+        return new Promise((resolve) => setTimeout(resolve, 100));
       })
       .then(() => {
         fixture.detectChanges();
