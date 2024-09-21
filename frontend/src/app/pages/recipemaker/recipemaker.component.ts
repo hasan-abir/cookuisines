@@ -147,6 +147,7 @@ export class RecipemakerComponent {
   constructor(private formBuilder: FormBuilder) {}
 
   onSubmit() {
+    console.log(this.makerForm.get('ingredients')?.errors);
     if (this.makerForm.valid) {
       console.log(this.makerForm.value);
 
