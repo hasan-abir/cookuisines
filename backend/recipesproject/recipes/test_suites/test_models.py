@@ -1,6 +1,6 @@
 from django.test import TestCase
 from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeMealType, RecipeDietaryPreference
-from datetime import timedelta
+from .utils import get_demo_recipe
 
 # Create your tests here.
 class RecipeIngredientTestCase(TestCase):
@@ -81,13 +81,3 @@ class RecipeTestCase(TestCase):
         self.assertEqual(saved_recipe.image_id, recipe.image_id)
         self.assertEqual(saved_recipe.image_url, recipe.image_url)
 
-def get_demo_recipe():
-    data = {
-            'title': 'Example Recipe',
-            'preparation_time': timedelta(hours=0, minutes=1, seconds=30),
-            'cooking_time': timedelta(hours=0, minutes=1, seconds=30),
-            'difficulty': 'Easy',
-            'image_id': '123',
-            'image_url': 'http://test.com/images/123',
-        }
-    return Recipe.objects.create(**data)
