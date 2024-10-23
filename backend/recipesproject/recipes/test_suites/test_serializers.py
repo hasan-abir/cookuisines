@@ -79,3 +79,22 @@ class RecipeIngredientSerializerTestCase(TestCase):
         self.assertEqual(str(serializer.errors['name'][0]), 'This field may not be blank.')
         self.assertEqual(str(serializer.errors['quantity'][0]), 'This field may not be blank.')
         self.assertEqual(str(serializer.errors['recipe'][0]), 'Invalid pk "123" - object does not exist.')
+    
+    def test_serializer_save(self):
+        data = {
+            'name': 'Ingredient 1',
+            'quantity': '2 spoon',
+            'recipe': get_demo_recipe().pk
+        }
+        serializer = RecipeIngredientSerializer(data=data)
+        is_valid = serializer.is_valid()
+        self.assertEqual(is_valid, True)
+
+        instance = serializer.save()
+
+        mock_request = RequestFactory().get('/mock/')
+        serializer = RecipeIngredientSerializer(instance, context={'request': mock_request})
+        self.assertTrue(serializer.data['url'].endswith('/recipes/{recipe_pk}/ingredients/{ingredient_pk}/'.format(recipe_pk=instance.recipe.pk, ingredient_pk=instance.pk)))
+        self.assertEqual(serializer.data['name'], data['name'])
+        self.assertEqual(serializer.data['quantity'], data['quantity'])
+        self.assertTrue(serializer.data['of_recipe'].endswith('/recipes/{recipe_pk}/'.format(recipe_pk=instance.recipe.pk)))

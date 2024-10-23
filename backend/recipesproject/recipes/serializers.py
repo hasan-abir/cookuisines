@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from recipes.models import Recipe, RecipeIngredient
+from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+
+from django.urls import reverse
 
 class RecipeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -18,8 +21,11 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
         else:
             raise serializers.ValidationError("Duration cannot be zero.")
 
-class RecipeIngredientSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='recipe-ingredient-detail')
+class RecipeIngredientSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+		'recipe_pk': 'recipe__pk',
+	}
+
     recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all(), write_only=True)
     of_recipe = serializers.HyperlinkedIdentityField(view_name='recipe-detail')
 

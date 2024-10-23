@@ -16,14 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from recipes.views import RecipeViewSet
+from rest_framework_nested import routers
+from recipes.views import RecipeViewSet, RecipeIngredientViewSet
 
-router = DefaultRouter()
+router = routers.SimpleRouter()
 
 router.register(r'recipes', RecipeViewSet, basename='recipe')
+
+recipes_router = routers.NestedSimpleRouter(router, r'recipes', lookup='recipe')
+recipes_router.register(r'ingredients', RecipeIngredientViewSet, basename='recipeingredient')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
+    path('', include(recipes_router.urls)),
 ]
