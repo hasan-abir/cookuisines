@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from recipes.models import Recipe, RecipeIngredient
+from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeDietaryPreference, RecipeMealType
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 
 from django.urls import reverse
@@ -32,3 +32,15 @@ class RecipeIngredientSerializer(NestedHyperlinkedModelSerializer):
     class Meta:
         model = RecipeIngredient
         fields = ['url', 'name', 'quantity', 'recipe', 'of_recipe']
+
+class RecipeInstructionSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+		'recipe_pk': 'recipe__pk',
+	}
+
+    recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all(), write_only=True)
+    of_recipe = serializers.HyperlinkedIdentityField(view_name='recipe-detail')
+
+    class Meta:
+        model = RecipeInstruction
+        fields = ['url', 'step', 'recipe', 'of_recipe']

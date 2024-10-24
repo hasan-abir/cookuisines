@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_nested import routers
-from recipes.views import RecipeViewSet, RecipeIngredientViewSet
+from recipes.views import RecipeViewSet, RecipeIngredientViewSet, RecipeInstructionViewSet
 
 router = routers.SimpleRouter()
 
@@ -25,6 +25,7 @@ router.register(r'recipes', RecipeViewSet, basename='recipe')
 
 recipes_router = routers.NestedSimpleRouter(router, r'recipes', lookup='recipe')
 recipes_router.register(r'ingredients', RecipeIngredientViewSet, basename='recipeingredient')
+recipes_router.register(r'instructions', RecipeInstructionViewSet, basename='recipeinstruction')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
