@@ -2,6 +2,17 @@ from django.db import models
 
 # Create your models here.
 
+class RecipeMealType(models.Model):
+    breakfast = models.BooleanField(default=False)
+    brunch = models.BooleanField(default=False)
+    lunch = models.BooleanField(default=False)
+    dinner = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['created_at']
+
 class Recipe(models.Model):
     EASY = "easy"
     MEDIUM = "medium"
@@ -17,6 +28,7 @@ class Recipe(models.Model):
     difficulty = models.CharField(max_length=6, choices=difficulty_choices, blank=False, null=True)
     image_id = models.CharField(max_length=500, blank=False, null=False)
     image_url = models.URLField(max_length=2000,blank=False, null=False)
+    meal_type = models.OneToOneField(RecipeMealType, on_delete=models.CASCADE, primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -36,18 +48,6 @@ class RecipeIngredient(models.Model):
 class RecipeInstruction(models.Model):
     step = models.TextField(blank=False, null=False)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='instructions')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['created_at']
-
-class RecipeMealType(models.Model):
-    breakfast = models.BooleanField(default=False)
-    brunch = models.BooleanField(default=False)
-    lunch = models.BooleanField(default=False)
-    dinner = models.BooleanField(default=False)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='meal_types')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

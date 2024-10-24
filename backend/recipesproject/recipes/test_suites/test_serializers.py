@@ -1,6 +1,6 @@
 from django.test import TestCase, RequestFactory
 from recipes.serializers import RecipeSerializer, RecipeIngredientSerializer, RecipeInstructionSerializer
-from .utils import get_demo_recipe
+from .utils import get_demo_recipe, get_demo_mealtype
 from datetime import timedelta
 
 # Create your tests here.
@@ -12,7 +12,8 @@ class RecipeSerializerTestCase(TestCase):
             'cooking_time': timedelta(hours=0, minutes=3, seconds=2),
             'difficulty': 'medium',
             'image_id': 'Imagekit ID',
-            'image_url': 'http://imagekit.io/imageurl'
+            'image_url': 'http://imagekit.io/imageurl',
+            'meal_type': get_demo_mealtype().pk
         }
         serializer = RecipeSerializer(data=data)
         is_valid = serializer.is_valid()
@@ -24,6 +25,7 @@ class RecipeSerializerTestCase(TestCase):
         data['difficulty'] = 'Average'
         data['image_id'] = ''
         data['image_url'] = 'Url'
+        data['meal_type'] = 123
         
         serializer = RecipeSerializer(data=data)
         is_valid = serializer.is_valid()
@@ -33,14 +35,18 @@ class RecipeSerializerTestCase(TestCase):
         self.assertEqual(str(serializer.errors['cooking_time'][0]), 'Duration cannot be zero.')
         self.assertEqual(str(serializer.errors['image_url'][0]), 'Enter a valid URL.')
         self.assertEqual(str(serializer.errors['image_id'][0]), 'This field may not be blank.')
+        self.assertEqual(str(serializer.errors['meal_type'][0]), 'Invalid pk "123" - object does not exist.')
+
     def test_serializer_save(self):
+        meal_type = get_demo_mealtype()
         data = {
             'title': 'Recipe 1',
             'preparation_time': timedelta(hours=0, minutes=2, seconds=3),
             'cooking_time': timedelta(hours=0, minutes=3, seconds=2),
             'difficulty': 'medium',
             'image_id': 'Imagekit ID',
-            'image_url': 'http://imagekit.io/imageurl'
+            'image_url': 'http://imagekit.io/imageurl',
+            'meal_type': meal_type.pk
         }
         serializer = RecipeSerializer(data=data)
         is_valid = serializer.is_valid()
@@ -50,6 +56,7 @@ class RecipeSerializerTestCase(TestCase):
 
         mock_request = RequestFactory().get('/mock/')
         serializer = RecipeSerializer(instance, context={'request': mock_request})
+        print(serializer.data)
         self.assertTrue(serializer.data['url'].endswith('/recipes/{pk}/'.format(pk=instance.pk)))
         self.assertEqual(serializer.data['title'], data['title'])
         self.assertEqual(serializer.data['preparation_time'], '00:02:03')
@@ -57,6 +64,10 @@ class RecipeSerializerTestCase(TestCase):
         self.assertEqual(serializer.data['difficulty'], data['difficulty'])
         self.assertEqual(serializer.data['image_id'], data['image_id'])
         self.assertEqual(serializer.data['image_url'], data['image_url'])
+        self.assertEqual(serializer.data['of_mealtype']['breakfast'], meal_type.breakfast)
+        self.assertEqual(serializer.data['of_mealtype']['brunch'], meal_type.brunch)
+        self.assertEqual(serializer.data['of_mealtype']['lunch'], meal_type.lunch)
+        self.assertEqual(serializer.data['of_mealtype']['dinner'], meal_type.dinner)
 
 class RecipeIngredientSerializerTestCase(TestCase):
     def test_serializer_validation(self):

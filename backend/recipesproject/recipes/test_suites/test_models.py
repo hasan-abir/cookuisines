@@ -40,7 +40,6 @@ class RecipeMealTypeTestCase(TestCase):
             'brunch': False,
             'lunch': True,
             'dinner': False,
-            'recipe': get_demo_recipe()
         }
         recipe_mealtype = RecipeMealType.objects.create(**data)
 
@@ -49,7 +48,6 @@ class RecipeMealTypeTestCase(TestCase):
         self.assertEqual(saved_recipe_mealtype.brunch, recipe_mealtype.brunch)
         self.assertEqual(saved_recipe_mealtype.lunch, recipe_mealtype.lunch)
         self.assertEqual(saved_recipe_mealtype.dinner, recipe_mealtype.dinner)
-        self.assertEqual(saved_recipe_mealtype.recipe.pk, recipe_mealtype.recipe.pk)
         self.assertTrue(saved_recipe_mealtype.created_at)
         self.assertTrue(saved_recipe_mealtype.updated_at)
 
@@ -80,4 +78,5 @@ class RecipeTestCase(TestCase):
         self.assertEqual(saved_recipe.difficulty, recipe.difficulty)
         self.assertEqual(saved_recipe.image_id, recipe.image_id)
         self.assertEqual(saved_recipe.image_url, recipe.image_url)
+        self.assertEqual(saved_recipe.meal_type.pk, recipe.meal_type.pk)
 

@@ -2,12 +2,21 @@ from rest_framework import serializers
 from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeDietaryPreference, RecipeMealType
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 
-from django.urls import reverse
-
 class RecipeSerializer(serializers.HyperlinkedModelSerializer):
+    meal_type = serializers.PrimaryKeyRelatedField(queryset=RecipeMealType.objects.all(), write_only=True)
+    of_mealtype = serializers.SerializerMethodField()
+
     class Meta:
         model = Recipe
-        fields = ['url', 'title', 'preparation_time', 'cooking_time', 'difficulty', 'image_id', 'image_url']
+        fields = ['url', 'title', 'preparation_time', 'cooking_time', 'difficulty', 'image_id', 'image_url', 'meal_type', 'of_mealtype']
+
+    def get_of_mealtype(self, obj):
+        return {
+            'breakfast': obj.meal_type.breakfast,
+            'brunch': obj.meal_type.brunch,
+            'lunch': obj.meal_type.lunch,
+            'dinner': obj.meal_type.dinner
+        }
 
     def validate_preparation_time(self, value):
         if(value.total_seconds() > 0):
