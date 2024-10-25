@@ -17,11 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_nested import routers
-from recipes.views import RecipeViewSet, RecipeIngredientViewSet, RecipeInstructionViewSet
+from recipes.views import RecipeViewSet, RecipeIngredientViewSet, RecipeInstructionViewSet, RecipeMealtypeViewSet, RecipeDietarypreferenceViewSet
 
 router = routers.SimpleRouter()
 
 router.register(r'recipes', RecipeViewSet, basename='recipe')
+router.register(r'recipes/mealtypes', RecipeMealtypeViewSet, basename='recipemealtype')
+router.register(r'recipes/dietarypreferences', RecipeDietarypreferenceViewSet, basename='recipedietarypreference')
 
 recipes_router = routers.NestedSimpleRouter(router, r'recipes', lookup='recipe')
 recipes_router.register(r'ingredients', RecipeIngredientViewSet, basename='recipeingredient')

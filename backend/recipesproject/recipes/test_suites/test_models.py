@@ -56,14 +56,12 @@ class RecipeDietaryPreferenceTestCase(TestCase):
         data = {
             'vegan': True,
             'glutenfree': False,
-            'recipe': get_demo_recipe()
         }
         recipe_dietarypreference = RecipeDietaryPreference.objects.create(**data)
 
         saved_recipe_dietarypreference = RecipeDietaryPreference.objects.get(pk=recipe_dietarypreference.pk)
         self.assertEqual(saved_recipe_dietarypreference.vegan, recipe_dietarypreference.vegan)
         self.assertEqual(saved_recipe_dietarypreference.glutenfree, recipe_dietarypreference.glutenfree)
-        self.assertEqual(saved_recipe_dietarypreference.recipe.pk, recipe_dietarypreference.recipe.pk)
         self.assertTrue(saved_recipe_dietarypreference.created_at)
         self.assertTrue(saved_recipe_dietarypreference.updated_at)
 
@@ -79,4 +77,5 @@ class RecipeTestCase(TestCase):
         self.assertEqual(saved_recipe.image_id, recipe.image_id)
         self.assertEqual(saved_recipe.image_url, recipe.image_url)
         self.assertEqual(saved_recipe.meal_type.pk, recipe.meal_type.pk)
+        self.assertEqual(saved_recipe.dietary_preference.pk, recipe.dietary_preference.pk)
 
