@@ -9,12 +9,18 @@ class RecipeViewSet(ModelViewSet):
     serializer_class = RecipeSerializer
 
 class RecipeIngredientViewSet(ModelViewSet):
-    queryset = RecipeIngredient.objects.all()
     serializer_class = RecipeIngredientSerializer
 
+    def get_queryset(self):
+        recipe_pk = self.kwargs['recipe_pk']
+        return RecipeIngredient.objects.filter(recipe=recipe_pk)
+
 class RecipeInstructionViewSet(ModelViewSet):
-    queryset = RecipeInstruction.objects.all()
     serializer_class = RecipeInstructionSerializer
+
+    def get_queryset(self):
+        recipe_pk = self.kwargs['recipe_pk']
+        return RecipeInstruction.objects.filter(recipe=recipe_pk)
 
 class RecipeMealtypeViewSet(ModelViewSet):
     queryset = RecipeMealType.objects.all()
