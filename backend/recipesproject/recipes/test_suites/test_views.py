@@ -249,3 +249,151 @@ class InstructionViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(RecipeInstruction.objects.count(), self.total_instructions - 1)
+
+class MealtypeViewsTestCase(TestCase):
+    def setUp(self):
+        self.total_mealtypes = 15
+
+        for x in range(0, self.total_mealtypes):
+            meal_type = get_demo_mealtype()
+            if x == 0:
+                self.first_meal_type = meal_type
+
+
+    def test_get_list(self):
+        url = '/recipes/mealtypes/'
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['results']), 10)
+        self.assertEqual(response.json()['count'], self.total_mealtypes)
+        self.assertEqual(response.json()['results'][0]['breakfast'], True)
+
+        url = '/recipes/mealtypes/?page=2'
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['results']), self.total_mealtypes - 10)
+
+    def test_get_detail(self):
+        url = '/recipes/mealtypes/{mealtype_pk}/'.format(mealtype_pk=self.first_meal_type.pk)
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['url'].endswith(url))
+
+        response = self.client.get('/recipes/mealtypes/{mealtype_pk}/'.format(mealtype_pk=100))
+        self.assertEqual(response.status_code, 404)
+
+    def test_post(self):
+        url = '/recipes/mealtypes/'
+
+        data = {
+            'lunch': True,
+        }
+
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()['breakfast'], False)
+        self.assertEqual(response.json()['brunch'], False)
+        self.assertEqual(response.json()['dinner'], False)
+        self.assertEqual(response.json()['lunch'], data['lunch'])
+
+        self.assertEqual(RecipeMealType.objects.count(), self.total_mealtypes + 1)
+
+    def test_patch_detail(self):
+        url = '/recipes/mealtypes/{mealtype_pk}/'.format(mealtype_pk=self.first_meal_type.pk)
+
+        data = {
+            'breakfast': False,
+            'lunch': True,
+        }
+        response = self.client.patch(url, data=data, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+
+        meal_type = RecipeMealType.objects.get(pk=self.first_meal_type.pk)
+
+        self.assertEqual(meal_type.breakfast, data['breakfast'])
+        self.assertEqual(meal_type.lunch, data['lunch'])
+
+    def test_delete_detail(self):
+        url = '/recipes/mealtypes/{mealtype_pk}/'.format(mealtype_pk=self.first_meal_type.pk)
+
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(RecipeMealType.objects.count(), self.total_mealtypes - 1)
+
+class DietaryprefernceViewsTestCase(TestCase):
+    def setUp(self):
+        self.total_dietarypreferences = 15
+
+        for x in range(0, self.total_dietarypreferences):
+            dietary_preference = get_demo_dietarypreference()
+            if x == 0:
+                self.first_dietary_preference = dietary_preference
+
+
+    def test_get_list(self):
+        url = '/recipes/dietarypreferences/'
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['results']), 10)
+        self.assertEqual(response.json()['count'], self.total_dietarypreferences)
+        self.assertEqual(response.json()['results'][0]['vegan'], True)
+
+        url = '/recipes/dietarypreferences/?page=2'
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['results']), self.total_dietarypreferences - 10)
+
+    def test_get_detail(self):
+        url = '/recipes/dietarypreferences/{dietarypreference_pk}/'.format(dietarypreference_pk=self.first_dietary_preference.pk)
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['url'].endswith(url))
+
+        response = self.client.get('/recipes/dietarypreferences/{dietarypreference_pk}/'.format(dietarypreference_pk=100))
+        self.assertEqual(response.status_code, 404)
+
+    def test_post(self):
+        url = '/recipes/dietarypreferences/'
+
+        data = {
+            'vegan': True,
+        }
+
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()['vegan'], True)
+        self.assertEqual(response.json()['glutenfree'], False)
+
+        self.assertEqual(RecipeDietaryPreference.objects.count(), self.total_dietarypreferences + 1)
+
+    def test_patch_detail(self):
+        url = '/recipes/dietarypreferences/{dietarypreference_pk}/'.format(dietarypreference_pk=self.first_dietary_preference.pk)
+
+        data = {
+            'vegan': False,
+            'glutenfree': True,
+        }
+        response = self.client.patch(url, data=data, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+
+        dietary_preference = RecipeDietaryPreference.objects.get(pk=self.first_dietary_preference.pk)
+
+        self.assertEqual(dietary_preference.vegan, data['vegan'])
+        self.assertEqual(dietary_preference.glutenfree, data['glutenfree'])
+
+    def test_delete_detail(self):
+        url = '/recipes/dietarypreferences/{dietarypreference_pk}/'.format(dietarypreference_pk=self.first_dietary_preference.pk)
+
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(RecipeDietaryPreference.objects.count(), self.total_dietarypreferences - 1)

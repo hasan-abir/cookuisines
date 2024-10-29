@@ -21,9 +21,9 @@ from recipes.views import RecipeViewSet, RecipeIngredientViewSet, RecipeInstruct
 
 router = routers.SimpleRouter()
 
-router.register(r'recipes', RecipeViewSet, basename='recipe')
 router.register(r'recipes/mealtypes', RecipeMealtypeViewSet, basename='recipemealtype')
 router.register(r'recipes/dietarypreferences', RecipeDietarypreferenceViewSet, basename='recipedietarypreference')
+router.register(r'recipes', RecipeViewSet, basename='recipe')
 
 recipes_router = routers.NestedSimpleRouter(router, r'recipes', lookup='recipe')
 recipes_router.register(r'ingredients', RecipeIngredientViewSet, basename='recipeingredient')
