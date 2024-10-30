@@ -1,6 +1,18 @@
 from rest_framework import serializers
 from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeDietaryPreference, RecipeMealType
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
+
+class OfMealtypeSerializer(serializers.ModelSerializer):
+    class Meta:
+            model = RecipeMealType
+            fields = ['breakfast', 'brunch', 'lunch', 'dinner']
+
+class OfDietarypreferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+            model = RecipeDietaryPreference
+            fields = ['vegan', 'glutenfree']
 
 class RecipeSerializer(serializers.HyperlinkedModelSerializer):
     meal_type = serializers.PrimaryKeyRelatedField(queryset=RecipeMealType.objects.all(), write_only=True)
@@ -20,18 +32,13 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
         model = Recipe
         fields = ['url', 'title', 'preparation_time', 'cooking_time', 'difficulty', 'image_id', 'image_url', 'ingredients', 'instructions', 'meal_type', 'of_mealtype', 'dietary_preference', 'of_dietarypreference']
 
+    @extend_schema_field(OfDietarypreferenceSerializer)
     def get_of_dietarypreference(self, obj):
-        return {
-            'vegan': obj.dietary_preference.vegan,
-            'glutenfree': obj.dietary_preference.glutenfree
-        }
+        return OfDietarypreferenceSerializer(obj.dietary_preference).data
+    
+    @extend_schema_field(OfMealtypeSerializer)
     def get_of_mealtype(self, obj):
-        return {
-            'breakfast': obj.meal_type.breakfast,
-            'brunch': obj.meal_type.brunch,
-            'lunch': obj.meal_type.lunch,
-            'dinner': obj.meal_type.dinner
-        }
+        return OfMealtypeSerializer(obj.meal_type).data
 
     def validate_preparation_time(self, value):
         if(value.total_seconds() > 0):

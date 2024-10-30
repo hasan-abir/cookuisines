@@ -32,9 +32,9 @@ class Recipe(models.Model):
         HARD: "Hard",
     }
     title = models.CharField(max_length=100, blank=False, null=False)
-    preparation_time = models.DurationField(blank=False, null=True)
-    cooking_time = models.DurationField(blank=False, null=True)
-    difficulty = models.CharField(max_length=6, choices=difficulty_choices, blank=False, null=True)
+    preparation_time = models.DurationField(blank=False, null=False)
+    cooking_time = models.DurationField(blank=False, null=False)
+    difficulty = models.CharField(max_length=6, choices=difficulty_choices, blank=False, null=False)
     image_id = models.CharField(max_length=500, blank=False, null=False)
     image_url = models.URLField(max_length=2000,blank=False, null=False)
     meal_type = models.OneToOneField(RecipeMealType, on_delete=models.CASCADE)

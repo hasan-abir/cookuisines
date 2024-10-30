@@ -1,0 +1,1282 @@
+openapi: 3.0.3
+info:
+  title: Recipes API
+  version: 1.0.0
+  description: Handle recipe data
+paths:
+  /recipes/:
+    get:
+      operationId: recipes_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRecipeList'
+          description: ''
+    post:
+      operationId: recipes_create
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Recipe'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Recipe'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Recipe'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+          description: ''
+  /recipes/{id}/:
+    get:
+      operationId: recipes_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe.
+        required: true
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+          description: ''
+    put:
+      operationId: recipes_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe.
+        required: true
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Recipe'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Recipe'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Recipe'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+          description: ''
+    patch:
+      operationId: recipes_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe.
+        required: true
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipe'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipe'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipe'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+          description: ''
+    delete:
+      operationId: recipes_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe.
+        required: true
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /recipes/{recipe_pk}/ingredients/:
+    get:
+      operationId: recipes_ingredients_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: recipe_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRecipeIngredientList'
+          description: ''
+    post:
+      operationId: recipes_ingredients_create
+      parameters:
+      - in: path
+        name: recipe_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeIngredient'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecipeIngredient'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecipeIngredient'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeIngredient'
+          description: ''
+  /recipes/{recipe_pk}/ingredients/{id}/:
+    get:
+      operationId: recipes_ingredients_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe ingredient.
+        required: true
+      - in: path
+        name: recipe_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeIngredient'
+          description: ''
+    put:
+      operationId: recipes_ingredients_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe ingredient.
+        required: true
+      - in: path
+        name: recipe_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeIngredient'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecipeIngredient'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecipeIngredient'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeIngredient'
+          description: ''
+    patch:
+      operationId: recipes_ingredients_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe ingredient.
+        required: true
+      - in: path
+        name: recipe_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipeIngredient'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipeIngredient'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipeIngredient'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeIngredient'
+          description: ''
+    delete:
+      operationId: recipes_ingredients_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe ingredient.
+        required: true
+      - in: path
+        name: recipe_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /recipes/{recipe_pk}/instructions/:
+    get:
+      operationId: recipes_instructions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: recipe_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRecipeInstructionList'
+          description: ''
+    post:
+      operationId: recipes_instructions_create
+      parameters:
+      - in: path
+        name: recipe_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeInstruction'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecipeInstruction'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecipeInstruction'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeInstruction'
+          description: ''
+  /recipes/{recipe_pk}/instructions/{id}/:
+    get:
+      operationId: recipes_instructions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe instruction.
+        required: true
+      - in: path
+        name: recipe_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeInstruction'
+          description: ''
+    put:
+      operationId: recipes_instructions_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe instruction.
+        required: true
+      - in: path
+        name: recipe_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeInstruction'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecipeInstruction'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecipeInstruction'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeInstruction'
+          description: ''
+    patch:
+      operationId: recipes_instructions_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe instruction.
+        required: true
+      - in: path
+        name: recipe_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipeInstruction'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipeInstruction'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipeInstruction'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeInstruction'
+          description: ''
+    delete:
+      operationId: recipes_instructions_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe instruction.
+        required: true
+      - in: path
+        name: recipe_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /recipes/dietarypreferences/:
+    get:
+      operationId: recipes_dietarypreferences_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRecipeDietarypreferenceList'
+          description: ''
+    post:
+      operationId: recipes_dietarypreferences_create
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeDietarypreference'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecipeDietarypreference'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecipeDietarypreference'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeDietarypreference'
+          description: ''
+  /recipes/dietarypreferences/{id}/:
+    get:
+      operationId: recipes_dietarypreferences_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe dietary preference.
+        required: true
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeDietarypreference'
+          description: ''
+    put:
+      operationId: recipes_dietarypreferences_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe dietary preference.
+        required: true
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeDietarypreference'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecipeDietarypreference'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecipeDietarypreference'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeDietarypreference'
+          description: ''
+    patch:
+      operationId: recipes_dietarypreferences_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe dietary preference.
+        required: true
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipeDietarypreference'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipeDietarypreference'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipeDietarypreference'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeDietarypreference'
+          description: ''
+    delete:
+      operationId: recipes_dietarypreferences_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe dietary preference.
+        required: true
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /recipes/mealtypes/:
+    get:
+      operationId: recipes_mealtypes_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRecipeMealtypeList'
+          description: ''
+    post:
+      operationId: recipes_mealtypes_create
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeMealtype'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecipeMealtype'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecipeMealtype'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeMealtype'
+          description: ''
+  /recipes/mealtypes/{id}/:
+    get:
+      operationId: recipes_mealtypes_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe meal type.
+        required: true
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeMealtype'
+          description: ''
+    put:
+      operationId: recipes_mealtypes_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe meal type.
+        required: true
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeMealtype'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecipeMealtype'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecipeMealtype'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeMealtype'
+          description: ''
+    patch:
+      operationId: recipes_mealtypes_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe meal type.
+        required: true
+      tags:
+      - recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipeMealtype'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipeMealtype'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRecipeMealtype'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeMealtype'
+          description: ''
+    delete:
+      operationId: recipes_mealtypes_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recipe meal type.
+        required: true
+      tags:
+      - recipes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    DifficultyEnum:
+      enum:
+      - easy
+      - medium
+      - hard
+      type: string
+      description: |-
+        * `easy` - Easy
+        * `medium` - Medium
+        * `hard` - Hard
+    OfDietarypreference:
+      type: object
+      properties:
+        vegan:
+          type: boolean
+        glutenfree:
+          type: boolean
+    OfMealtype:
+      type: object
+      properties:
+        breakfast:
+          type: boolean
+        brunch:
+          type: boolean
+        lunch:
+          type: boolean
+        dinner:
+          type: boolean
+    PaginatedRecipeDietarypreferenceList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecipeDietarypreference'
+    PaginatedRecipeIngredientList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecipeIngredient'
+    PaginatedRecipeInstructionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecipeInstruction'
+    PaginatedRecipeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipe'
+    PaginatedRecipeMealtypeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecipeMealtype'
+    PatchedRecipe:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        title:
+          type: string
+          maxLength: 100
+        preparation_time:
+          type: string
+        cooking_time:
+          type: string
+        difficulty:
+          $ref: '#/components/schemas/DifficultyEnum'
+        image_id:
+          type: string
+          maxLength: 500
+        image_url:
+          type: string
+          format: uri
+          maxLength: 2000
+        ingredients:
+          type: string
+          format: uri
+          readOnly: true
+        instructions:
+          type: string
+          format: uri
+          readOnly: true
+        meal_type:
+          type: integer
+          writeOnly: true
+        of_mealtype:
+          allOf:
+          - $ref: '#/components/schemas/OfMealtype'
+          readOnly: true
+        dietary_preference:
+          type: integer
+          writeOnly: true
+        of_dietarypreference:
+          allOf:
+          - $ref: '#/components/schemas/OfDietarypreference'
+          readOnly: true
+    PatchedRecipeDietarypreference:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        vegan:
+          type: boolean
+        glutenfree:
+          type: boolean
+    PatchedRecipeIngredient:
+      type: object
+      description: |-
+        A type of `ModelSerializer` that uses hyperlinked relationships with compound keys instead
+        of primary key relationships.  Specifically:
+
+        * A 'url' field is included instead of the 'id' field.
+        * Relationships to other instances are hyperlinks, instead of primary keys.
+
+        NOTE: this only works with DRF 3.1.0 and above.
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        quantity:
+          type: string
+          maxLength: 100
+        recipe:
+          type: integer
+          writeOnly: true
+        of_recipe:
+          type: string
+          format: uri
+          readOnly: true
+    PatchedRecipeInstruction:
+      type: object
+      description: |-
+        A type of `ModelSerializer` that uses hyperlinked relationships with compound keys instead
+        of primary key relationships.  Specifically:
+
+        * A 'url' field is included instead of the 'id' field.
+        * Relationships to other instances are hyperlinks, instead of primary keys.
+
+        NOTE: this only works with DRF 3.1.0 and above.
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        step:
+          type: string
+        recipe:
+          type: integer
+          writeOnly: true
+        of_recipe:
+          type: string
+          format: uri
+          readOnly: true
+    PatchedRecipeMealtype:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        breakfast:
+          type: boolean
+        brunch:
+          type: boolean
+        lunch:
+          type: boolean
+        dinner:
+          type: boolean
+    Recipe:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        title:
+          type: string
+          maxLength: 100
+        preparation_time:
+          type: string
+        cooking_time:
+          type: string
+        difficulty:
+          $ref: '#/components/schemas/DifficultyEnum'
+        image_id:
+          type: string
+          maxLength: 500
+        image_url:
+          type: string
+          format: uri
+          maxLength: 2000
+        ingredients:
+          type: string
+          format: uri
+          readOnly: true
+        instructions:
+          type: string
+          format: uri
+          readOnly: true
+        meal_type:
+          type: integer
+          writeOnly: true
+        of_mealtype:
+          allOf:
+          - $ref: '#/components/schemas/OfMealtype'
+          readOnly: true
+        dietary_preference:
+          type: integer
+          writeOnly: true
+        of_dietarypreference:
+          allOf:
+          - $ref: '#/components/schemas/OfDietarypreference'
+          readOnly: true
+      required:
+      - cooking_time
+      - dietary_preference
+      - difficulty
+      - image_id
+      - image_url
+      - ingredients
+      - instructions
+      - meal_type
+      - of_dietarypreference
+      - of_mealtype
+      - preparation_time
+      - title
+      - url
+    RecipeDietarypreference:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        vegan:
+          type: boolean
+        glutenfree:
+          type: boolean
+      required:
+      - url
+    RecipeIngredient:
+      type: object
+      description: |-
+        A type of `ModelSerializer` that uses hyperlinked relationships with compound keys instead
+        of primary key relationships.  Specifically:
+
+        * A 'url' field is included instead of the 'id' field.
+        * Relationships to other instances are hyperlinks, instead of primary keys.
+
+        NOTE: this only works with DRF 3.1.0 and above.
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        quantity:
+          type: string
+          maxLength: 100
+        recipe:
+          type: integer
+          writeOnly: true
+        of_recipe:
+          type: string
+          format: uri
+          readOnly: true
+      required:
+      - name
+      - of_recipe
+      - quantity
+      - recipe
+      - url
+    RecipeInstruction:
+      type: object
+      description: |-
+        A type of `ModelSerializer` that uses hyperlinked relationships with compound keys instead
+        of primary key relationships.  Specifically:
+
+        * A 'url' field is included instead of the 'id' field.
+        * Relationships to other instances are hyperlinks, instead of primary keys.
+
+        NOTE: this only works with DRF 3.1.0 and above.
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        step:
+          type: string
+        recipe:
+          type: integer
+          writeOnly: true
+        of_recipe:
+          type: string
+          format: uri
+          readOnly: true
+      required:
+      - of_recipe
+      - recipe
+      - step
+      - url
+    RecipeMealtype:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        breakfast:
+          type: boolean
+        brunch:
+          type: boolean
+        lunch:
+          type: boolean
+        dinner:
+          type: boolean
+      required:
+      - url
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
