@@ -45,8 +45,8 @@ class RecipeViewsTestCase(TestCase):
             'difficulty': 'medium',
             'image_id': 'Imagekit ID',
             'image_url': 'http://imagekit.io/imageurl',
-            'meal_type': get_demo_mealtype().pk,
-            'dietary_preference': get_demo_dietarypreference().pk
+            'meal_type': 'http://testserver/recipes/mealtypes/{pk}/'.format(pk=get_demo_mealtype().pk),
+            'dietary_preference': 'http://testserver/recipes/dietarypreferences/{pk}/'.format(pk=get_demo_dietarypreference().pk)
         }
 
         response = self.client.post('/recipes/', data=data)
@@ -138,7 +138,7 @@ class IngredientViewsTestCase(TestCase):
         data = {
             'name': 'Ingredient 1',
             'quantity': '1 spoon',
-            'recipe': self.recipe1.pk
+            'recipe': 'http://testserver/recipes/{pk}/'.format(pk=self.recipe1.pk)
         }
 
         response = self.client.post(url, data=data)
@@ -219,7 +219,7 @@ class InstructionViewsTestCase(TestCase):
 
         data = {
             'step': 'Instruction 1',
-            'recipe': self.recipe1.pk
+            'recipe': 'http://testserver/recipes/{pk}/'.format(pk=self.recipe1.pk)
         }
 
         response = self.client.post(url, data=data)

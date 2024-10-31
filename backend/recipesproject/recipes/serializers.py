@@ -2,7 +2,6 @@ from rest_framework import serializers
 from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeDietaryPreference, RecipeMealType
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from drf_spectacular.utils import extend_schema_field
-from drf_spectacular.types import OpenApiTypes
 
 class OfMealtypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,10 +14,10 @@ class OfDietarypreferenceSerializer(serializers.ModelSerializer):
             fields = ['vegan', 'glutenfree']
 
 class RecipeSerializer(serializers.HyperlinkedModelSerializer):
-    meal_type = serializers.PrimaryKeyRelatedField(queryset=RecipeMealType.objects.all(), write_only=True)
-    of_mealtype = serializers.SerializerMethodField()
-    dietary_preference = serializers.PrimaryKeyRelatedField(queryset=RecipeDietaryPreference.objects.all(), write_only=True)
-    of_dietarypreference = serializers.SerializerMethodField()
+    meal_type = serializers.HyperlinkedRelatedField(view_name='recipemealtype-detail', queryset=RecipeMealType.objects.all(), write_only=True)
+    meal_type_obj = serializers.SerializerMethodField()
+    dietary_preference = serializers.HyperlinkedRelatedField(view_name='recipedietarypreference-detail', queryset=RecipeDietaryPreference.objects.all(), write_only=True)
+    dietary_preference_obj = serializers.SerializerMethodField()
     ingredients = serializers.HyperlinkedIdentityField(
         view_name='recipeingredient-list',
         lookup_url_kwarg='recipe_pk'
@@ -30,14 +29,14 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['url', 'title', 'preparation_time', 'cooking_time', 'difficulty', 'image_id', 'image_url', 'ingredients', 'instructions', 'meal_type', 'of_mealtype', 'dietary_preference', 'of_dietarypreference']
+        fields = ['url', 'title', 'preparation_time', 'cooking_time', 'difficulty', 'image_id', 'image_url', 'ingredients', 'instructions', 'meal_type', 'meal_type_obj', 'dietary_preference', 'dietary_preference_obj']
 
     @extend_schema_field(OfDietarypreferenceSerializer)
-    def get_of_dietarypreference(self, obj):
+    def get_dietary_preference_obj(self, obj):
         return OfDietarypreferenceSerializer(obj.dietary_preference).data
     
     @extend_schema_field(OfMealtypeSerializer)
-    def get_of_mealtype(self, obj):
+    def get_meal_type_obj(self, obj):
         return OfMealtypeSerializer(obj.meal_type).data
 
     def validate_preparation_time(self, value):
@@ -57,24 +56,22 @@ class RecipeIngredientSerializer(NestedHyperlinkedModelSerializer):
 		'recipe_pk': 'recipe__pk',
 	}
 
-    recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all(), write_only=True)
-    of_recipe = serializers.HyperlinkedIdentityField(view_name='recipe-detail')
+    recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
 
     class Meta:
         model = RecipeIngredient
-        fields = ['url', 'name', 'quantity', 'recipe', 'of_recipe']
+        fields = ['url', 'name', 'quantity', 'recipe']
 
 class RecipeInstructionSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
 		'recipe_pk': 'recipe__pk',
 	}
 
-    recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all(), write_only=True)
-    of_recipe = serializers.HyperlinkedIdentityField(view_name='recipe-detail')
+    recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
 
     class Meta:
         model = RecipeInstruction
-        fields = ['url', 'step', 'recipe', 'of_recipe']
+        fields = ['url', 'step', 'recipe']
 
 class RecipeMealtypeSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='recipemealtype-detail')
