@@ -1029,16 +1029,18 @@ components:
           format: uri
           readOnly: true
         meal_type:
-          type: integer
+          type: string
+          format: uri
           writeOnly: true
-        of_mealtype:
+        meal_type_obj:
           allOf:
           - $ref: '#/components/schemas/OfMealtype'
           readOnly: true
         dietary_preference:
-          type: integer
+          type: string
+          format: uri
           writeOnly: true
-        of_dietarypreference:
+        dietary_preference_obj:
           allOf:
           - $ref: '#/components/schemas/OfDietarypreference'
           readOnly: true
@@ -1075,12 +1077,8 @@ components:
           type: string
           maxLength: 100
         recipe:
-          type: integer
-          writeOnly: true
-        of_recipe:
           type: string
           format: uri
-          readOnly: true
     PatchedRecipeInstruction:
       type: object
       description: |-
@@ -1099,12 +1097,8 @@ components:
         step:
           type: string
         recipe:
-          type: integer
-          writeOnly: true
-        of_recipe:
           type: string
           format: uri
-          readOnly: true
     PatchedRecipeMealtype:
       type: object
       properties:
@@ -1152,30 +1146,32 @@ components:
           format: uri
           readOnly: true
         meal_type:
-          type: integer
+          type: string
+          format: uri
           writeOnly: true
-        of_mealtype:
+        meal_type_obj:
           allOf:
           - $ref: '#/components/schemas/OfMealtype'
           readOnly: true
         dietary_preference:
-          type: integer
+          type: string
+          format: uri
           writeOnly: true
-        of_dietarypreference:
+        dietary_preference_obj:
           allOf:
           - $ref: '#/components/schemas/OfDietarypreference'
           readOnly: true
       required:
       - cooking_time
       - dietary_preference
+      - dietary_preference_obj
       - difficulty
       - image_id
       - image_url
       - ingredients
       - instructions
       - meal_type
-      - of_dietarypreference
-      - of_mealtype
+      - meal_type_obj
       - preparation_time
       - title
       - url
@@ -1214,15 +1210,10 @@ components:
           type: string
           maxLength: 100
         recipe:
-          type: integer
-          writeOnly: true
-        of_recipe:
           type: string
           format: uri
-          readOnly: true
       required:
       - name
-      - of_recipe
       - quantity
       - recipe
       - url
@@ -1244,14 +1235,9 @@ components:
         step:
           type: string
         recipe:
-          type: integer
-          writeOnly: true
-        of_recipe:
           type: string
           format: uri
-          readOnly: true
       required:
-      - of_recipe
       - recipe
       - step
       - url
