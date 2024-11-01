@@ -32,6 +32,7 @@ recipes_router.register(r'instructions', RecipeInstructionViewSet, basename='rec
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('auth_api.urls')),
     path('', include(router.urls)),
     path('', include(recipes_router.urls)),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
