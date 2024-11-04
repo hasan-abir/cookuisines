@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
+from rest_framework import permissions
+from recipes.permissions import IsRecipeOwnerOrReadOnly
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeMealType, RecipeDietaryPreference
 from recipes.serializers import RecipeSerializer, RecipeIngredientSerializer, RecipeInstructionSerializer, RecipeMealtypeSerializer, RecipeDietarypreferenceSerializer
@@ -8,10 +10,12 @@ from recipes.serializers import RecipeSerializer, RecipeIngredientSerializer, Re
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
 
 class RecipeIngredientViewSet(ModelViewSet):
     queryset = RecipeIngredient.objects.all()
     serializer_class = RecipeIngredientSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
 
     def get_queryset(self):
         recipe_pk = self.kwargs['recipe_pk']
@@ -21,6 +25,7 @@ class RecipeIngredientViewSet(ModelViewSet):
 class RecipeInstructionViewSet(ModelViewSet):
     queryset = RecipeInstruction.objects.all()
     serializer_class = RecipeInstructionSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
 
     def get_queryset(self):
         recipe_pk = self.kwargs['recipe_pk']

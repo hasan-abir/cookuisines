@@ -1,6 +1,6 @@
 from django.test import TestCase
 from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeMealType, RecipeDietaryPreference
-from .utils import get_demo_recipe, get_demo_mealtype, get_demo_dietarypreference, get_demo_ingredient, get_demo_instruction
+from .utils import get_demo_recipe, get_demo_user, get_demo_mealtype, get_demo_dietarypreference, get_demo_ingredient, get_demo_instruction
 from datetime import timedelta
 
 # Create your tests here.
@@ -8,8 +8,27 @@ class RecipeViewsTestCase(TestCase):
     def setUp(self):
         self.total_recipes = 15
 
+        self.user = get_demo_user()
+        self.user_replica = get_demo_user('hasan_abir_replica')
+
+        data = {
+            'username': self.user.username,
+            'password': 'testtest'
+        }
+        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+
+        self.token = response.json()['access']
+
+        data = {
+            'username': self.user_replica.username,
+            'password': 'testtest'
+        }
+        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+
+        self.token_replica = response.json()['access']
+
         for x in range(0, self.total_recipes):
-            recipe = get_demo_recipe()    
+            recipe = get_demo_recipe(self.user)    
             if x == 0:
                 self.first_recipe = recipe
 
@@ -46,12 +65,16 @@ class RecipeViewsTestCase(TestCase):
             'image_id': 'Imagekit ID',
             'image_url': 'http://imagekit.io/imageurl',
             'meal_type': 'http://testserver/recipes/mealtypes/{pk}/'.format(pk=get_demo_mealtype().pk),
-            'dietary_preference': 'http://testserver/recipes/dietarypreferences/{pk}/'.format(pk=get_demo_dietarypreference().pk)
+            'dietary_preference': 'http://testserver/recipes/dietarypreferences/{pk}/'.format(pk=get_demo_dietarypreference().pk),
+            'created_by': self.user.pk
         }
 
         response = self.client.post('/recipes/', data=data)
+        self.assertEqual(response.status_code, 401)
 
+        response = self.client.post('/recipes/', data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 201)
+
         self.assertEqual(response.json()['title'], data['title'])
 
         self.assertEqual(Recipe.objects.count(), self.total_recipes + 1)
@@ -69,6 +92,12 @@ class RecipeViewsTestCase(TestCase):
         }
 
         response = self.client.patch(url, data=data, content_type='application/json')
+        self.assertEqual(response.status_code, 401)
+
+        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 200)
 
         recipe = Recipe.objects.get(pk=self.first_recipe.pk)
@@ -84,14 +113,39 @@ class RecipeViewsTestCase(TestCase):
         url = '/recipes/{pk}/'.format(pk=self.first_recipe.pk)
 
         response = self.client.delete(url)
+        self.assertEqual(response.status_code, 401)
+
+        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(Recipe.objects.count(), self.total_recipes - 1)
 
 class IngredientViewsTestCase(TestCase):
     def setUp(self):
-        self.recipe1 = get_demo_recipe()    
-        self.recipe2 = get_demo_recipe()    
+        self.user = get_demo_user()
+        self.user_replica = get_demo_user('hasan_abir_replica')
+
+        data = {
+            'username': self.user.username,
+            'password': 'testtest'
+        }
+        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+
+        self.token = response.json()['access']
+
+        data = {
+            'username': self.user_replica.username,
+            'password': 'testtest'
+        }
+        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+
+        self.token_replica = response.json()['access']
+
+        self.recipe1 = get_demo_recipe(self.user)    
+        self.recipe2 = get_demo_recipe(self.user)    
 
         self.total_ingredients = 15
 
@@ -102,8 +156,6 @@ class IngredientViewsTestCase(TestCase):
                     self.first_ingredient = instruction
             else:
                 get_demo_ingredient(self.recipe1)
-                
-
 
     def test_get_list(self):
         url = '/recipes/{recipe_pk}/ingredients/'.format(recipe_pk=self.recipe1.pk)
@@ -142,6 +194,12 @@ class IngredientViewsTestCase(TestCase):
         }
 
         response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 401)
+
+        response = self.client.post(url, data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.post(url, data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['name'], data['name'])
 
@@ -155,6 +213,12 @@ class IngredientViewsTestCase(TestCase):
             'quantity': '1 spoon',
         }
         response = self.client.patch(url, data=data, content_type='application/json')
+        self.assertEqual(response.status_code, 401)
+
+        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 200)
 
         instruction = RecipeIngredient.objects.get(pk=self.first_ingredient.pk)
@@ -166,14 +230,39 @@ class IngredientViewsTestCase(TestCase):
         url = '/recipes/{recipe_pk}/ingredients/{ingredient_pk}/'.format(recipe_pk=self.recipe2.pk, ingredient_pk=self.first_ingredient.pk)
 
         response = self.client.delete(url)
+        self.assertEqual(response.status_code, 401)
+
+        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(RecipeIngredient.objects.count(), self.total_ingredients - 1)
 
 class InstructionViewsTestCase(TestCase):
     def setUp(self):
-        self.recipe1 = get_demo_recipe()    
-        self.recipe2 = get_demo_recipe()    
+        self.user = get_demo_user()
+        self.user_replica = get_demo_user('hasan_abir_replica')
+
+        data = {
+            'username': self.user.username,
+            'password': 'testtest'
+        }
+        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+
+        self.token = response.json()['access']
+
+        data = {
+            'username': self.user_replica.username,
+            'password': 'testtest'
+        }
+        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+
+        self.token_replica = response.json()['access']
+
+        self.recipe1 = get_demo_recipe(self.user)    
+        self.recipe2 = get_demo_recipe(self.user)    
 
         self.total_instructions = 15
 
@@ -223,6 +312,12 @@ class InstructionViewsTestCase(TestCase):
         }
 
         response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 401)
+
+        response = self.client.post(url, data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.post(url, data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['step'], data['step'])
 
@@ -236,6 +331,12 @@ class InstructionViewsTestCase(TestCase):
             'quantity': '1 spoon',
         }
         response = self.client.patch(url, data=data, content_type='application/json')
+        self.assertEqual(response.status_code, 401)
+
+        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 200)
 
         instruction = RecipeInstruction.objects.get(pk=self.first_instruction.pk)
@@ -246,6 +347,12 @@ class InstructionViewsTestCase(TestCase):
         url = '/recipes/{recipe_pk}/instructions/{instruction_pk}/'.format(recipe_pk=self.recipe2.pk, instruction_pk=self.first_instruction.pk)
 
         response = self.client.delete(url)
+        self.assertEqual(response.status_code, 401)
+
+        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(RecipeInstruction.objects.count(), self.total_instructions - 1)

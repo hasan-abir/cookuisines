@@ -1,6 +1,6 @@
 from django.test import TestCase
 from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeMealType, RecipeDietaryPreference
-from .utils import get_demo_recipe
+from .utils import get_demo_recipe, get_demo_user
 
 # Create your tests here.
 class RecipeIngredientTestCase(TestCase):
@@ -8,7 +8,7 @@ class RecipeIngredientTestCase(TestCase):
         data = {
             'name': 'Ingredient 1',
             'quantity': '2 spoon',
-            'recipe': get_demo_recipe()
+            'recipe': get_demo_recipe(get_demo_user())
         }
         recipe_ingredient = RecipeIngredient.objects.create(**data)
 
@@ -23,7 +23,7 @@ class RecipeInstructionTestCase(TestCase):
     def test_default_values(self):
         data = {
             'step': 'Instruction 1',
-            'recipe': get_demo_recipe()
+            'recipe': get_demo_recipe(get_demo_user())
         }
         recipe_instruction = RecipeInstruction.objects.create(**data)
 
@@ -66,8 +66,10 @@ class RecipeDietaryPreferenceTestCase(TestCase):
         self.assertTrue(saved_recipe_dietarypreference.updated_at)
 
 class RecipeTestCase(TestCase):
+    def setUp(self):
+        self.user = get_demo_user()
     def test_default_values(self):
-        recipe = get_demo_recipe()
+        recipe = get_demo_recipe(self.user)
 
         saved_recipe = Recipe.objects.get(pk=recipe.pk)
         self.assertEqual(saved_recipe.title, recipe.title)
@@ -78,4 +80,5 @@ class RecipeTestCase(TestCase):
         self.assertEqual(saved_recipe.image_url, recipe.image_url)
         self.assertEqual(saved_recipe.meal_type.pk, recipe.meal_type.pk)
         self.assertEqual(saved_recipe.dietary_preference.pk, recipe.dietary_preference.pk)
+        self.assertEqual(saved_recipe.created_by.pk, recipe.created_by.pk)
 

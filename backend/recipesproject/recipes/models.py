@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -39,6 +40,7 @@ class Recipe(models.Model):
     image_url = models.URLField(max_length=2000,blank=False, null=False)
     meal_type = models.OneToOneField(RecipeMealType, on_delete=models.CASCADE)
     dietary_preference = models.OneToOneField(RecipeDietaryPreference, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

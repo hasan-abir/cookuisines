@@ -1,10 +1,12 @@
 from django.test import TestCase, RequestFactory
 from recipes.serializers import RecipeSerializer, RecipeIngredientSerializer, RecipeInstructionSerializer, RecipeMealtypeSerializer, RecipeDietarypreferenceSerializer
-from .utils import get_demo_recipe, get_demo_mealtype, get_demo_dietarypreference
+from .utils import get_demo_recipe, get_demo_user, get_demo_mealtype, get_demo_dietarypreference
 from datetime import timedelta
 
 # Create your tests here.
 class RecipeSerializerTestCase(TestCase):
+    def setUp(self):
+        self.user = get_demo_user()
     def test_serializer_validation(self):
         data = {
             'title': 'Recipe 1',
@@ -14,7 +16,8 @@ class RecipeSerializerTestCase(TestCase):
             'image_id': 'Imagekit ID',
             'image_url': 'http://imagekit.io/imageurl',
             'meal_type': 'http://testserver/recipes/mealtypes/{pk}/'.format(pk=get_demo_mealtype().pk),
-            'dietary_preference': 'http://testserver/recipes/dietarypreferences/{pk}/'.format(pk=get_demo_dietarypreference().pk)
+            'dietary_preference': 'http://testserver/recipes/dietarypreferences/{pk}/'.format(pk=get_demo_dietarypreference().pk),
+            'created_by': self.user.pk
         }
         serializer = RecipeSerializer(data=data)
         is_valid = serializer.is_valid()
@@ -28,6 +31,7 @@ class RecipeSerializerTestCase(TestCase):
         data['image_url'] = 'Url'
         data['meal_type'] = 'http://testserver/recipes/mealtypes/{pk}/'.format(pk=123)
         data['dietary_preference'] = 'http://testserver/recipes/dietarypreferences/{pk}/'.format(pk=123)
+        data['created_by'] = 123
         
         serializer = RecipeSerializer(data=data)
         is_valid = serializer.is_valid()
@@ -39,6 +43,7 @@ class RecipeSerializerTestCase(TestCase):
         self.assertEqual(str(serializer.errors['image_id'][0]), 'This field may not be blank.')
         self.assertEqual(str(serializer.errors['meal_type'][0]), 'Invalid hyperlink - Object does not exist.')
         self.assertEqual(str(serializer.errors['dietary_preference'][0]), 'Invalid hyperlink - Object does not exist.')
+        self.assertEqual(str(serializer.errors['created_by'][0]), 'Invalid pk "123" - object does not exist.')
 
     def test_serializer_save(self):
         meal_type = get_demo_mealtype()
@@ -51,7 +56,8 @@ class RecipeSerializerTestCase(TestCase):
             'image_id': 'Imagekit ID',
             'image_url': 'http://imagekit.io/imageurl',
             'meal_type': 'http://testserver/recipes/mealtypes/{pk}/'.format(pk=meal_type.pk),
-            'dietary_preference': 'http://testserver/recipes/dietarypreferences/{pk}/'.format(pk=dietary_preference.pk)
+            'dietary_preference': 'http://testserver/recipes/dietarypreferences/{pk}/'.format(pk=dietary_preference.pk),
+            'created_by': self.user.pk
         }
         serializer = RecipeSerializer(data=data)
         is_valid = serializer.is_valid()
@@ -76,13 +82,17 @@ class RecipeSerializerTestCase(TestCase):
         self.assertEqual(serializer.data['meal_type_obj']['dinner'], meal_type.dinner)
         self.assertEqual(serializer.data['dietary_preference_obj']['vegan'], dietary_preference.vegan)
         self.assertEqual(serializer.data['dietary_preference_obj']['glutenfree'], dietary_preference.glutenfree)
+        self.assertEqual(serializer.data['created_by_username'], self.user.username)
 
 class RecipeIngredientSerializerTestCase(TestCase):
+    def setUp(self):
+        self.user = get_demo_user()
+
     def test_serializer_validation(self):
         data = {
             'name': 'Ingredient 1',
             'quantity': '2 spoon',
-            'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe().pk)
+            'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe(self.user).pk)
         }
         serializer = RecipeIngredientSerializer(data=data)
         is_valid = serializer.is_valid()
@@ -103,7 +113,7 @@ class RecipeIngredientSerializerTestCase(TestCase):
         data = {
             'name': 'Ingredient 1',
             'quantity': '2 spoon',
-            'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe().pk)
+            'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe(self.user).pk)
         }
         serializer = RecipeIngredientSerializer(data=data)
         is_valid = serializer.is_valid()
@@ -119,10 +129,12 @@ class RecipeIngredientSerializerTestCase(TestCase):
         self.assertTrue(serializer.data['recipe'].endswith('/recipes/{recipe_pk}/'.format(recipe_pk=instance.recipe.pk)))
 
 class RecipeInstructionSerializerTestCase(TestCase):
+    def setUp(self):
+        self.user = get_demo_user()
     def test_serializer_validation(self):
         data = {
             'step': 'Step 1',
-            'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe().pk)
+            'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe(self.user).pk)
         }
         serializer = RecipeInstructionSerializer(data=data)
         is_valid = serializer.is_valid()
@@ -140,7 +152,7 @@ class RecipeInstructionSerializerTestCase(TestCase):
     def test_serializer_save(self):
         data = {
             'step': 'Step 1',
-            'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe().pk)
+            'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe(self.user).pk)
         }
         serializer = RecipeInstructionSerializer(data=data)
         is_valid = serializer.is_valid()
