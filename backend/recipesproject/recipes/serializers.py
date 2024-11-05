@@ -15,10 +15,8 @@ class OfDietarypreferenceSerializer(serializers.ModelSerializer):
             fields = ['vegan', 'glutenfree']
 
 class RecipeSerializer(serializers.HyperlinkedModelSerializer):
-    meal_type = serializers.HyperlinkedRelatedField(view_name='recipemealtype-detail', queryset=RecipeMealType.objects.all(), write_only=True)
-    meal_type_obj = serializers.SerializerMethodField()
-    dietary_preference = serializers.HyperlinkedRelatedField(view_name='recipedietarypreference-detail', queryset=RecipeDietaryPreference.objects.all(), write_only=True)
-    dietary_preference_obj = serializers.SerializerMethodField()
+    meal_type = serializers.SerializerMethodField()
+    dietary_preference = serializers.SerializerMethodField()
     ingredients = serializers.HyperlinkedIdentityField(
         view_name='recipeingredient-list',
         lookup_url_kwarg='recipe_pk'
@@ -32,15 +30,22 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['url', 'title', 'preparation_time', 'cooking_time', 'difficulty', 'image_id', 'image_url', 'ingredients', 'instructions', 'meal_type', 'meal_type_obj', 'dietary_preference', 'dietary_preference_obj', 'created_by', 'created_by_username']
+        fields = ['url', 'title', 'preparation_time', 'cooking_time', 'difficulty', 'image_id', 'image_url', 'ingredients', 'instructions', 'meal_type', 'dietary_preference', 'created_by', 'created_by_username']
 
     @extend_schema_field(OfDietarypreferenceSerializer)
-    def get_dietary_preference_obj(self, obj):
-        return OfDietarypreferenceSerializer(obj.dietary_preference).data
+    def get_dietary_preference(self, obj):
+        try:
+            return OfDietarypreferenceSerializer(RecipeDietaryPreference.objects.get(recipe=obj.pk)).data
+        except RecipeDietaryPreference.DoesNotExist:
+             return {}
     
     @extend_schema_field(OfMealtypeSerializer)
-    def get_meal_type_obj(self, obj):
-        return OfMealtypeSerializer(obj.meal_type).data
+    def get_meal_type(self, obj):
+        try:
+            return OfMealtypeSerializer(RecipeMealType.objects.get(recipe=obj.pk)).data
+        except RecipeMealType.DoesNotExist:
+             return {}
+        
 
     def validate_preparation_time(self, value):
         if(value.total_seconds() > 0):
@@ -76,16 +81,22 @@ class RecipeInstructionSerializer(NestedHyperlinkedModelSerializer):
         model = RecipeInstruction
         fields = ['url', 'step', 'recipe']
 
-class RecipeMealtypeSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='recipemealtype-detail')
+class RecipeMealtypeSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+		'recipe_pk': 'recipe__pk',
+	}
+    recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
 
     class Meta:
             model = RecipeMealType
-            fields = ['url', 'breakfast', 'brunch', 'lunch', 'dinner']
+            fields = ['url', 'breakfast', 'brunch', 'lunch', 'dinner', 'recipe']
 
-class RecipeDietarypreferenceSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='recipedietarypreference-detail')
+class RecipeDietarypreferenceSerializer(NestedHyperlinkedModelSerializer):
+    parent_lookup_kwargs = {
+		'recipe_pk': 'recipe__pk',
+	}
+    recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
 
     class Meta:
             model = RecipeDietaryPreference
-            fields = ['url', 'vegan', 'glutenfree']
+            fields = ['url', 'vegan', 'glutenfree', 'recipe']

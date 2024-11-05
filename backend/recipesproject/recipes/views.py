@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, mixins, GenericViewSet
 from rest_framework import permissions
 from recipes.permissions import IsRecipeOwnerOrReadOnly
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -32,11 +32,20 @@ class RecipeInstructionViewSet(ModelViewSet):
 
         return self.queryset.filter(recipe=recipe_pk)
 
-class RecipeMealtypeViewSet(ModelViewSet):
+class RecipeMealtypeViewSet(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   mixins.DestroyModelMixin,
+                   GenericViewSet):
     queryset = RecipeMealType.objects.all()
     serializer_class = RecipeMealtypeSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
 
-class RecipeDietarypreferenceViewSet(ModelViewSet):
+class RecipeDietarypreferenceViewSet(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   mixins.DestroyModelMixin,
+                   GenericViewSet):
     queryset = RecipeDietaryPreference.objects.all()
     serializer_class = RecipeDietarypreferenceSerializer
 
