@@ -2,16 +2,16 @@ from rest_framework import permissions
 from recipes.models import Recipe
 
 class IsRecipeOwnerOrReadOnly(permissions.BasePermission):
-    def get_pk_from_url(self, url: str):
-        url_parts = url.split('/')
-        return int(url_parts[-2])
+    def get_pk_from_hyperlink(self, hyperlink: str):
+        hyperlink_parts = hyperlink.split('/')
+        return int(hyperlink_parts[-2])
 
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
             if request.method == 'POST' and request.data.get('recipe'):
-                recipe_pk = self.get_pk_from_url(request.data.get('recipe'))
+                recipe_pk = self.get_pk_from_hyperlink(request.data.get('recipe'))
                 
                 try:
                     recipe_instance = Recipe.objects.get(pk=recipe_pk)

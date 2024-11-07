@@ -39,7 +39,7 @@ class RecipeMealtypeViewSet(mixins.CreateModelMixin,
                    GenericViewSet):
     queryset = RecipeMealType.objects.all()
     serializer_class = RecipeMealtypeSerializer
-    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
 
 class RecipeDietarypreferenceViewSet(mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin,
@@ -48,4 +48,5 @@ class RecipeDietarypreferenceViewSet(mixins.CreateModelMixin,
                    GenericViewSet):
     queryset = RecipeDietaryPreference.objects.all()
     serializer_class = RecipeDietarypreferenceSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
 
