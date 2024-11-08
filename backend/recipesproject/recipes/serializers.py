@@ -2,7 +2,6 @@ from rest_framework import serializers
 from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeDietaryPreference, RecipeMealType
 from django.contrib.auth.models import User
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
-from drf_spectacular.utils import extend_schema_field
 
 class OfMealtypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,27 +24,18 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
         view_name='recipeinstruction-list',
         lookup_url_kwarg='recipe_pk'
     )
-    created_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    instructions = serializers.HyperlinkedIdentityField(
+        view_name='recipeinstruction-list',
+        lookup_url_kwarg='recipe_pk'
+    )
+    meal_type = serializers.HyperlinkedIdentityField(view_name='recipemealtype-detail')
+    dietary_preference = serializers.HyperlinkedIdentityField(view_name='recipedietarypreference-detail')
+    created_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
     created_by_username = serializers.ReadOnlyField(source='created_by.username')
 
     class Meta:
         model = Recipe
         fields = ['url', 'title', 'preparation_time', 'cooking_time', 'difficulty', 'image_id', 'image_url', 'ingredients', 'instructions', 'meal_type', 'dietary_preference', 'created_by', 'created_by_username']
-
-    @extend_schema_field(OfDietarypreferenceSerializer)
-    def get_dietary_preference(self, obj):
-        try:
-            return OfDietarypreferenceSerializer(RecipeDietaryPreference.objects.get(recipe=obj.pk)).data
-        except RecipeDietaryPreference.DoesNotExist:
-             return {}
-    
-    @extend_schema_field(OfMealtypeSerializer)
-    def get_meal_type(self, obj):
-        try:
-            return OfMealtypeSerializer(RecipeMealType.objects.get(recipe=obj.pk)).data
-        except RecipeMealType.DoesNotExist:
-             return {}
-        
 
     def validate_preparation_time(self, value):
         if(value.total_seconds() > 0):
@@ -81,20 +71,14 @@ class RecipeInstructionSerializer(NestedHyperlinkedModelSerializer):
         model = RecipeInstruction
         fields = ['url', 'step', 'recipe']
 
-class RecipeMealtypeSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {
-		'recipe_pk': 'recipe__pk',
-	}
+class RecipeMealtypeSerializer(serializers.HyperlinkedModelSerializer):
     recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
 
     class Meta:
             model = RecipeMealType
             fields = ['url', 'breakfast', 'brunch', 'lunch', 'dinner', 'recipe']
 
-class RecipeDietarypreferenceSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {
-		'recipe_pk': 'recipe__pk',
-	}
+class RecipeDietarypreferenceSerializer(serializers.HyperlinkedModelSerializer):
     recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
 
     class Meta:

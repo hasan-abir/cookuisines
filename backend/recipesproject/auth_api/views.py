@@ -6,8 +6,10 @@ from rest_framework import status
 
 # Create your views here.
 class RegisterView(APIView):
+    serializer_class = UserSerializer
+
     def post(self, request, format=None):
-        serializer = UserSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status.HTTP_201_CREATED)

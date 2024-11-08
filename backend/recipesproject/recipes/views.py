@@ -2,7 +2,6 @@ from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, mixins, GenericViewSet
 from rest_framework import permissions
 from recipes.permissions import IsRecipeOwnerOrReadOnly
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeMealType, RecipeDietaryPreference
 from recipes.serializers import RecipeSerializer, RecipeIngredientSerializer, RecipeInstructionSerializer, RecipeMealtypeSerializer, RecipeDietarypreferenceSerializer
 

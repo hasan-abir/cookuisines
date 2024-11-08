@@ -377,34 +377,34 @@ class MealtypeViewsTestCase(TestCase):
 
         data = {
             'username': self.user_replica.username,
-            'password': 'testtest'
+        'password': 'testtest'
         }
         response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
 
         self.token_replica = response.json()['access']
 
     def test_get_list(self):
-        url = '/recipes/{recipe_pk}/mealtypes/'.format(recipe_pk=self.first_recipe.pk)
+        url = '/recipes/mealtypes/'
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 405)
 
     def test_get_detail(self):
-        url = '/recipes/{recipe_pk}/mealtypes/{mealtype_pk}/'.format(recipe_pk=self.first_recipe.pk, mealtype_pk=self.first_meal_type.pk)
+        url = '/recipes/mealtypes/{mealtype_pk}/'.format(mealtype_pk=self.first_meal_type.pk)
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['url'].endswith(url))
 
-        url = '/recipes/{recipe_pk}/mealtypes/{mealtype_pk}/'.format(recipe_pk=self.first_recipe.pk, mealtype_pk=123)
+        url = '/recipes/mealtypes/{mealtype_pk}/'.format(mealtype_pk=123)
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
     def test_post(self):
         new_recipe = get_demo_recipe(User.objects.get(username='hasan_abir_0'))
-        url = '/recipes/{recipe_pk}/mealtypes/'.format(recipe_pk=new_recipe)
+        url = '/recipes/mealtypes/'
 
         data = {
             'lunch': True,
@@ -427,7 +427,7 @@ class MealtypeViewsTestCase(TestCase):
         self.assertEqual(RecipeMealType.objects.count(), self.total_mealtypes + 1)
 
     def test_patch_detail(self):
-        url = '/recipes/{recipe_pk}/mealtypes/{mealtype_pk}/'.format(recipe_pk=self.first_recipe.pk, mealtype_pk=self.first_meal_type.pk)
+        url = '/recipes/mealtypes/{mealtype_pk}/'.format(mealtype_pk=self.first_meal_type.pk)
 
         data = {
             'breakfast': False,
@@ -449,7 +449,7 @@ class MealtypeViewsTestCase(TestCase):
         self.assertEqual(meal_type.lunch, data['lunch'])
 
     def test_delete_detail(self):
-        url = '/recipes/{recipe_pk}/mealtypes/{mealtype_pk}/'.format(recipe_pk=self.first_recipe.pk, mealtype_pk=self.first_meal_type.pk)
+        url = '/recipes/mealtypes/{mealtype_pk}/'.format(mealtype_pk=self.first_meal_type.pk)
 
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 401)
@@ -491,27 +491,27 @@ class DietaryprefernceViewsTestCase(TestCase):
         self.token_replica = response.json()['access']
 
     def test_get_list(self):
-        url = '/recipes/{recipe_pk}/dietarypreferences/'.format(recipe_pk=self.first_recipe.pk)
+        url = '/recipes/dietarypreferences/'
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 405)
 
     def test_get_detail(self):
-        url = '/recipes/{recipe_pk}/dietarypreferences/{dietarypreference_pk}/'.format(recipe_pk=self.first_recipe.pk, dietarypreference_pk=self.first_dietary_preference.pk)
+        url = '/recipes/dietarypreferences/{dietarypreference_pk}/'.format(dietarypreference_pk=self.first_dietary_preference.pk)
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['url'].endswith(url))
 
-        url = '/recipes/{recipe_pk}/dietarypreferences/{dietarypreference_pk}/'.format(recipe_pk=self.first_recipe.pk, dietarypreference_pk=123)
+        url = '/recipes/dietarypreferences/{dietarypreference_pk}/'.format(dietarypreference_pk=123)
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
     def test_post(self):
         new_recipe = get_demo_recipe(User.objects.get(username='hasan_abir_0'))
-        url = '/recipes/{recipe_pk}/dietarypreferences/'.format(recipe_pk=self.first_recipe.pk)
+        url = '/recipes/dietarypreferences/'
 
         data = {
             'vegan': True,
@@ -532,7 +532,7 @@ class DietaryprefernceViewsTestCase(TestCase):
         self.assertEqual(RecipeDietaryPreference.objects.count(), self.total_dietarypreferences + 1)
 
     def test_patch_detail(self):
-        url = '/recipes/{recipe_pk}/dietarypreferences/{dietarypreference_pk}/'.format(recipe_pk=self.first_recipe.pk, dietarypreference_pk=self.first_dietary_preference.pk)
+        url = '/recipes/dietarypreferences/{dietarypreference_pk}/'.format(dietarypreference_pk=self.first_dietary_preference.pk)
 
         data = {
             'vegan': False,
@@ -554,7 +554,7 @@ class DietaryprefernceViewsTestCase(TestCase):
         self.assertEqual(dietary_preference.glutenfree, data['glutenfree'])
 
     def test_delete_detail(self):
-        url = '/recipes/{recipe_pk}/dietarypreferences/{dietarypreference_pk}/'.format(recipe_pk=self.first_recipe.pk, dietarypreference_pk=self.first_dietary_preference.pk)
+        url = '/recipes/dietarypreferences/{dietarypreference_pk}/'.format(dietarypreference_pk=self.first_dietary_preference.pk)
 
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 401)

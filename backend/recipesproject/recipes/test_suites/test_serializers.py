@@ -56,9 +56,6 @@ class RecipeSerializerTestCase(TestCase):
 
         instance = serializer.save()
 
-        meal_type = get_demo_mealtype(instance)
-        dietary_preference = get_demo_dietarypreference(instance)
-
         mock_request = RequestFactory().get('/mock/')
         serializer = RecipeSerializer(instance, context={'request': mock_request})
         self.assertTrue(serializer.data['url'].endswith('/recipes/{pk}/'.format(pk=instance.pk)))
@@ -70,13 +67,9 @@ class RecipeSerializerTestCase(TestCase):
         self.assertEqual(serializer.data['image_url'], data['image_url'])
         self.assertTrue(serializer.data['ingredients'].endswith('/recipes/{recipe_pk}/ingredients/'.format(recipe_pk=instance.pk)))
         self.assertTrue(serializer.data['instructions'].endswith('/recipes/{recipe_pk}/instructions/'.format(recipe_pk=instance.pk)))
-        self.assertEqual(serializer.data['meal_type']['breakfast'], meal_type.breakfast)
-        self.assertEqual(serializer.data['meal_type']['brunch'], meal_type.brunch)
-        self.assertEqual(serializer.data['meal_type']['lunch'], meal_type.lunch)
-        self.assertEqual(serializer.data['meal_type']['dinner'], meal_type.dinner)
-        self.assertEqual(serializer.data['dietary_preference']['vegan'], dietary_preference.vegan)
-        self.assertEqual(serializer.data['dietary_preference']['glutenfree'], dietary_preference.glutenfree)
         self.assertEqual(serializer.data['created_by_username'], self.user.username)
+        self.assertTrue(serializer.data['meal_type'].endswith('/recipes/mealtypes/{recipe_pk}/'.format(recipe_pk=instance.pk)))
+        self.assertTrue(serializer.data['dietary_preference'].endswith('/recipes/dietarypreferences/{recipe_pk}/'.format(recipe_pk=instance.pk)))
         
 
 class RecipeIngredientSerializerTestCase(TestCase):
@@ -200,7 +193,7 @@ class RecipeMealtypeSerializerTestCase(TestCase):
 
         mock_request = RequestFactory().get('/mock/')
         serializer = RecipeMealtypeSerializer(instance, context={'request': mock_request})
-        self.assertTrue(serializer.data['url'].endswith('/recipes/{recipe_pk}/mealtypes/{mealtype_pk}/'.format(recipe_pk=instance.recipe.pk, mealtype_pk=instance.pk)))
+        self.assertTrue(serializer.data['url'].endswith('/recipes/mealtypes/{mealtype_pk}/'.format(recipe_pk=instance.recipe.pk, mealtype_pk=instance.pk)))
         self.assertEqual(serializer.data['breakfast'], data['breakfast'])
         self.assertEqual(serializer.data['brunch'], data['brunch'])
         self.assertEqual(serializer.data['lunch'], data['lunch'])
@@ -242,7 +235,7 @@ class RecipeDietarypreferenceSerializerTestCase(TestCase):
 
         mock_request = RequestFactory().get('/mock/')
         serializer = RecipeDietarypreferenceSerializer(instance, context={'request': mock_request})
-        self.assertTrue(serializer.data['url'].endswith('/recipes/{recipe_pk}/dietarypreferences/{dietarypreference_pk}/'.format(recipe_pk=instance.recipe.pk, dietarypreference_pk=instance.pk)))
+        self.assertTrue(serializer.data['url'].endswith('/recipes/dietarypreferences/{dietarypreference_pk}/'.format(recipe_pk=instance.recipe.pk, dietarypreference_pk=instance.pk)))
         self.assertEqual(serializer.data['vegan'], data['vegan'])
         self.assertEqual(serializer.data['glutenfree'], data['glutenfree'])
         self.assertTrue(serializer.data['recipe'].endswith('/recipes/{recipe_pk}/'.format(recipe_pk=instance.recipe.pk)))

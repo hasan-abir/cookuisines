@@ -36,16 +36,21 @@ class RecipeInstructionTestCase(TestCase):
 
 class RecipeMealTypeTestCase(TestCase):
     def test_default_values(self):
+        # Extra recipe just so that the pks don't compare with 1s
+        get_demo_recipe(get_demo_user('placeholder'))
+
+        recipe = get_demo_recipe(get_demo_user())
         data = {
             'breakfast': True,
             'brunch': False,
             'lunch': True,
             'dinner': False,
-            'recipe': get_demo_recipe(get_demo_user())
+            'recipe': recipe
         }
         recipe_mealtype = RecipeMealType.objects.create(**data)
 
         saved_recipe_mealtype = RecipeMealType.objects.get(pk=recipe_mealtype.pk)
+        self.assertEqual(saved_recipe_mealtype.pk, recipe.pk)
         self.assertEqual(saved_recipe_mealtype.breakfast, recipe_mealtype.breakfast)
         self.assertEqual(saved_recipe_mealtype.brunch, recipe_mealtype.brunch)
         self.assertEqual(saved_recipe_mealtype.lunch, recipe_mealtype.lunch)
@@ -71,14 +76,20 @@ class RecipeMealTypeTestCase(TestCase):
 
 class RecipeDietaryPreferenceTestCase(TestCase):
     def test_default_values(self):
+        # Extra recipe just so that the pks don't compare with 1s
+        get_demo_recipe(get_demo_user('placeholder'))
+
+        recipe = get_demo_recipe(get_demo_user())
+        
         data = {
             'vegan': True,
             'glutenfree': False,
-            'recipe': get_demo_recipe(get_demo_user())
+            'recipe': recipe
         }
         recipe_dietarypreference = RecipeDietaryPreference.objects.create(**data)
 
         saved_recipe_dietarypreference = RecipeDietaryPreference.objects.get(pk=recipe_dietarypreference.pk)
+        self.assertEqual(saved_recipe_dietarypreference.pk, recipe.pk)
         self.assertEqual(saved_recipe_dietarypreference.vegan, recipe_dietarypreference.vegan)
         self.assertEqual(saved_recipe_dietarypreference.glutenfree, recipe_dietarypreference.glutenfree)
         self.assertEqual(saved_recipe_dietarypreference.recipe.pk, recipe_dietarypreference.recipe.pk)
