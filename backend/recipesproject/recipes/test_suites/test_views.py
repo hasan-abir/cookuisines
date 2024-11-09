@@ -29,7 +29,11 @@ class RecipeViewsTestCase(TestCase):
         self.token_replica = response.json()['access']
 
         for x in range(0, self.total_recipes):
-            recipe = get_demo_recipe(self.user)    
+            if x % 2 == 0:
+                recipe = get_demo_recipe(self.user, 'Example Recipe Yummy', 'Hard')
+            else:
+                recipe = get_demo_recipe(self.user)  
+
             if x == 0:
                 self.first_recipe = recipe
 
@@ -40,11 +44,19 @@ class RecipeViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), 10)
         self.assertEqual(response.json()['count'], self.total_recipes)
-        self.assertEqual(response.json()['results'][0]['title'], "Example Recipe")
+        self.assertEqual(response.json()['results'][1]['title'], "Example Recipe")
 
         response = self.client.get('/recipes/?page=2')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), self.total_recipes - 10)
+
+        response = self.client.get('/recipes/?title=yummy')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['results']), self.total_recipes - 7)
+
+        response = self.client.get('/recipes/?difficulty=hard')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['results']), self.total_recipes - 7)
 
     def test_get_detail(self):
         url = '/recipes/{pk}/'.format(pk=self.first_recipe.pk)

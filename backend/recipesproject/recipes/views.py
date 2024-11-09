@@ -11,6 +11,22 @@ class RecipeViewSet(ModelViewSet):
     serializer_class = RecipeSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
 
+    def get_queryset(self):
+        title = self.request.query_params.get('title')
+        difficulty = self.request.query_params.get('difficulty')
+        filter_params = {}
+
+        if title is not None:
+            filter_params['title__icontains'] = title.casefold()
+
+        if difficulty is not None:
+            filter_params['difficulty__iexact'] = difficulty.casefold()
+
+        if len(filter_params) > 0:
+            return self.queryset.filter(**filter_params)
+        else:
+            return self.queryset
+
 class RecipeIngredientViewSet(ModelViewSet):
     queryset = RecipeIngredient.objects.all()
     serializer_class = RecipeIngredientSerializer

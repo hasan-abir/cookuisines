@@ -16,12 +16,12 @@ def get_demo_instruction(recipe):
 def get_demo_user(username = 'hasan_abir', password = 'testtest'):
     return User.objects.create_user(username=username, email='hasan_abir@test.com', password=password)
 
-def get_demo_recipe(user):
+def get_demo_recipe(user, title = 'Example Recipe', difficulty = 'Easy'):
     data = {
-            'title': 'Example Recipe',
+            'title': title,
             'preparation_time': timedelta(hours=0, minutes=1, seconds=30),
             'cooking_time': timedelta(hours=0, minutes=1, seconds=30),
-            'difficulty': 'Easy',
+            'difficulty': difficulty,
             'image_id': '123',
             'image_url': 'http://test.com/images/123',
             'created_by': user
