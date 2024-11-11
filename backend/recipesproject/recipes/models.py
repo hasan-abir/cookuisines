@@ -28,7 +28,7 @@ class Recipe(models.Model):
 class RecipeDietaryPreference(models.Model):
     vegan = models.BooleanField(default=False)
     glutenfree = models.BooleanField(default=False)
-    recipe = models.OneToOneField(Recipe, on_delete=models.CASCADE, primary_key=True)
+    recipe = models.OneToOneField(Recipe, on_delete=models.CASCADE, primary_key=True, related_name='dietary_preference')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -40,7 +40,7 @@ class RecipeMealType(models.Model):
     brunch = models.BooleanField(default=False)
     lunch = models.BooleanField(default=False)
     dinner = models.BooleanField(default=False)
-    recipe = models.OneToOneField(Recipe, on_delete=models.CASCADE, primary_key=True)
+    recipe = models.OneToOneField(Recipe, on_delete=models.CASCADE, primary_key=True, related_name='meal_type')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

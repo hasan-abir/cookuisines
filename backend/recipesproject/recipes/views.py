@@ -4,6 +4,8 @@ from rest_framework import permissions
 from recipes.permissions import IsRecipeOwnerOrReadOnly
 from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeMealType, RecipeDietaryPreference
 from recipes.serializers import RecipeSerializer, RecipeIngredientSerializer, RecipeInstructionSerializer, RecipeMealtypeSerializer, RecipeDietarypreferenceSerializer
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.types import OpenApiTypes
 
 # Create your views here.
 class RecipeViewSet(ModelViewSet):
@@ -14,6 +16,13 @@ class RecipeViewSet(ModelViewSet):
     def get_queryset(self):
         title = self.request.query_params.get('title')
         difficulty = self.request.query_params.get('difficulty')
+        ingredient = self.request.query_params.get('ingredient')
+        breakfast = self.request.query_params.get('breakfast')
+        brunch = self.request.query_params.get('brunch')
+        lunch = self.request.query_params.get('lunch')
+        dinner = self.request.query_params.get('dinner')
+        vegan = self.request.query_params.get('vegan')
+        glutenfree = self.request.query_params.get('glutenfree')
         filter_params = {}
 
         if title is not None:
@@ -22,10 +31,43 @@ class RecipeViewSet(ModelViewSet):
         if difficulty is not None:
             filter_params['difficulty__iexact'] = difficulty.casefold()
 
+        if ingredient is not None:
+            filter_params['ingredients__name__icontains'] = ingredient.casefold()
+
+        if breakfast is not None:
+            filter_params['meal_type__breakfast'] = True
+        if brunch is not None:
+            filter_params['meal_type__brunch'] = True
+        if lunch is not None:
+            filter_params['meal_type__lunch'] = True
+        if dinner is not None:
+            filter_params['meal_type__dinner'] = True
+
+        if vegan is not None:
+            filter_params['dietary_preference__vegan'] = True
+        if glutenfree is not None:
+            filter_params['dietary_preference__glutenfree'] = True
+
         if len(filter_params) > 0:
             return self.queryset.filter(**filter_params)
         else:
             return self.queryset
+    
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name='title', description='Filter by title', required=False, type=str),
+            OpenApiParameter(name='difficulty', description='Filter by difficulty', required=False, type=str, enum=['easy', 'medium', 'hard']),
+            OpenApiParameter(name='ingredient', description='Filter by ingredient name', required=False, type=str),
+            OpenApiParameter(name='breakfast', description='Filter by breakfast', required=False, type=bool),
+            OpenApiParameter(name='brunch', description='Filter by brunch', required=False, type=bool),
+            OpenApiParameter(name='lunch', description='Filter by lunch', required=False, type=bool),
+            OpenApiParameter(name='dinner', description='Filter by dinner', required=False, type=bool),
+            OpenApiParameter(name='vegan', description='Filter by vegan', required=False, type=bool),
+            OpenApiParameter(name='glutenfree', description='Filter by glutenfree', required=False, type=bool),
+        ],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 class RecipeIngredientViewSet(ModelViewSet):
     queryset = RecipeIngredient.objects.all()

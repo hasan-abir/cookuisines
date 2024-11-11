@@ -31,8 +31,11 @@ class RecipeViewsTestCase(TestCase):
         for x in range(0, self.total_recipes):
             if x % 2 == 0:
                 recipe = get_demo_recipe(self.user, 'Example Recipe Yummy', 'Hard')
+                get_demo_ingredient(recipe)
             else:
-                recipe = get_demo_recipe(self.user)  
+                recipe = get_demo_recipe(self.user)
+                get_demo_dietarypreference(recipe)  
+                get_demo_mealtype(recipe)  
 
             if x == 0:
                 self.first_recipe = recipe
@@ -57,6 +60,23 @@ class RecipeViewsTestCase(TestCase):
         response = self.client.get('/recipes/?difficulty=hard')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), self.total_recipes - 7)
+
+        response = self.client.get('/recipes/?ingredient=example')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['results']), self.total_recipes - 7)
+
+        response = self.client.get('/recipes/?breakfast&brunch')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['results']), self.total_recipes - 8)
+        response = self.client.get('/recipes/?lunch')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['results']), 0)
+        response = self.client.get('/recipes/?vegan')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['results']), self.total_recipes - 8)
+        response = self.client.get('/recipes/?glutenfree')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['results']), 0)
 
     def test_get_detail(self):
         url = '/recipes/{pk}/'.format(pk=self.first_recipe.pk)
