@@ -1,6 +1,6 @@
 from django.test import TestCase, RequestFactory
-from recipes.serializers import RecipeSerializer, RecipeIngredientSerializer, RecipeInstructionSerializer, RecipeMealtypeSerializer, RecipeDietarypreferenceSerializer
-from .utils import get_demo_recipe, get_demo_user, get_demo_mealtype, get_demo_dietarypreference
+from recipes.serializers import RecipeSerializer, IngredientSerializer, InstructionSerializer, MealtypeSerializer, DietarypreferenceSerializer
+from .utils import get_demo_recipe, get_demo_user
 from datetime import timedelta
 
 # Create your tests here.
@@ -72,7 +72,7 @@ class RecipeSerializerTestCase(TestCase):
         self.assertTrue(serializer.data['dietary_preference'].endswith('/recipes/dietarypreferences/{recipe_pk}/'.format(recipe_pk=instance.pk)))
         
 
-class RecipeIngredientSerializerTestCase(TestCase):
+class IngredientSerializerTestCase(TestCase):
     def setUp(self):
         self.user = get_demo_user()
 
@@ -82,7 +82,7 @@ class RecipeIngredientSerializerTestCase(TestCase):
             'quantity': '2 spoon',
             'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe(self.user).pk)
         }
-        serializer = RecipeIngredientSerializer(data=data)
+        serializer = IngredientSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, True)
 
@@ -90,7 +90,7 @@ class RecipeIngredientSerializerTestCase(TestCase):
         data['quantity'] = ''
         data['recipe'] = 'http://testserver/recipes/{pk}/'.format(pk=123)
         
-        serializer = RecipeIngredientSerializer(data=data)
+        serializer = IngredientSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, False)
         self.assertEqual(str(serializer.errors['name'][0]), 'This field may not be blank.')
@@ -103,20 +103,20 @@ class RecipeIngredientSerializerTestCase(TestCase):
             'quantity': '2 spoon',
             'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe(self.user).pk)
         }
-        serializer = RecipeIngredientSerializer(data=data)
+        serializer = IngredientSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, True)
 
         instance = serializer.save()
 
         mock_request = RequestFactory().get('/mock/')
-        serializer = RecipeIngredientSerializer(instance, context={'request': mock_request})
+        serializer = IngredientSerializer(instance, context={'request': mock_request})
         self.assertTrue(serializer.data['url'].endswith('/recipes/{recipe_pk}/ingredients/{ingredient_pk}/'.format(recipe_pk=instance.recipe.pk, ingredient_pk=instance.pk)))
         self.assertEqual(serializer.data['name'], data['name'])
         self.assertEqual(serializer.data['quantity'], data['quantity'])
         self.assertTrue(serializer.data['recipe'].endswith('/recipes/{recipe_pk}/'.format(recipe_pk=instance.recipe.pk)))
 
-class RecipeInstructionSerializerTestCase(TestCase):
+class InstructionSerializerTestCase(TestCase):
     def setUp(self):
         self.user = get_demo_user()
     def test_serializer_validation(self):
@@ -124,14 +124,14 @@ class RecipeInstructionSerializerTestCase(TestCase):
             'step': 'Step 1',
             'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe(self.user).pk)
         }
-        serializer = RecipeInstructionSerializer(data=data)
+        serializer = InstructionSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, True)
 
         data['step'] = ''
         data['recipe'] = 'http://testserver/recipes/{pk}/'.format(pk=123)
         
-        serializer = RecipeInstructionSerializer(data=data)
+        serializer = InstructionSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, False)
         self.assertEqual(str(serializer.errors['step'][0]), 'This field may not be blank.')
@@ -142,19 +142,19 @@ class RecipeInstructionSerializerTestCase(TestCase):
             'step': 'Step 1',
             'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe(self.user).pk)
         }
-        serializer = RecipeInstructionSerializer(data=data)
+        serializer = InstructionSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, True)
 
         instance = serializer.save()
 
         mock_request = RequestFactory().get('/mock/')
-        serializer = RecipeInstructionSerializer(instance, context={'request': mock_request})
+        serializer = InstructionSerializer(instance, context={'request': mock_request})
         self.assertTrue(serializer.data['url'].endswith('/recipes/{recipe_pk}/instructions/{instruction_pk}/'.format(recipe_pk=instance.recipe.pk, instruction_pk=instance.pk)))
         self.assertEqual(serializer.data['step'], data['step'])
         self.assertTrue(serializer.data['recipe'].endswith('/recipes/{recipe_pk}/'.format(recipe_pk=instance.recipe.pk)))
 
-class RecipeMealtypeSerializerTestCase(TestCase):
+class MealtypeSerializerTestCase(TestCase):
     def setUp(self):
         self.user = get_demo_user()
 
@@ -166,13 +166,13 @@ class RecipeMealtypeSerializerTestCase(TestCase):
             'dinner': False,
             'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe(self.user).pk)
         }
-        serializer = RecipeMealtypeSerializer(data=data)
+        serializer = MealtypeSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, True)
 
         data['breakfast'] = 123
         
-        serializer = RecipeMealtypeSerializer(data=data)
+        serializer = MealtypeSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, False)
         self.assertEqual(str(serializer.errors['breakfast'][0]), 'Must be a valid boolean.')
@@ -185,14 +185,14 @@ class RecipeMealtypeSerializerTestCase(TestCase):
             'dinner': False,
             'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe(self.user).pk)
         }
-        serializer = RecipeMealtypeSerializer(data=data)
+        serializer = MealtypeSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, True)
 
         instance = serializer.save()
 
         mock_request = RequestFactory().get('/mock/')
-        serializer = RecipeMealtypeSerializer(instance, context={'request': mock_request})
+        serializer = MealtypeSerializer(instance, context={'request': mock_request})
         self.assertTrue(serializer.data['url'].endswith('/recipes/mealtypes/{mealtype_pk}/'.format(recipe_pk=instance.recipe.pk, mealtype_pk=instance.pk)))
         self.assertEqual(serializer.data['breakfast'], data['breakfast'])
         self.assertEqual(serializer.data['brunch'], data['brunch'])
@@ -200,7 +200,7 @@ class RecipeMealtypeSerializerTestCase(TestCase):
         self.assertEqual(serializer.data['dinner'], data['dinner'])
         self.assertTrue(serializer.data['recipe'].endswith('/recipes/{recipe_pk}/'.format(recipe_pk=instance.recipe.pk)))
 
-class RecipeDietarypreferenceSerializerTestCase(TestCase):
+class DietarypreferenceSerializerTestCase(TestCase):
     def setUp(self):
         self.user = get_demo_user()
 
@@ -210,13 +210,13 @@ class RecipeDietarypreferenceSerializerTestCase(TestCase):
             'glutenfree': False,
             'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe(self.user).pk)
         }
-        serializer = RecipeDietarypreferenceSerializer(data=data)
+        serializer = DietarypreferenceSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, True)
 
         data['vegan'] = 123
         
-        serializer = RecipeDietarypreferenceSerializer(data=data)
+        serializer = DietarypreferenceSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, False)
         self.assertEqual(str(serializer.errors['vegan'][0]), 'Must be a valid boolean.')
@@ -227,14 +227,14 @@ class RecipeDietarypreferenceSerializerTestCase(TestCase):
             'glutenfree': False,
             'recipe': 'http://testserver/recipes/{pk}/'.format(pk=get_demo_recipe(self.user).pk)
         }
-        serializer = RecipeDietarypreferenceSerializer(data=data)
+        serializer = DietarypreferenceSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, True)
 
         instance = serializer.save()
 
         mock_request = RequestFactory().get('/mock/')
-        serializer = RecipeDietarypreferenceSerializer(instance, context={'request': mock_request})
+        serializer = DietarypreferenceSerializer(instance, context={'request': mock_request})
         self.assertTrue(serializer.data['url'].endswith('/recipes/dietarypreferences/{dietarypreference_pk}/'.format(recipe_pk=instance.recipe.pk, dietarypreference_pk=instance.pk)))
         self.assertEqual(serializer.data['vegan'], data['vegan'])
         self.assertEqual(serializer.data['glutenfree'], data['glutenfree'])

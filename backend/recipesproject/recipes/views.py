@@ -2,10 +2,9 @@ from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, mixins, GenericViewSet
 from rest_framework import permissions
 from recipes.permissions import IsRecipeOwnerOrReadOnly
-from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeMealType, RecipeDietaryPreference
-from recipes.serializers import RecipeSerializer, RecipeIngredientSerializer, RecipeInstructionSerializer, RecipeMealtypeSerializer, RecipeDietarypreferenceSerializer
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
-from drf_spectacular.types import OpenApiTypes
+from recipes.models import Recipe, Ingredient, Instruction, MealType, DietaryPreference
+from recipes.serializers import RecipeSerializer, IngredientSerializer, InstructionSerializer, MealtypeSerializer, DietarypreferenceSerializer
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 # Create your views here.
 class RecipeViewSet(ModelViewSet):
@@ -69,9 +68,9 @@ class RecipeViewSet(ModelViewSet):
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-class RecipeIngredientViewSet(ModelViewSet):
-    queryset = RecipeIngredient.objects.all()
-    serializer_class = RecipeIngredientSerializer
+class IngredientViewSet(ModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
 
     def get_queryset(self):
@@ -79,9 +78,9 @@ class RecipeIngredientViewSet(ModelViewSet):
 
         return self.queryset.filter(recipe=recipe_pk)
 
-class RecipeInstructionViewSet(ModelViewSet):
-    queryset = RecipeInstruction.objects.all()
-    serializer_class = RecipeInstructionSerializer
+class InstructionViewSet(ModelViewSet):
+    queryset = Instruction.objects.all()
+    serializer_class = InstructionSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
 
     def get_queryset(self):
@@ -89,21 +88,21 @@ class RecipeInstructionViewSet(ModelViewSet):
 
         return self.queryset.filter(recipe=recipe_pk)
 
-class RecipeMealtypeViewSet(mixins.CreateModelMixin,
+class MealtypeViewSet(mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin,
                    mixins.UpdateModelMixin,
                    mixins.DestroyModelMixin,
                    GenericViewSet):
-    queryset = RecipeMealType.objects.all()
-    serializer_class = RecipeMealtypeSerializer
+    queryset = MealType.objects.all()
+    serializer_class = MealtypeSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
 
-class RecipeDietarypreferenceViewSet(mixins.CreateModelMixin,
+class DietarypreferenceViewSet(mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin,
                    mixins.UpdateModelMixin,
                    mixins.DestroyModelMixin,
                    GenericViewSet):
-    queryset = RecipeDietaryPreference.objects.all()
-    serializer_class = RecipeDietarypreferenceSerializer
+    queryset = DietaryPreference.objects.all()
+    serializer_class = DietarypreferenceSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
 

@@ -1,27 +1,11 @@
 from rest_framework import serializers
-from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeDietaryPreference, RecipeMealType
+from recipes.models import Recipe, Ingredient, Instruction, DietaryPreference, MealType
 from django.contrib.auth.models import User
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 
-class OfMealtypeSerializer(serializers.ModelSerializer):
-    class Meta:
-            model = RecipeMealType
-            fields = ['breakfast', 'brunch', 'lunch', 'dinner']
-
-class OfDietarypreferenceSerializer(serializers.ModelSerializer):
-    class Meta:
-            model = RecipeDietaryPreference
-            fields = ['vegan', 'glutenfree']
-
 class RecipeSerializer(serializers.HyperlinkedModelSerializer):
-    meal_type = serializers.SerializerMethodField()
-    dietary_preference = serializers.SerializerMethodField()
     ingredients = serializers.HyperlinkedIdentityField(
         view_name='recipeingredient-list',
-        lookup_url_kwarg='recipe_pk'
-    )
-    instructions = serializers.HyperlinkedIdentityField(
-        view_name='recipeinstruction-list',
         lookup_url_kwarg='recipe_pk'
     )
     instructions = serializers.HyperlinkedIdentityField(
@@ -49,7 +33,7 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
         else:
             raise serializers.ValidationError("Duration cannot be zero.")
 
-class RecipeIngredientSerializer(NestedHyperlinkedModelSerializer):
+class IngredientSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
 		'recipe_pk': 'recipe__pk',
 	}
@@ -57,10 +41,13 @@ class RecipeIngredientSerializer(NestedHyperlinkedModelSerializer):
     recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
 
     class Meta:
-        model = RecipeIngredient
+        model = Ingredient
         fields = ['url', 'name', 'quantity', 'recipe']
+        extra_kwargs = {
+            'url': {'view_name': 'recipeingredient-detail'},
+        }
 
-class RecipeInstructionSerializer(NestedHyperlinkedModelSerializer):
+class InstructionSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
 		'recipe_pk': 'recipe__pk',
 	}
@@ -68,19 +55,28 @@ class RecipeInstructionSerializer(NestedHyperlinkedModelSerializer):
     recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
 
     class Meta:
-        model = RecipeInstruction
+        model = Instruction
         fields = ['url', 'step', 'recipe']
+        extra_kwargs = {
+            'url': {'view_name': 'recipeinstruction-detail'},
+        }
 
-class RecipeMealtypeSerializer(serializers.HyperlinkedModelSerializer):
+class MealtypeSerializer(serializers.HyperlinkedModelSerializer):
     recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
 
     class Meta:
-            model = RecipeMealType
+            model = MealType
             fields = ['url', 'breakfast', 'brunch', 'lunch', 'dinner', 'recipe']
+            extra_kwargs = {
+                'url': {'view_name': 'recipemealtype-detail'},
+            }
 
-class RecipeDietarypreferenceSerializer(serializers.HyperlinkedModelSerializer):
+class DietarypreferenceSerializer(serializers.HyperlinkedModelSerializer):
     recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
 
     class Meta:
-            model = RecipeDietaryPreference
+            model = DietaryPreference
             fields = ['url', 'vegan', 'glutenfree', 'recipe']
+            extra_kwargs = {
+                'url': {'view_name': 'recipedietarypreference-detail'},
+            }

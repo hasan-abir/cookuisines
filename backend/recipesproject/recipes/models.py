@@ -25,7 +25,7 @@ class Recipe(models.Model):
     class Meta:
         ordering = ['created_at']
 
-class RecipeDietaryPreference(models.Model):
+class DietaryPreference(models.Model):
     vegan = models.BooleanField(default=False)
     glutenfree = models.BooleanField(default=False)
     recipe = models.OneToOneField(Recipe, on_delete=models.CASCADE, primary_key=True, related_name='dietary_preference')
@@ -35,7 +35,7 @@ class RecipeDietaryPreference(models.Model):
     class Meta:
         ordering = ['created_at']
 
-class RecipeMealType(models.Model):
+class MealType(models.Model):
     breakfast = models.BooleanField(default=False)
     brunch = models.BooleanField(default=False)
     lunch = models.BooleanField(default=False)
@@ -47,7 +47,7 @@ class RecipeMealType(models.Model):
     class Meta:
         ordering = ['created_at']
 
-class RecipeIngredient(models.Model):
+class Ingredient(models.Model):
     name = models.CharField(max_length=100, blank=False, null=False)
     quantity = models.CharField(max_length=100, blank=False, null=False)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='ingredients')
@@ -57,7 +57,7 @@ class RecipeIngredient(models.Model):
     class Meta:
         ordering = ['created_at']
 
-class RecipeInstruction(models.Model):
+class Instruction(models.Model):
     step = models.TextField(blank=False, null=False)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='instructions')
     created_at = models.DateTimeField(auto_now_add=True)

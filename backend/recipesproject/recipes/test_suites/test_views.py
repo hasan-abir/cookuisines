@@ -1,5 +1,5 @@
 from django.test import TestCase
-from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeMealType, RecipeDietaryPreference
+from recipes.models import Recipe, Ingredient, Instruction, MealType, DietaryPreference
 from django.contrib.auth.models import User
 from .utils import get_demo_recipe, get_demo_user, get_demo_mealtype, get_demo_dietarypreference, get_demo_ingredient, get_demo_instruction
 from datetime import timedelta
@@ -234,7 +234,7 @@ class IngredientViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['name'], data['name'])
 
-        self.assertEqual(RecipeIngredient.objects.count(), self.total_ingredients + 1)
+        self.assertEqual(Ingredient.objects.count(), self.total_ingredients + 1)
 
     def test_patch_detail(self):
         url = '/recipes/{recipe_pk}/ingredients/{ingredient_pk}/'.format(recipe_pk=self.recipe2.pk, ingredient_pk=self.first_ingredient.pk)
@@ -252,7 +252,7 @@ class IngredientViewsTestCase(TestCase):
         response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 200)
 
-        instruction = RecipeIngredient.objects.get(pk=self.first_ingredient.pk)
+        instruction = Ingredient.objects.get(pk=self.first_ingredient.pk)
 
         self.assertEqual(instruction.name, data['name'])
         self.assertEqual(instruction.quantity, data['quantity'])
@@ -269,7 +269,7 @@ class IngredientViewsTestCase(TestCase):
         response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(RecipeIngredient.objects.count(), self.total_ingredients - 1)
+        self.assertEqual(Ingredient.objects.count(), self.total_ingredients - 1)
 
 class InstructionViewsTestCase(TestCase):
     def setUp(self):
@@ -352,7 +352,7 @@ class InstructionViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['step'], data['step'])
 
-        self.assertEqual(RecipeInstruction.objects.count(), self.total_instructions + 1)
+        self.assertEqual(Instruction.objects.count(), self.total_instructions + 1)
 
     def test_patch_detail(self):
         url = '/recipes/{recipe_pk}/instructions/{instruction_pk}/'.format(recipe_pk=self.recipe2.pk, instruction_pk=self.first_instruction.pk)
@@ -370,7 +370,7 @@ class InstructionViewsTestCase(TestCase):
         response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 200)
 
-        instruction = RecipeInstruction.objects.get(pk=self.first_instruction.pk)
+        instruction = Instruction.objects.get(pk=self.first_instruction.pk)
 
         self.assertEqual(instruction.step, data['step'])
 
@@ -386,7 +386,7 @@ class InstructionViewsTestCase(TestCase):
         response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(RecipeInstruction.objects.count(), self.total_instructions - 1)
+        self.assertEqual(Instruction.objects.count(), self.total_instructions - 1)
 
 class MealtypeViewsTestCase(TestCase):
     def setUp(self):
@@ -456,7 +456,7 @@ class MealtypeViewsTestCase(TestCase):
         self.assertEqual(response.json()['dinner'], False)
         self.assertEqual(response.json()['lunch'], data['lunch'])
 
-        self.assertEqual(RecipeMealType.objects.count(), self.total_mealtypes + 1)
+        self.assertEqual(MealType.objects.count(), self.total_mealtypes + 1)
 
     def test_patch_detail(self):
         url = '/recipes/mealtypes/{mealtype_pk}/'.format(mealtype_pk=self.first_meal_type.pk)
@@ -475,7 +475,7 @@ class MealtypeViewsTestCase(TestCase):
         response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 200)
 
-        meal_type = RecipeMealType.objects.get(pk=self.first_meal_type.pk)
+        meal_type = MealType.objects.get(pk=self.first_meal_type.pk)
 
         self.assertEqual(meal_type.breakfast, data['breakfast'])
         self.assertEqual(meal_type.lunch, data['lunch'])
@@ -492,7 +492,7 @@ class MealtypeViewsTestCase(TestCase):
         response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(RecipeMealType.objects.count(), self.total_mealtypes - 1)
+        self.assertEqual(MealType.objects.count(), self.total_mealtypes - 1)
 
 class DietaryprefernceViewsTestCase(TestCase):
     def setUp(self):
@@ -561,7 +561,7 @@ class DietaryprefernceViewsTestCase(TestCase):
         self.assertEqual(response.json()['vegan'], True)
         self.assertEqual(response.json()['glutenfree'], False)
 
-        self.assertEqual(RecipeDietaryPreference.objects.count(), self.total_dietarypreferences + 1)
+        self.assertEqual(DietaryPreference.objects.count(), self.total_dietarypreferences + 1)
 
     def test_patch_detail(self):
         url = '/recipes/dietarypreferences/{dietarypreference_pk}/'.format(dietarypreference_pk=self.first_dietary_preference.pk)
@@ -580,7 +580,7 @@ class DietaryprefernceViewsTestCase(TestCase):
         response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 200)
 
-        dietary_preference = RecipeDietaryPreference.objects.get(pk=self.first_dietary_preference.pk)
+        dietary_preference = DietaryPreference.objects.get(pk=self.first_dietary_preference.pk)
 
         self.assertEqual(dietary_preference.vegan, data['vegan'])
         self.assertEqual(dietary_preference.glutenfree, data['glutenfree'])
@@ -597,4 +597,4 @@ class DietaryprefernceViewsTestCase(TestCase):
         response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(RecipeDietaryPreference.objects.count(), self.total_dietarypreferences - 1)
+        self.assertEqual(DietaryPreference.objects.count(), self.total_dietarypreferences - 1)

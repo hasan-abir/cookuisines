@@ -18,17 +18,17 @@ from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from rest_framework_nested import routers
-from recipes.views import RecipeViewSet, RecipeIngredientViewSet, RecipeInstructionViewSet, RecipeMealtypeViewSet, RecipeDietarypreferenceViewSet
+from recipes.views import RecipeViewSet, IngredientViewSet, InstructionViewSet, MealtypeViewSet, DietarypreferenceViewSet
 
 router = routers.SimpleRouter()
 
-router.register(r'recipes/mealtypes', RecipeMealtypeViewSet, basename='recipemealtype')
-router.register(r'recipes/dietarypreferences', RecipeDietarypreferenceViewSet, basename='recipedietarypreference')
+router.register(r'recipes/mealtypes', MealtypeViewSet, basename='recipemealtype')
+router.register(r'recipes/dietarypreferences', DietarypreferenceViewSet, basename='recipedietarypreference')
 router.register(r'recipes', RecipeViewSet, basename='recipe')
 
 recipes_router = routers.NestedSimpleRouter(router, r'recipes', lookup='recipe')
-recipes_router.register(r'ingredients', RecipeIngredientViewSet, basename='recipeingredient')
-recipes_router.register(r'instructions', RecipeInstructionViewSet, basename='recipeinstruction')
+recipes_router.register(r'ingredients', IngredientViewSet, basename='recipeingredient')
+recipes_router.register(r'instructions', InstructionViewSet, basename='recipeinstruction')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -1,40 +1,40 @@
 from django.test import TestCase
-from recipes.models import Recipe, RecipeIngredient, RecipeInstruction, RecipeMealType, RecipeDietaryPreference
+from recipes.models import Recipe, Ingredient, Instruction, MealType, DietaryPreference
 from .utils import get_demo_recipe, get_demo_user, get_demo_mealtype, get_demo_dietarypreference
 from django.db.utils import IntegrityError
 
 # Create your tests here.
-class RecipeIngredientTestCase(TestCase):
+class IngredientTestCase(TestCase):
     def test_default_values(self):
         data = {
             'name': 'Ingredient 1',
             'quantity': '2 spoon',
             'recipe': get_demo_recipe(get_demo_user())
         }
-        recipe_ingredient = RecipeIngredient.objects.create(**data)
+        recipe_ingredient = Ingredient.objects.create(**data)
 
-        saved_recipe_ingredients = RecipeIngredient.objects.get(pk=recipe_ingredient.pk)
+        saved_recipe_ingredients = Ingredient.objects.get(pk=recipe_ingredient.pk)
         self.assertEqual(saved_recipe_ingredients.name, recipe_ingredient.name)
         self.assertEqual(saved_recipe_ingredients.quantity, recipe_ingredient.quantity)
         self.assertEqual(saved_recipe_ingredients.recipe.pk, recipe_ingredient.recipe.pk)
         self.assertTrue(saved_recipe_ingredients.created_at)
         self.assertTrue(saved_recipe_ingredients.updated_at)
 
-class RecipeInstructionTestCase(TestCase):
+class InstructionTestCase(TestCase):
     def test_default_values(self):
         data = {
             'step': 'Instruction 1',
             'recipe': get_demo_recipe(get_demo_user())
         }
-        recipe_instruction = RecipeInstruction.objects.create(**data)
+        recipe_instruction = Instruction.objects.create(**data)
 
-        saved_recipe_instructions = RecipeInstruction.objects.get(pk=recipe_instruction.pk)
+        saved_recipe_instructions = Instruction.objects.get(pk=recipe_instruction.pk)
         self.assertEqual(saved_recipe_instructions.step, recipe_instruction.step)
         self.assertEqual(saved_recipe_instructions.recipe.pk, recipe_instruction.recipe.pk)
         self.assertTrue(saved_recipe_instructions.created_at)
         self.assertTrue(saved_recipe_instructions.updated_at)
 
-class RecipeMealTypeTestCase(TestCase):
+class MealTypeTestCase(TestCase):
     def test_default_values(self):
         # Extra recipe just so that the pks don't compare with 1s
         get_demo_recipe(get_demo_user('placeholder'))
@@ -47,9 +47,9 @@ class RecipeMealTypeTestCase(TestCase):
             'dinner': False,
             'recipe': recipe
         }
-        recipe_mealtype = RecipeMealType.objects.create(**data)
+        recipe_mealtype = MealType.objects.create(**data)
 
-        saved_recipe_mealtype = RecipeMealType.objects.get(pk=recipe_mealtype.pk)
+        saved_recipe_mealtype = MealType.objects.get(pk=recipe_mealtype.pk)
         self.assertEqual(saved_recipe_mealtype.pk, recipe.pk)
         self.assertEqual(saved_recipe_mealtype.breakfast, recipe_mealtype.breakfast)
         self.assertEqual(saved_recipe_mealtype.brunch, recipe_mealtype.brunch)
@@ -72,9 +72,9 @@ class RecipeMealTypeTestCase(TestCase):
         }
 
         with self.assertRaises(IntegrityError):
-            RecipeMealType.objects.create(**data)
+            MealType.objects.create(**data)
 
-class RecipeDietaryPreferenceTestCase(TestCase):
+class DietaryPreferenceTestCase(TestCase):
     def test_default_values(self):
         # Extra recipe just so that the pks don't compare with 1s
         get_demo_recipe(get_demo_user('placeholder'))
@@ -86,9 +86,9 @@ class RecipeDietaryPreferenceTestCase(TestCase):
             'glutenfree': False,
             'recipe': recipe
         }
-        recipe_dietarypreference = RecipeDietaryPreference.objects.create(**data)
+        recipe_dietarypreference = DietaryPreference.objects.create(**data)
 
-        saved_recipe_dietarypreference = RecipeDietaryPreference.objects.get(pk=recipe_dietarypreference.pk)
+        saved_recipe_dietarypreference = DietaryPreference.objects.get(pk=recipe_dietarypreference.pk)
         self.assertEqual(saved_recipe_dietarypreference.pk, recipe.pk)
         self.assertEqual(saved_recipe_dietarypreference.vegan, recipe_dietarypreference.vegan)
         self.assertEqual(saved_recipe_dietarypreference.glutenfree, recipe_dietarypreference.glutenfree)
@@ -107,7 +107,7 @@ class RecipeDietaryPreferenceTestCase(TestCase):
         }
 
         with self.assertRaises(IntegrityError):
-            RecipeDietaryPreference.objects.create(**data)
+            DietaryPreference.objects.create(**data)
 
 class RecipeTestCase(TestCase):
     def setUp(self):
