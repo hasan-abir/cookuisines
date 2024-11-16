@@ -1,21 +1,21 @@
 from django.test import TestCase, RequestFactory
 from recipes.serializers import RecipeSerializer, IngredientSerializer, InstructionSerializer, MealtypeSerializer, DietarypreferenceSerializer
-from .utils import get_demo_recipe, get_demo_user
+from .utils import get_demo_recipe, get_demo_user, generate_image
 from datetime import timedelta
 
 # Create your tests here.
 class RecipeSerializerTestCase(TestCase):
     def setUp(self):
         self.user = get_demo_user()
+
     def test_serializer_validation(self):
         data = {
             'title': 'Recipe 1',
             'preparation_time': timedelta(hours=0, minutes=2, seconds=3),
             'cooking_time': timedelta(hours=0, minutes=3, seconds=2),
             'difficulty': 'medium',
-            'image_id': 'Imagekit ID',
-            'image_url': 'http://imagekit.io/imageurl',
-            'created_by': self.user.pk
+            'created_by': self.user.pk,
+            'image': generate_image('cat_small.jpg')
         }
         serializer = RecipeSerializer(data=data)
         is_valid = serializer.is_valid()
@@ -25,9 +25,8 @@ class RecipeSerializerTestCase(TestCase):
         data['preparation_time'] = timedelta(hours=0, minutes=0, seconds=0)
         data['cooking_time'] = timedelta(hours=0, minutes=0, seconds=0)
         data['difficulty'] = 'Average'
-        data['image_id'] = ''
-        data['image_url'] = 'Url'
         data['created_by'] = 123
+        data['image'] = generate_image('cat_big.jpg')
         
         serializer = RecipeSerializer(data=data)
         is_valid = serializer.is_valid()
@@ -35,9 +34,8 @@ class RecipeSerializerTestCase(TestCase):
         self.assertEqual(str(serializer.errors['title'][0]), 'This field may not be blank.')
         self.assertEqual(str(serializer.errors['preparation_time'][0]), 'Duration cannot be zero.')
         self.assertEqual(str(serializer.errors['cooking_time'][0]), 'Duration cannot be zero.')
-        self.assertEqual(str(serializer.errors['image_url'][0]), 'Enter a valid URL.')
-        self.assertEqual(str(serializer.errors['image_id'][0]), 'This field may not be blank.')
         self.assertEqual(str(serializer.errors['created_by'][0]), 'Invalid pk "123" - object does not exist.')
+        self.assertEqual(str(serializer.errors['image'][0]), 'Image size has to be 2mb or less')
 
     def test_serializer_save(self):
         
@@ -46,9 +44,8 @@ class RecipeSerializerTestCase(TestCase):
             'preparation_time': timedelta(hours=0, minutes=2, seconds=3),
             'cooking_time': timedelta(hours=0, minutes=3, seconds=2),
             'difficulty': 'medium',
-            'image_id': 'Imagekit ID',
-            'image_url': 'http://imagekit.io/imageurl',
-            'created_by': self.user.pk
+            'created_by': self.user.pk,
+            'image': generate_image('cat_small.jpg')
         }
         serializer = RecipeSerializer(data=data)
         is_valid = serializer.is_valid()
@@ -63,13 +60,14 @@ class RecipeSerializerTestCase(TestCase):
         self.assertEqual(serializer.data['preparation_time'], '00:02:03')
         self.assertEqual(serializer.data['cooking_time'], '00:03:02')
         self.assertEqual(serializer.data['difficulty'], data['difficulty'])
-        self.assertEqual(serializer.data['image_id'], data['image_id'])
-        self.assertEqual(serializer.data['image_url'], data['image_url'])
+        self.assertEqual(serializer.data['image_id'], '123')
+        self.assertEqual(serializer.data['image_url'], 'http://testserver/image/123')
         self.assertTrue(serializer.data['ingredients'].endswith('/recipes/{recipe_pk}/ingredients/'.format(recipe_pk=instance.pk)))
         self.assertTrue(serializer.data['instructions'].endswith('/recipes/{recipe_pk}/instructions/'.format(recipe_pk=instance.pk)))
         self.assertEqual(serializer.data['created_by_username'], self.user.username)
         self.assertTrue(serializer.data['meal_type'].endswith('/recipes/mealtypes/{recipe_pk}/'.format(recipe_pk=instance.pk)))
         self.assertTrue(serializer.data['dietary_preference'].endswith('/recipes/dietarypreferences/{recipe_pk}/'.format(recipe_pk=instance.pk)))
+
         
 
 class IngredientSerializerTestCase(TestCase):

@@ -1,12 +1,15 @@
 from django.test import TestCase
 from recipes.models import Recipe, Ingredient, Instruction, MealType, DietaryPreference
 from django.contrib.auth.models import User
-from .utils import get_demo_recipe, get_demo_user, get_demo_mealtype, get_demo_dietarypreference, get_demo_ingredient, get_demo_instruction
+from .utils import get_demo_recipe, get_demo_user, get_demo_mealtype, get_demo_dietarypreference, get_demo_ingredient, get_demo_instruction, generate_image
 from datetime import timedelta
+from rest_framework.test import APIClient
 
 # Create your tests here.
 class RecipeViewsTestCase(TestCase):
     def setUp(self):
+        self.api_client = APIClient()
+
         self.total_recipes = 15
 
         self.user = get_demo_user()
@@ -16,7 +19,7 @@ class RecipeViewsTestCase(TestCase):
             'username': self.user.username,
             'password': 'testtest'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
 
         self.token = response.json()['access']
 
@@ -24,7 +27,7 @@ class RecipeViewsTestCase(TestCase):
             'username': self.user_replica.username,
             'password': 'testtest'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
 
         self.token_replica = response.json()['access']
 
@@ -42,68 +45,72 @@ class RecipeViewsTestCase(TestCase):
 
 
     def test_get_list(self):
-        response = self.client.get('/recipes/')
+        response = self.api_client.get('/recipes/')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), 10)
         self.assertEqual(response.json()['count'], self.total_recipes)
         self.assertEqual(response.json()['results'][1]['title'], "Example Recipe")
 
-        response = self.client.get('/recipes/?page=2')
+        response = self.api_client.get('/recipes/?page=2')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), self.total_recipes - 10)
 
-        response = self.client.get('/recipes/?title=yummy')
+        response = self.api_client.get('/recipes/?title=yummy')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), self.total_recipes - 7)
 
-        response = self.client.get('/recipes/?difficulty=hard')
+        response = self.api_client.get('/recipes/?difficulty=hard')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), self.total_recipes - 7)
 
-        response = self.client.get('/recipes/?ingredient=example')
+        response = self.api_client.get('/recipes/?ingredient=example')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), self.total_recipes - 7)
 
-        response = self.client.get('/recipes/?breakfast&brunch')
+        response = self.api_client.get('/recipes/?breakfast&brunch')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), self.total_recipes - 8)
-        response = self.client.get('/recipes/?lunch')
+        response = self.api_client.get('/recipes/?lunch')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), 0)
-        response = self.client.get('/recipes/?vegan')
+        response = self.api_client.get('/recipes/?vegan')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), self.total_recipes - 8)
-        response = self.client.get('/recipes/?glutenfree')
+        response = self.api_client.get('/recipes/?glutenfree')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), 0)
 
     def test_get_detail(self):
         url = '/recipes/{pk}/'.format(pk=self.first_recipe.pk)
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['url'].endswith(url))
 
-        response = self.client.get('/recipes/100/')
+        response = self.api_client.get('/recipes/100/')
         self.assertEqual(response.status_code, 404)
 
     def test_post(self):
+        image_path = 'recipes/test_suites/sample_files/cat_small.jpg'
+    
         data = {
             'title': 'Recipe 1',
             'preparation_time': '00:02:03',
             'cooking_time': '00:03:02',
             'difficulty': 'medium',
-            'image_id': 'Imagekit ID',
-            'image_url': 'http://imagekit.io/imageurl',
             'created_by': self.user.pk
         }
 
-        response = self.client.post('/recipes/', data=data)
+
+        response = self.api_client.post('/recipes/', data)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.post('/recipes/', data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        with open(image_path, 'rb') as image_file:
+            data['image'] = image_file
+            response = self.api_client.post('/recipes/', data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)}, format='multipart')
+
         self.assertEqual(response.status_code, 201)
 
         self.assertEqual(response.json()['title'], data['title'])
@@ -111,6 +118,8 @@ class RecipeViewsTestCase(TestCase):
         self.assertEqual(Recipe.objects.count(), self.total_recipes + 1)
 
     def test_patch_detail(self):
+        image_path = 'recipes/test_suites/sample_files/cat_small.jpg'
+
         url = '/recipes/{pk}/'.format(pk=self.first_recipe.pk)
 
         data = {
@@ -118,17 +127,18 @@ class RecipeViewsTestCase(TestCase):
             'preparation_time': '00:02:03',
             'cooking_time': '00:03:02',
             'difficulty': 'medium',
-            'image_id': 'Imagekit ID',
-            'image_url': 'http://imagekit.io/imageurl',
         }
 
-        response = self.client.patch(url, data=data, content_type='application/json')
+        response = self.api_client.patch(url, data)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.patch(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        with open(image_path, 'rb') as image_file:
+            data['image'] = image_file
+            response = self.api_client.patch(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)}, format='multipart')
+
         self.assertEqual(response.status_code, 200)
 
         recipe = Recipe.objects.get(pk=self.first_recipe.pk)
@@ -137,25 +147,27 @@ class RecipeViewsTestCase(TestCase):
         self.assertEqual(recipe.preparation_time, timedelta(hours=0, minutes=2, seconds=3))
         self.assertEqual(recipe.cooking_time, timedelta(hours=0, minutes=3, seconds=2))
         self.assertEqual(recipe.difficulty, data['difficulty'])
-        self.assertEqual(recipe.image_id, data['image_id'])
-        self.assertEqual(recipe.image_url, data['image_url'])
+        self.assertEqual(recipe.image_id, "123")
+        self.assertEqual(recipe.image_url, "http://testserver/image/123")
 
     def test_delete_detail(self):
         url = '/recipes/{pk}/'.format(pk=self.first_recipe.pk)
 
-        response = self.client.delete(url)
+        response = self.api_client.delete(url)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(Recipe.objects.count(), self.total_recipes - 1)
 
 class IngredientViewsTestCase(TestCase):
     def setUp(self):
+        self.api_client = APIClient()
+
         self.user = get_demo_user()
         self.user_replica = get_demo_user('hasan_abir_replica')
 
@@ -163,7 +175,7 @@ class IngredientViewsTestCase(TestCase):
             'username': self.user.username,
             'password': 'testtest'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
 
         self.token = response.json()['access']
 
@@ -171,7 +183,7 @@ class IngredientViewsTestCase(TestCase):
             'username': self.user_replica.username,
             'password': 'testtest'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
 
         self.token_replica = response.json()['access']
 
@@ -191,7 +203,7 @@ class IngredientViewsTestCase(TestCase):
     def test_get_list(self):
         url = '/recipes/{recipe_pk}/ingredients/'.format(recipe_pk=self.recipe1.pk)
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), 7)
@@ -200,19 +212,19 @@ class IngredientViewsTestCase(TestCase):
 
         url = '/recipes/{recipe_pk}/ingredients/'.format(recipe_pk=self.recipe2.pk)
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), self.total_ingredients - 7)
 
     def test_get_detail(self):
         url = '/recipes/{recipe_pk}/ingredients/{ingredient_pk}/'.format(recipe_pk=self.recipe2.pk, ingredient_pk=self.first_ingredient.pk)
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['url'].endswith(url))
 
-        response = self.client.get('/recipes/{recipe_pk}/ingredients/{ingredient_pk}/'.format(recipe_pk=self.recipe2.pk, ingredient_pk=100))
+        response = self.api_client.get('/recipes/{recipe_pk}/ingredients/{ingredient_pk}/'.format(recipe_pk=self.recipe2.pk, ingredient_pk=100))
         self.assertEqual(response.status_code, 404)
 
     def test_post(self):
@@ -224,13 +236,13 @@ class IngredientViewsTestCase(TestCase):
             'recipe': 'http://testserver/recipes/{pk}/'.format(pk=self.recipe1.pk)
         }
 
-        response = self.client.post(url, data=data)
+        response = self.api_client.post(url, data)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.post(url, data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.post(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.post(url, data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.post(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['name'], data['name'])
 
@@ -243,13 +255,13 @@ class IngredientViewsTestCase(TestCase):
             'name': 'Ingredient 1',
             'quantity': '1 spoon',
         }
-        response = self.client.patch(url, data=data, content_type='application/json')
+        response = self.api_client.patch(url, data)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.patch(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.patch(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 200)
 
         instruction = Ingredient.objects.get(pk=self.first_ingredient.pk)
@@ -260,19 +272,21 @@ class IngredientViewsTestCase(TestCase):
     def test_delete_detail(self):
         url = '/recipes/{recipe_pk}/ingredients/{ingredient_pk}/'.format(recipe_pk=self.recipe2.pk, ingredient_pk=self.first_ingredient.pk)
 
-        response = self.client.delete(url)
+        response = self.api_client.delete(url)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(Ingredient.objects.count(), self.total_ingredients - 1)
 
 class InstructionViewsTestCase(TestCase):
     def setUp(self):
+        self.api_client = APIClient()
+
         self.user = get_demo_user()
         self.user_replica = get_demo_user('hasan_abir_replica')
 
@@ -280,7 +294,7 @@ class InstructionViewsTestCase(TestCase):
             'username': self.user.username,
             'password': 'testtest'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
 
         self.token = response.json()['access']
 
@@ -288,7 +302,7 @@ class InstructionViewsTestCase(TestCase):
             'username': self.user_replica.username,
             'password': 'testtest'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
 
         self.token_replica = response.json()['access']
 
@@ -310,7 +324,7 @@ class InstructionViewsTestCase(TestCase):
     def test_get_list(self):
         url = '/recipes/{recipe_pk}/instructions/'.format(recipe_pk=self.recipe1.pk)
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), 7)
@@ -319,19 +333,19 @@ class InstructionViewsTestCase(TestCase):
 
         url = '/recipes/{recipe_pk}/instructions/'.format(recipe_pk=self.recipe2.pk)
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), self.total_instructions - 7)
 
     def test_get_detail(self):
         url = '/recipes/{recipe_pk}/instructions/{instruction_pk}/'.format(recipe_pk=self.recipe2.pk, instruction_pk=self.first_instruction.pk)
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['url'].endswith(url))
 
-        response = self.client.get('/recipes/{recipe_pk}/instructions/{instruction_pk}/'.format(recipe_pk=self.recipe2.pk, instruction_pk=100))
+        response = self.api_client.get('/recipes/{recipe_pk}/instructions/{instruction_pk}/'.format(recipe_pk=self.recipe2.pk, instruction_pk=100))
         self.assertEqual(response.status_code, 404)
 
     def test_post(self):
@@ -342,13 +356,13 @@ class InstructionViewsTestCase(TestCase):
             'recipe': 'http://testserver/recipes/{pk}/'.format(pk=self.recipe1.pk)
         }
 
-        response = self.client.post(url, data=data)
+        response = self.api_client.post(url, data)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.post(url, data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.post(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.post(url, data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.post(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['step'], data['step'])
 
@@ -361,13 +375,13 @@ class InstructionViewsTestCase(TestCase):
             'step': 'Instruction 1',
             'quantity': '1 spoon',
         }
-        response = self.client.patch(url, data=data, content_type='application/json')
+        response = self.api_client.patch(url, data)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.patch(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.patch(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 200)
 
         instruction = Instruction.objects.get(pk=self.first_instruction.pk)
@@ -377,19 +391,21 @@ class InstructionViewsTestCase(TestCase):
     def test_delete_detail(self):
         url = '/recipes/{recipe_pk}/instructions/{instruction_pk}/'.format(recipe_pk=self.recipe2.pk, instruction_pk=self.first_instruction.pk)
 
-        response = self.client.delete(url)
+        response = self.api_client.delete(url)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(Instruction.objects.count(), self.total_instructions - 1)
 
 class MealtypeViewsTestCase(TestCase):
     def setUp(self):
+        self.api_client = APIClient()
+
         self.total_mealtypes = 15
         for x in range(0, self.total_mealtypes):
             recipe = get_demo_recipe(get_demo_user('hasan_abir_{i}'.format(i=x)))
@@ -403,7 +419,7 @@ class MealtypeViewsTestCase(TestCase):
             'username': 'hasan_abir_0',
             'password': 'testtest'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
 
         self.token = response.json()['access']
 
@@ -411,27 +427,27 @@ class MealtypeViewsTestCase(TestCase):
             'username': self.user_replica.username,
         'password': 'testtest'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
 
         self.token_replica = response.json()['access']
 
     def test_get_list(self):
         url = '/recipes/mealtypes/'
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
         self.assertEqual(response.status_code, 405)
 
     def test_get_detail(self):
         url = '/recipes/mealtypes/{mealtype_pk}/'.format(mealtype_pk=self.first_meal_type.pk)
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['url'].endswith(url))
 
         url = '/recipes/mealtypes/{mealtype_pk}/'.format(mealtype_pk=123)
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
         self.assertEqual(response.status_code, 404)
 
     def test_post(self):
@@ -443,13 +459,13 @@ class MealtypeViewsTestCase(TestCase):
             'recipe': 'http://testserver/recipes/{pk}/'.format(pk=new_recipe.pk)
         }
 
-        response = self.client.post(url, data=data)
+        response = self.api_client.post(url, data)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.post(url, data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.post(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.post(url, data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.post(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['breakfast'], False)
         self.assertEqual(response.json()['brunch'], False)
@@ -466,13 +482,13 @@ class MealtypeViewsTestCase(TestCase):
             'lunch': True,
         }
 
-        response = self.client.patch(url, data=data, content_type='application/json')
+        response = self.api_client.patch(url, data)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.patch(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.patch(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 200)
 
         meal_type = MealType.objects.get(pk=self.first_meal_type.pk)
@@ -483,19 +499,21 @@ class MealtypeViewsTestCase(TestCase):
     def test_delete_detail(self):
         url = '/recipes/mealtypes/{mealtype_pk}/'.format(mealtype_pk=self.first_meal_type.pk)
 
-        response = self.client.delete(url)
+        response = self.api_client.delete(url)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(MealType.objects.count(), self.total_mealtypes - 1)
 
 class DietaryprefernceViewsTestCase(TestCase):
     def setUp(self):
+        self.api_client = APIClient()
+
         self.total_dietarypreferences = 15
         for x in range(0, self.total_dietarypreferences):
             recipe = get_demo_recipe(get_demo_user('hasan_abir_{i}'.format(i=x)))
@@ -510,7 +528,7 @@ class DietaryprefernceViewsTestCase(TestCase):
             'username': 'hasan_abir_0',
             'password': 'testtest'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
 
         self.token = response.json()['access']
 
@@ -518,27 +536,27 @@ class DietaryprefernceViewsTestCase(TestCase):
             'username': self.user_replica.username,
             'password': 'testtest'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
 
         self.token_replica = response.json()['access']
 
     def test_get_list(self):
         url = '/recipes/dietarypreferences/'
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
         self.assertEqual(response.status_code, 405)
 
     def test_get_detail(self):
         url = '/recipes/dietarypreferences/{dietarypreference_pk}/'.format(dietarypreference_pk=self.first_dietary_preference.pk)
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['url'].endswith(url))
 
         url = '/recipes/dietarypreferences/{dietarypreference_pk}/'.format(dietarypreference_pk=123)
 
-        response = self.client.get(url)
+        response = self.api_client.get(url)
         self.assertEqual(response.status_code, 404)
 
     def test_post(self):
@@ -550,13 +568,13 @@ class DietaryprefernceViewsTestCase(TestCase):
             'recipe': 'http://testserver/recipes/{pk}/'.format(pk=new_recipe.pk)
         }
 
-        response = self.client.post(url, data=data)
+        response = self.api_client.post(url, data)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.post(url, data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.post(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.post(url, data=data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.post(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['vegan'], True)
         self.assertEqual(response.json()['glutenfree'], False)
@@ -571,13 +589,13 @@ class DietaryprefernceViewsTestCase(TestCase):
             'glutenfree': True,
         }
 
-        response = self.client.patch(url, data=data, content_type='application/json')
+        response = self.api_client.patch(url, data)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.patch(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.patch(url, data=data, content_type='application/json', headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.patch(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 200)
 
         dietary_preference = DietaryPreference.objects.get(pk=self.first_dietary_preference.pk)
@@ -588,13 +606,13 @@ class DietaryprefernceViewsTestCase(TestCase):
     def test_delete_detail(self):
         url = '/recipes/dietarypreferences/{dietarypreference_pk}/'.format(dietarypreference_pk=self.first_dietary_preference.pk)
 
-        response = self.client.delete(url)
+        response = self.api_client.delete(url)
         self.assertEqual(response.status_code, 401)
 
-        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
+        response = self.api_client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
+        response = self.api_client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(DietaryPreference.objects.count(), self.total_dietarypreferences - 1)

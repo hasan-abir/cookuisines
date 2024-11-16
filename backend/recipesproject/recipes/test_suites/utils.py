@@ -1,6 +1,20 @@
 from recipes.models import Recipe, MealType, DietaryPreference, Ingredient, Instruction
 from django.contrib.auth.models import User
 from datetime import timedelta
+from django.core.files.uploadedfile import SimpleUploadedFile
+from io import BytesIO
+from PIL import Image
+
+def generate_image(filename):
+        # Create image object, then convert it to bytes
+        image_io = BytesIO()
+        image = Image.open('recipes/test_suites/sample_files/{name}'.format(name=filename))
+        image.save(image_io, format='JPEG')
+        image_io.name = filename
+        image_io.seek(0)
+
+        return SimpleUploadedFile(image_io.name, image_io.read(), 
+            content_type='image/jpeg')
 
 def get_demo_mealtype(recipe):
     return MealType.objects.create(breakfast=True, brunch=True, recipe=recipe)

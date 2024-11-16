@@ -1,15 +1,18 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
+from rest_framework.test import APIClient
 
 # Create your tests here.
 class RegisterViewTestCase(TestCase):
+    def setUp(self):
+        self.api_client = APIClient()
     def test_post_method(self):
         data = {
             'username': '',
             'email': '',
             'password': ''
         }
-        response = self.client.post('/api-user-register/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-user-register/', data)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['username'][0], 'This field may not be blank.')
         data = {
@@ -17,7 +20,7 @@ class RegisterViewTestCase(TestCase):
             'email': 'hasan_abir@test.com',
             'password': 'testtest'
         }
-        response = self.client.post('/api-user-register/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-user-register/', data)
     
         self.assertEqual(response.status_code, 201)
         self.assertEqual(len(response.json()), 2)
@@ -26,6 +29,7 @@ class RegisterViewTestCase(TestCase):
 
 class JWTViewsTestCase(TestCase):
     def setUp(self):
+        self.api_client = APIClient()
         self.user_created = User.objects.create_user('hasan_abir', 'hasanabir@test.com', 'testtest')
 
     def test_token_obtain(self):
@@ -33,7 +37,7 @@ class JWTViewsTestCase(TestCase):
             'username': 'hasan_abir1',
             'password': 'testtest1'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.json()['detail'], 'No active account found with the given credentials')
@@ -42,7 +46,7 @@ class JWTViewsTestCase(TestCase):
             'username': 'hasan_abir',
             'password': 'testtest'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['access'])
         self.assertTrue(response.json()['refresh'])
@@ -52,7 +56,7 @@ class JWTViewsTestCase(TestCase):
             'username': 'hasan_abir',
             'password': 'testtest'
         }
-        response = self.client.post('/api-token-obtain/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-obtain/', data)
         self.assertEqual(response.status_code, 200)
 
         refresh_token = response.json()['refresh']
@@ -60,6 +64,6 @@ class JWTViewsTestCase(TestCase):
         data = {
             'refresh': refresh_token
         }
-        response = self.client.post('/api-token-refresh/', data=data, content_type='application/json')
+        response = self.api_client.post('/api-token-refresh/', data)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['access'])
