@@ -45,3 +45,6 @@ Thumbs.db
 backend/env/
 __pycache__
 db.sqlite3
+
+# Environment Variables
+.env

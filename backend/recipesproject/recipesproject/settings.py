@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'auth_api',
     'recipes',
     'drf_spectacular',
-    'drf_spectacular_sidecar'
+    'drf_spectacular_sidecar',
 ]
 
 REST_FRAMEWORK = {

@@ -1,7 +1,8 @@
 from django.test import TestCase
+from unittest.mock import patch
 from recipes.models import Recipe, Ingredient, Instruction, MealType, DietaryPreference
 from django.contrib.auth.models import User
-from .utils import get_demo_recipe, get_demo_user, get_demo_mealtype, get_demo_dietarypreference, get_demo_ingredient, get_demo_instruction, generate_image
+from .utils import get_demo_recipe, get_demo_user, get_demo_mealtype, get_demo_dietarypreference, get_demo_ingredient, get_demo_instruction, mock_imagekit_upload, mock_imagekit_delete
 from datetime import timedelta
 from rest_framework.test import APIClient
 
@@ -92,7 +93,10 @@ class RecipeViewsTestCase(TestCase):
         response = self.api_client.get('/recipes/100/')
         self.assertEqual(response.status_code, 404)
 
-    def test_post(self):
+    @patch('recipes.serializers.upload_image')
+    def test_post(self, mock_upload_image):
+        mock_upload = mock_imagekit_upload(mock_upload_image)
+
         image_path = 'recipes/test_suites/sample_files/cat_small.jpg'
     
         data = {
@@ -113,11 +117,15 @@ class RecipeViewsTestCase(TestCase):
 
         self.assertEqual(response.status_code, 201)
 
+        mock_upload.assert_called_once()
+
         self.assertEqual(response.json()['title'], data['title'])
 
         self.assertEqual(Recipe.objects.count(), self.total_recipes + 1)
 
-    def test_patch_detail(self):
+    @patch('recipes.serializers.delete_image')
+    @patch('recipes.serializers.upload_image')
+    def test_patch_detail(self, mock_upload_image, mock_delete_image):
         image_path = 'recipes/test_suites/sample_files/cat_small.jpg'
 
         url = '/recipes/{pk}/'.format(pk=self.first_recipe.pk)
@@ -135,11 +143,17 @@ class RecipeViewsTestCase(TestCase):
         response = self.api_client.patch(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token_replica)})
         self.assertEqual(response.status_code, 403)
 
+        mock_upload =  mock_imagekit_upload(mock_upload_image)
+        mock_delete = mock_imagekit_delete(mock_delete_image)
+
         with open(image_path, 'rb') as image_file:
             data['image'] = image_file
             response = self.api_client.patch(url, data, headers={'Authorization': 'Bearer {token}'.format(token=self.token)}, format='multipart')
 
         self.assertEqual(response.status_code, 200)
+
+        mock_upload.assert_called_once()
+        mock_delete.assert_called_once()
 
         recipe = Recipe.objects.get(pk=self.first_recipe.pk)
 

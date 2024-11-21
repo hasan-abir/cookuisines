@@ -2,6 +2,7 @@ from rest_framework import serializers
 from recipes.models import Recipe, Ingredient, Instruction, DietaryPreference, MealType
 from django.contrib.auth.models import User
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+from recipes.services import upload_image, delete_image
 
 class RecipeSerializer(serializers.HyperlinkedModelSerializer):
     ingredients = serializers.HyperlinkedIdentityField(
@@ -46,11 +47,17 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
         
     def save(self, **kwargs):
         # Upload the image to cloud
-        if self.validated_data['image'] is not None:
-            self.validated_data['image_id'] = '123'
-            self.validated_data['image_url'] = 'http://testserver/image/123'
-            self.validated_data.pop('image')
+        if 'image' in self.validated_data or hasattr(self.validated_data, 'image'):
+                result = upload_image(self.validated_data['image'])
 
+                if self.instance:
+                    delete_image(file_id=self.instance.image_id)
+
+                self.validated_data.pop('image')
+
+                self.validated_data['image_id'] = result.file_id
+                self.validated_data['image_url'] = result.url
+        
         return super().save(**kwargs)
 
 class IngredientSerializer(NestedHyperlinkedModelSerializer):

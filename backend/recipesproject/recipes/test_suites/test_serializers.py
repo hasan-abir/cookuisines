@@ -1,6 +1,8 @@
 from django.test import TestCase, RequestFactory
+from unittest.mock import patch
+from rest_framework.serializers import ValidationError
 from recipes.serializers import RecipeSerializer, IngredientSerializer, InstructionSerializer, MealtypeSerializer, DietarypreferenceSerializer
-from .utils import get_demo_recipe, get_demo_user, generate_image
+from .utils import get_demo_recipe, get_demo_user, generate_image, mock_imagekit_upload, mock_imagekit_delete
 from datetime import timedelta
 
 # Create your tests here.
@@ -37,8 +39,10 @@ class RecipeSerializerTestCase(TestCase):
         self.assertEqual(str(serializer.errors['created_by'][0]), 'Invalid pk "123" - object does not exist.')
         self.assertEqual(str(serializer.errors['image'][0]), 'Image size has to be 2mb or less')
 
-    def test_serializer_save(self):
-        
+    @patch('recipes.serializers.upload_image')
+    def test_serializer_save(self, mock_upload_image):
+        mock_upload = mock_imagekit_upload(mock_upload_image)
+
         data = {
             'title': 'Recipe 1',
             'preparation_time': timedelta(hours=0, minutes=2, seconds=3),
@@ -52,6 +56,7 @@ class RecipeSerializerTestCase(TestCase):
         self.assertEqual(is_valid, True)
 
         instance = serializer.save()
+        mock_upload.assert_called_once()
 
         mock_request = RequestFactory().get('/mock/')
         serializer = RecipeSerializer(instance, context={'request': mock_request})
@@ -68,7 +73,61 @@ class RecipeSerializerTestCase(TestCase):
         self.assertTrue(serializer.data['meal_type'].endswith('/recipes/mealtypes/{recipe_pk}/'.format(recipe_pk=instance.pk)))
         self.assertTrue(serializer.data['dietary_preference'].endswith('/recipes/dietarypreferences/{recipe_pk}/'.format(recipe_pk=instance.pk)))
 
+    @patch('recipes.serializers.upload_image')
+    def test_imagekit_upload(self, mock_upload_image):
+        mock_upload_with_error = mock_imagekit_upload(mock_upload_image, raise_exception=True)
         
+        data = {
+            'title': 'Recipe 1',
+            'preparation_time': timedelta(hours=0, minutes=2, seconds=3),
+            'cooking_time': timedelta(hours=0, minutes=3, seconds=2),
+            'difficulty': 'medium',
+            'created_by': self.user.pk,
+            'image': generate_image('cat_small.jpg')
+        }
+        serializer = RecipeSerializer(data=data)
+        is_valid = serializer.is_valid()
+        self.assertEqual(is_valid, True)
+
+        
+        with self.assertRaises(ValidationError) as context:
+            serializer.save()
+
+        mock_upload_with_error.assert_called_once()
+        self.assertTrue(context.exception.detail['image'])
+        self.assertEqual(str(context.exception.detail['image']), 'Image upload failed.')
+
+    @patch('recipes.serializers.delete_image')
+    @patch('recipes.serializers.upload_image')
+    def test_imagekit_delete(self, mock_upload_image, mock_delete_image):
+        mock_upload =  mock_imagekit_upload(mock_upload_image)
+        mock_delete = mock_imagekit_delete(mock_delete_image)
+
+        instance = get_demo_recipe(get_demo_user('hasan_abir_clone'))
+
+        serializer = RecipeSerializer(instance=instance, data={'image': generate_image('cat_small.jpg')}, partial=True)
+        serializer.is_valid()
+
+        serializer.save()
+
+        mock_delete.assert_called_once()
+        mock_upload.assert_called_once()
+        
+        mock_upload.reset_mock()
+        mock_delete.reset_mock()
+        mock_upload =  mock_imagekit_upload(mock_upload_image)
+        mock_delete_with_error = mock_imagekit_delete(mock_delete_image, raise_exception=True)
+
+        serializer = RecipeSerializer(instance=instance, data={'image': generate_image('cat_small.jpg')}, partial=True)
+        serializer.is_valid()
+
+        with self.assertRaises(ValidationError) as context:
+            serializer.save()
+
+        mock_delete_with_error.assert_called_once()
+        mock_upload.assert_called_once()
+        self.assertTrue(context.exception.detail['image'])
+        self.assertEqual(str(context.exception.detail['image']), 'Image upload failed.')
 
 class IngredientSerializerTestCase(TestCase):
     def setUp(self):

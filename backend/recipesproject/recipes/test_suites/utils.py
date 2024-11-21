@@ -1,4 +1,6 @@
 from recipes.models import Recipe, MealType, DietaryPreference, Ingredient, Instruction
+from unittest.mock import patch, MagicMock
+from rest_framework.serializers import ValidationError
 from django.contrib.auth.models import User
 from datetime import timedelta
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -41,3 +43,26 @@ def get_demo_recipe(user, title = 'Example Recipe', difficulty = 'Easy'):
             'created_by': user
         }
     return Recipe.objects.create(**data)
+
+def mock_imagekit_upload(mock_func, raise_exception=False):
+    image_info = {'file_id': '123', 'url': 'http://testserver/image/123'}
+    mock_result = MagicMock()
+    mock_result.file_id = image_info['file_id']
+    mock_result.url = image_info['url']
+
+    if raise_exception:
+        mock_func.side_effect = ValidationError({'image': 'Image upload failed.'})
+    else:
+        mock_func.return_value = mock_result
+
+    return mock_func
+
+def mock_imagekit_delete(mock_func, raise_exception=False):
+    mock_result = MagicMock()
+
+    if raise_exception:
+        mock_func.side_effect = ValidationError({'image': 'Image upload failed.'})
+    else:
+        mock_func.return_value = mock_result
+
+    return mock_func
