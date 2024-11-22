@@ -13,11 +13,12 @@ def get_imagekit_instance():
         url_endpoint='https://ik.imagekit.io/ozjxi1bzek'
     )
 
-def upload_image(image_file):
+def upload_image(image_file, options = UploadFileRequestOptions(folder='/cookuisines_content/')):
         try:
             imagekit = get_imagekit_instance()
 
-            result = imagekit.upload_file(image_file, image_file.name, UploadFileRequestOptions(folder='/cookuisines_content/'))
+
+            result = imagekit.upload_file(image_file, image_file.name, options)
 
             return result
         except Exception:
