@@ -104,7 +104,6 @@ class RecipeViewsTestCase(TestCase):
             'preparation_time': '00:02:03',
             'cooking_time': '00:03:02',
             'difficulty': 'medium',
-            'created_by': self.user.pk
         }
 
 

@@ -36,7 +36,6 @@ class RecipeSerializerTestCase(TestCase):
         self.assertEqual(str(serializer.errors['title'][0]), 'This field may not be blank.')
         self.assertEqual(str(serializer.errors['preparation_time'][0]), 'Duration cannot be zero.')
         self.assertEqual(str(serializer.errors['cooking_time'][0]), 'Duration cannot be zero.')
-        self.assertEqual(str(serializer.errors['created_by'][0]), 'Invalid pk "123" - object does not exist.')
         self.assertEqual(str(serializer.errors['image'][0]), 'Image size has to be 2mb or less')
 
     @patch('recipes.serializers.upload_image')
@@ -48,14 +47,13 @@ class RecipeSerializerTestCase(TestCase):
             'preparation_time': timedelta(hours=0, minutes=2, seconds=3),
             'cooking_time': timedelta(hours=0, minutes=3, seconds=2),
             'difficulty': 'medium',
-            'created_by': self.user.pk,
             'image': generate_image('cat_small.jpg')
         }
         serializer = RecipeSerializer(data=data)
         is_valid = serializer.is_valid()
         self.assertEqual(is_valid, True)
 
-        instance = serializer.save()
+        instance = serializer.save(created_by=self.user)
         mock_upload.assert_called_once()
 
         mock_request = RequestFactory().get('/mock/')
@@ -82,7 +80,6 @@ class RecipeSerializerTestCase(TestCase):
             'preparation_time': timedelta(hours=0, minutes=2, seconds=3),
             'cooking_time': timedelta(hours=0, minutes=3, seconds=2),
             'difficulty': 'medium',
-            'created_by': self.user.pk,
             'image': generate_image('cat_small.jpg')
         }
         serializer = RecipeSerializer(data=data)
@@ -91,7 +88,7 @@ class RecipeSerializerTestCase(TestCase):
 
         
         with self.assertRaises(ValidationError) as context:
-            serializer.save()
+            serializer.save(created_by=self.user)
 
         mock_upload_with_error.assert_called_once()
         self.assertTrue(context.exception.detail['image'])

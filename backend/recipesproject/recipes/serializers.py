@@ -18,12 +18,11 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
     image_url = serializers.CharField(read_only=True)
     meal_type = serializers.HyperlinkedIdentityField(view_name='recipemealtype-detail')
     dietary_preference = serializers.HyperlinkedIdentityField(view_name='recipedietarypreference-detail')
-    created_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
     created_by_username = serializers.ReadOnlyField(source='created_by.username')
 
     class Meta:
         model = Recipe
-        fields = ['url', 'title', 'preparation_time', 'cooking_time', 'difficulty', 'ingredients', 'instructions', 'meal_type', 'dietary_preference', 'created_by', 'created_by_username', 'image', 'image_id', 'image_url']
+        fields = ['url', 'title', 'preparation_time', 'cooking_time', 'difficulty', 'ingredients', 'instructions', 'meal_type', 'dietary_preference', 'created_by_username', 'image', 'image_id', 'image_url']
 
     def validate_image(self, value):
         max_mb = 2

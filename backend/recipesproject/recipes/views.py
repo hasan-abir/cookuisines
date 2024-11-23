@@ -68,6 +68,9 @@ class RecipeViewSet(ModelViewSet):
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
+    def perform_create(self, serializer):
+        return serializer.save(created_by=self.request.user)
+    
 class IngredientViewSet(ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
