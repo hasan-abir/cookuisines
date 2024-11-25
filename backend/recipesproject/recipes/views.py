@@ -5,6 +5,7 @@ from recipes.permissions import IsRecipeOwnerOrReadOnly
 from recipes.models import Recipe, Ingredient, Instruction, MealType, DietaryPreference
 from recipes.serializers import RecipeSerializer, IngredientSerializer, InstructionSerializer, MealtypeSerializer, DietarypreferenceSerializer
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from recipes.services import delete_image
 
 # Create your views here.
 class RecipeViewSet(ModelViewSet):
@@ -70,6 +71,11 @@ class RecipeViewSet(ModelViewSet):
     
     def perform_create(self, serializer):
         return serializer.save(created_by=self.request.user)
+    
+    def perform_destroy(self, instance):
+        delete_image(file_id=instance.image_id)
+
+        return super().perform_destroy(instance)
     
 class IngredientViewSet(ModelViewSet):
     queryset = Ingredient.objects.all()

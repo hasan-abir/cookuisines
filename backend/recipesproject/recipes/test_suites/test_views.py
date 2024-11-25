@@ -163,7 +163,9 @@ class RecipeViewsTestCase(TestCase):
         self.assertEqual(recipe.image_id, "123")
         self.assertEqual(recipe.image_url, "http://testserver/image/123")
 
-    def test_delete_detail(self):
+    @patch('recipes.views.delete_image')
+    def test_delete_detail(self, mock_delete_image):
+        mock_delete = mock_imagekit_delete(mock_delete_image)
         url = '/recipes/{pk}/'.format(pk=self.first_recipe.pk)
 
         response = self.api_client.delete(url)
@@ -175,6 +177,7 @@ class RecipeViewsTestCase(TestCase):
         response = self.api_client.delete(url, headers={'Authorization': 'Bearer {token}'.format(token=self.token)})
         self.assertEqual(response.status_code, 204)
 
+        mock_delete.assert_called_once()
         self.assertEqual(Recipe.objects.count(), self.total_recipes - 1)
 
 class IngredientViewsTestCase(TestCase):
