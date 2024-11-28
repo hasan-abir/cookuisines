@@ -42,10 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'auth_api',
-    'recipes',
     'drf_spectacular',
     'drf_spectacular_sidecar',
+    'recipes',
+    'auth_api'
 ]
 
 REST_FRAMEWORK = {
