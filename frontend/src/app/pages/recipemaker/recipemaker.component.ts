@@ -25,6 +25,7 @@ import {
   MealtypesComponent,
 } from '../../components/makerform/mealtypes/mealtypes.component';
 import { DietarypreferencesComponent } from '../../components/makerform/dietarypreferences/dietarypreferences.component';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 export const initialMakerForm: MakerForm = new FormGroup({
   title: new FormControl(''),
@@ -58,6 +59,8 @@ export const initialMakerForm: MakerForm = new FormGroup({
   selector: 'app-recipemaker',
   standalone: true,
   imports: [
+    RouterLink,
+    RouterLinkActive,
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
