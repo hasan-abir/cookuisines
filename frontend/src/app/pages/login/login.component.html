@@ -1,0 +1,52 @@
+<form
+  [formGroup]="loginForm"
+  (ngSubmit)="onSubmit()"
+  style="max-width: 400px"
+  class="mx-auto"
+>
+  <h1 class="title is-1 pb-4">Login</h1>
+  <div class="field">
+    <label for="username" class="label username is-4"
+      >Username<span class="has-text-danger">*</span></label
+    >
+    <div class="control">
+      <input
+        id="username"
+        class="input"
+        placeholder="Username"
+        formControlName="username"
+      />
+    </div>
+  </div>
+  <div class="field">
+    <label for="password" class="label password is-4"
+      >Password<span class="has-text-danger">*</span></label
+    >
+    <div class="control">
+      <input
+        id="password"
+        class="input"
+        type="password"
+        placeholder="Password"
+        formControlName="password"
+      />
+    </div>
+  </div>
+  <div class="field">
+    <div class="control">
+      <button class="button is-primary is-fullwidth" type="submit">
+        Login
+      </button>
+    </div>
+  </div>
+  <p>
+    Don't have an account?
+    <a
+      class="is-ghost"
+      routerLink="/signup"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      >Sign up</a
+    >
+  </p>
+</form>
