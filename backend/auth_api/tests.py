@@ -27,7 +27,7 @@ class RegisterViewTestCase(TestCase):
         self.assertEqual(response.json()['username'], data['username'])
         self.assertEqual(response.json()['email'], data['email'])
 
-class JWTViewsTestCase(TestCase):
+class TokenViewsTestCase(TestCase):
     def setUp(self):
         self.api_client = APIClient()
         self.user_created = User.objects.create_user('hasan_abir', 'hasanabir@test.com', 'testtest')
@@ -50,6 +50,8 @@ class JWTViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['access'])
         self.assertTrue(response.json()['refresh'])
+        self.assertTrue(response.cookies.get('access-token'))
+        self.assertTrue(response.cookies.get('refresh-token'))
 
     def test_token_refresh(self):
         data = {
@@ -59,11 +61,17 @@ class JWTViewsTestCase(TestCase):
         response = self.api_client.post('/api-token-obtain/', data)
         self.assertEqual(response.status_code, 200)
 
-        refresh_token = response.json()['refresh']
+        response = self.api_client.post('/api-token-refresh/')
 
-        data = {
-            'refresh': refresh_token
-        }
-        response = self.api_client.post('/api-token-refresh/', data)
+
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['access'])
+        self.assertTrue(response.cookies.get('access-token'))
+
+    def test_token_refresh_without_cookie(self):
+        self.api_client.cookies.clear()
+        print(self.api_client.cookies)
+        response = self.api_client.post('/api-token-refresh/')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['refresh'][0], 'Cookie not found. Login first')
