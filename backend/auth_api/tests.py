@@ -1,6 +1,10 @@
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
+from auth_api.serializers import UserSerializer, RefreshSerializer
+from recipes.test_suites.utils import get_demo_user 
 from rest_framework.test import APIClient
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework.serializers import ValidationError
 
 # Create your tests here.
 class RegisterViewTestCase(TestCase):
@@ -75,3 +79,81 @@ class TokenViewsTestCase(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['refresh'][0], 'Cookie not found. Login first')
+
+class UserSerializerTestCase(TestCase):
+    def test_validation(self):
+        data = {
+            'username': 'test_user',
+            'email': 'test@test.com',
+            'password': 'testtest',
+        }
+
+        serializer = UserSerializer(data=data)
+
+        self.assertTrue(serializer.is_valid())
+
+        data = {
+            'username': 'test_user',
+            'email': 'test',
+            'password': 'testtest',
+        }
+
+        serializer = UserSerializer(data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(serializer.errors['email'][0], 'Enter a valid email address.')
+
+
+    def test_save(self):
+        get_demo_user()
+
+        data = {
+            'username': 'hasan_abir',
+            'email': 'hasan_abir@test.com',
+            'password': 'testtest',
+        }
+
+        serializer = UserSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(serializer.errors['username'][0], 'A user with that username already exists.')
+
+        data = {
+            'username': 'test_user',
+            'email': 'test@test.com',
+            'password': 'testtest',
+        }
+
+        serializer = UserSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+
+        self.assertEqual(serializer.data['username'], data['username'])
+        self.assertEqual(serializer.data['email'], data['email'])
+        self.assertFalse('password' in serializer.data)
+
+
+class RefreshSerializerTestCase(TestCase):
+    def test_validation(self):
+        mock_request = RequestFactory().get('/mock/')
+
+        mock_request.COOKIES = {}
+
+        context = {'request': mock_request}
+
+        serializer = RefreshSerializer(context=context)
+
+        with self.assertRaises(ValidationError):
+            serializer.validate({})
+
+        mock_request = RequestFactory().get('/mock/')
+
+        mock_request.COOKIES = {
+            'refresh-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+        }
+
+        context = {'request': mock_request}
+
+        serializer = RefreshSerializer(context=context)
+
+        with self.assertRaises(TokenError):
+            serializer.validate({})
