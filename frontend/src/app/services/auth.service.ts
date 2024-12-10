@@ -30,14 +30,14 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(body: LoginBody): Observable<UserResponse> {
-    return this.http.post<UserResponse>(this.url + 'api-token-obtain', body);
+    return this.http.post<UserResponse>(this.url + 'api-token-obtain/', body);
   }
 
   signup(body: SignupBody): Observable<UserResponse> {
-    return this.http.post<UserResponse>(this.url + 'api-token-register', body);
+    return this.http.post<UserResponse>(this.url + 'api-token-register/', body);
   }
 
   refresh(body: LoginBody): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(this.url + 'api-token-refresh', body);
+    return this.http.post<TokenResponse>(this.url + 'api-token-refresh/', body);
   }
 }

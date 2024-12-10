@@ -78,7 +78,7 @@ class TokenViewsTestCase(TestCase):
         response = self.api_client.post('/api-token-refresh/')
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()['refresh'][0], 'Cookie not found. Login first')
+        self.assertEqual(response.json()['refresh'][0], 'Cookie not found. Login again.')
 
 class UserSerializerTestCase(TestCase):
     def test_validation(self):

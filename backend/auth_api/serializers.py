@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from drf_spectacular.utils import extend_schema_serializer
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,6 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
         
         return user
     
+@extend_schema_serializer(exclude_fields=['refresh'])
 class RefreshSerializer(TokenRefreshSerializer):
     refresh = serializers.CharField(required=False)
 
@@ -23,4 +25,4 @@ class RefreshSerializer(TokenRefreshSerializer):
             return super().validate(attrs)
         
         else:
-            raise serializers.ValidationError({'refresh': 'Cookie not found. Login first'})
+            raise serializers.ValidationError({'refresh': 'Cookie not found. Login again.'})

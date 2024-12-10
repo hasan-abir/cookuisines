@@ -1,3 +1,9 @@
+<article *ngIf="errMsg.length > 0" class="message is-danger is-small">
+  <div class="message-body">
+    {{ errMsg }}
+  </div>
+</article>
+
 <form
   [formGroup]="loginForm"
   (ngSubmit)="onSubmit()"
@@ -34,7 +40,12 @@
   </div>
   <div class="field">
     <div class="control">
-      <button class="button is-primary is-fullwidth" type="submit">
+      <button
+        class="button is-primary is-fullwidth"
+        [class.is-loading]="isProcessing"
+        [disabled]="isProcessing"
+        type="submit"
+      >
         Login
       </button>
     </div>
