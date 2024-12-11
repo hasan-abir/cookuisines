@@ -34,7 +34,7 @@ describe('AuthService', () => {
     service.login(body).subscribe();
 
     const req = httpTesting.expectOne(
-      'https://cookuisines.onrender.com/api-token-obtain'
+      'https://cookuisines.onrender.com/api-token-obtain/'
     );
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBe(body);
@@ -49,7 +49,7 @@ describe('AuthService', () => {
     service.signup(body).subscribe();
 
     const req = httpTesting.expectOne(
-      'https://cookuisines.onrender.com/api-token-register'
+      'https://cookuisines.onrender.com/api-token-register/'
     );
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBe(body);
@@ -63,7 +63,7 @@ describe('AuthService', () => {
     service.refresh(body).subscribe();
 
     const req = httpTesting.expectOne(
-      'https://cookuisines.onrender.com/api-token-refresh'
+      'https://cookuisines.onrender.com/api-token-refresh/'
     );
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBe(body);
