@@ -49,7 +49,7 @@ describe('AuthService', () => {
     service.signup(body).subscribe();
 
     const req = httpTesting.expectOne(
-      'https://cookuisines.onrender.com/api-token-register/'
+      'https://cookuisines.onrender.com/api-user-register/'
     );
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBe(body);

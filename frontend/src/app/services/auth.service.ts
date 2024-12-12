@@ -34,7 +34,7 @@ export class AuthService {
   }
 
   signup(body: SignupBody): Observable<UserResponse> {
-    return this.http.post<UserResponse>(this.url + 'api-token-register/', body);
+    return this.http.post<UserResponse>(this.url + 'api-user-register/', body);
   }
 
   refresh(body: LoginBody): Observable<TokenResponse> {
