@@ -16,6 +16,18 @@ class UserSerializer(serializers.ModelSerializer):
         
         return user
     
+class UserErrorSerializer(serializers.Serializer):
+    username = serializers.ListField()
+    email = serializers.ListField()
+    password = serializers.ListField()
+
+class LoginSuccessSerializer(serializers.Serializer):
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+
+class LoginErrorSerializer(serializers.Serializer):
+    detail = serializers.CharField()
+    
 @extend_schema_serializer(exclude_fields=['refresh'])
 class RefreshSerializer(TokenRefreshSerializer):
     refresh = serializers.CharField(required=False)
@@ -29,3 +41,6 @@ class RefreshSerializer(TokenRefreshSerializer):
         
         else:
             raise serializers.ValidationError({'refresh': 'Cookie not found. Login again.'})
+        
+class RefreshErrorSerializer(serializers.Serializer):
+    refresh = serializers.ListField()
