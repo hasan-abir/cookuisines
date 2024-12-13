@@ -95,13 +95,14 @@ class UserSerializerTestCase(TestCase):
         data = {
             'username': 'test_user',
             'email': 'test',
-            'password': 'testtest',
+            'password': '1',
         }
 
         serializer = UserSerializer(data=data)
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(serializer.errors['email'][0], 'Enter a valid email address.')
+        self.assertEqual(serializer.errors['password'][0], 'Password must be at least 8 characters long')
 
 
     def test_save(self):
@@ -116,6 +117,7 @@ class UserSerializerTestCase(TestCase):
         serializer = UserSerializer(data=data)
         self.assertFalse(serializer.is_valid())
         self.assertEqual(serializer.errors['username'][0], 'A user with that username already exists.')
+        self.assertEqual(serializer.errors['email'][0], 'A user with that email already exists.')
 
         data = {
             'username': 'test_user',
