@@ -102,6 +102,9 @@ class RecipeViewsTestCase(TestCase):
 
         self.login()
 
+        response = self.api_client.post('/recipes/', {})
+        self.assertEqual(response.status_code, 400)
+
         with open(image_path, 'rb') as image_file:
             data['image'] = image_file
             response = self.api_client.post('/recipes/', data, format='multipart')
@@ -141,6 +144,18 @@ class RecipeViewsTestCase(TestCase):
 
         self.login()
 
+        response = self.api_client.patch(url, {
+            'title': '',
+            'preparation_time': '',
+            'cooking_time': '',
+            'difficulty': '',
+            'image': ''
+        })
+        self.assertEqual(response.status_code, 400)
+
+        response = self.api_client.patch('/recipes/123/', {})
+        self.assertEqual(response.status_code, 404)
+
         with open(image_path, 'rb') as image_file:
             data['image'] = image_file
             response = self.api_client.patch(url, data, format='multipart')
@@ -173,6 +188,9 @@ class RecipeViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
         self.login()
+
+        response = self.api_client.delete('/recipes/123/')
+        self.assertEqual(response.status_code, 404)
 
         response = self.api_client.delete(url)
         self.assertEqual(response.status_code, 204)

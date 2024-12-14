@@ -3,7 +3,7 @@ from rest_framework.viewsets import ModelViewSet, mixins, GenericViewSet
 from rest_framework import permissions
 from recipes.permissions import IsRecipeOwnerOrReadOnly
 from recipes.models import Recipe, Ingredient, Instruction, MealType, DietaryPreference
-from recipes.serializers import RecipeSerializer, IngredientSerializer, InstructionSerializer, MealtypeSerializer, DietarypreferenceSerializer
+from recipes.serializers import RecipeSerializer, IngredientSerializer, InstructionSerializer, MealtypeSerializer, DietarypreferenceSerializer, BasicErrorSerializer, RecipeDataSerializer
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from recipes.services import delete_image
 
@@ -68,6 +68,36 @@ class RecipeViewSet(ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+    
+    @extend_schema(
+        responses = {200: RecipeSerializer, 404: BasicErrorSerializer}
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @extend_schema(
+        responses = {201: RecipeSerializer, 401: BasicErrorSerializer, 400: RecipeDataSerializer}
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @extend_schema(
+        responses = {200: RecipeSerializer, 403: BasicErrorSerializer, 401: BasicErrorSerializer, 404: BasicErrorSerializer, 400: RecipeDataSerializer}
+    )    
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(
+        responses = {200: RecipeSerializer, 403: BasicErrorSerializer, 401: BasicErrorSerializer, 404: BasicErrorSerializer, 400: RecipeDataSerializer}
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(
+        responses = {204: 'No Content', 403: BasicErrorSerializer, 401: BasicErrorSerializer, 404: BasicErrorSerializer, 400: RecipeDataSerializer}
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
     
     def perform_create(self, serializer):
         return serializer.save(created_by=self.request.user)

@@ -58,7 +58,14 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
                 self.validated_data['image_url'] = result.url
         
         return super().save(**kwargs)
-
+    
+class RecipeDataSerializer(serializers.Serializer):
+    title = serializers.ListField()
+    preparation_time = serializers.ListField()
+    cooking_time = serializers.ListField()
+    difficulty = serializers.ListField()
+    image = serializers.ListField()
+    
 class IngredientSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
 		'recipe_pk': 'recipe__pk',
@@ -106,3 +113,6 @@ class DietarypreferenceSerializer(serializers.HyperlinkedModelSerializer):
             extra_kwargs = {
                 'url': {'view_name': 'recipedietarypreference-detail'},
             }
+
+class BasicErrorSerializer(serializers.Serializer):
+    detail = serializers.CharField()
