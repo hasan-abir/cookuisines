@@ -228,9 +228,6 @@ class IngredientViewsTestCase(TestCase):
     def test_get_list(self):
         url = '/recipes/{recipe_pk}/ingredients/'.format(recipe_pk=self.recipe1.pk)
 
-        # response = self.api_client.get('/recipes/123/ingredients/')
-        # self.assertEqual(response.status_code, 404)
-
         response = self.api_client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -399,7 +396,6 @@ class InstructionViewsTestCase(TestCase):
 
         data = {
             'step': 'Instruction 1',
-            'recipe': 'http://testserver/recipes/{pk}/'.format(pk=self.recipe1.pk)
         }
 
         response = self.api_client.post(url, data)
@@ -411,6 +407,12 @@ class InstructionViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
         self.login()
+
+        response = self.api_client.post(url, {})
+        self.assertEqual(response.status_code, 400)
+
+        response = self.api_client.post('/recipes/123/instructions/', data)
+        self.assertEqual(response.status_code, 403)
 
         response = self.api_client.post(url, data)
         self.assertEqual(response.status_code, 201)
@@ -435,6 +437,14 @@ class InstructionViewsTestCase(TestCase):
 
         self.login()
 
+        response = self.api_client.patch(url, {
+            'step': '',
+        })
+        self.assertEqual(response.status_code, 400)
+
+        response = self.api_client.patch('/recipes/123/instructions/321/', data)
+        self.assertEqual(response.status_code, 404)
+
         response = self.api_client.patch(url, data)
         self.assertEqual(response.status_code, 200)
 
@@ -454,6 +464,9 @@ class InstructionViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
         self.login()
+
+        response = self.api_client.delete('/recipes/123/instructions/321/')
+        self.assertEqual(response.status_code, 404)
 
         response = self.api_client.delete(url)
         self.assertEqual(response.status_code, 204)
@@ -519,6 +532,9 @@ class MealtypeViewsTestCase(TestCase):
 
         self.login()
 
+        response = self.api_client.post(url, {})
+        self.assertEqual(response.status_code, 400)
+
         response = self.api_client.post(url, data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['breakfast'], False)
@@ -546,6 +562,12 @@ class MealtypeViewsTestCase(TestCase):
 
         self.login()
 
+        response = self.api_client.patch(url, {'breakfast': '123', 'brunch': '123', 'lunch': '123', 'dinner': '123'})
+        self.assertEqual(response.status_code, 400)
+
+        response = self.api_client.patch('/recipes/mealtypes/123/')
+        self.assertEqual(response.status_code, 404)
+
         response = self.api_client.patch(url, data)
         self.assertEqual(response.status_code, 200)
 
@@ -566,6 +588,9 @@ class MealtypeViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
         self.login()
+
+        response = self.api_client.delete('/recipes/mealtypes/123/')
+        self.assertEqual(response.status_code, 404)
 
         response = self.api_client.delete(url)
         self.assertEqual(response.status_code, 204)
@@ -631,6 +656,9 @@ class DietaryprefernceViewsTestCase(TestCase):
 
         self.login()
 
+        response = self.api_client.post(url, {})
+        self.assertEqual(response.status_code, 400)
+
         response = self.api_client.post(url, data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['vegan'], True)
@@ -656,6 +684,12 @@ class DietaryprefernceViewsTestCase(TestCase):
 
         self.login()
 
+        response = self.api_client.patch(url, {'vegan': '123', 'glutenfree': '123'})
+        self.assertEqual(response.status_code, 400)
+
+        response = self.api_client.patch('/recipes/dietarypreferences/123/')
+        self.assertEqual(response.status_code, 404)
+
         response = self.api_client.patch(url, data)
         self.assertEqual(response.status_code, 200)
 
@@ -676,6 +710,9 @@ class DietaryprefernceViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
         self.login()
+
+        response = self.api_client.delete('/recipes/dietarypreferences/123/')
+        self.assertEqual(response.status_code, 404)
 
         response = self.api_client.delete(url)
         self.assertEqual(response.status_code, 204)

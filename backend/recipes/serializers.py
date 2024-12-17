@@ -59,7 +59,7 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
         
         return super().save(**kwargs)
     
-class RecipeDataSerializer(serializers.Serializer):
+class RecipeErrorsSerializer(serializers.Serializer):
     title = serializers.ListField()
     preparation_time = serializers.ListField()
     cooking_time = serializers.ListField()
@@ -80,7 +80,7 @@ class IngredientSerializer(NestedHyperlinkedModelSerializer):
             'url': {'view_name': 'recipeingredient-detail'},
         }
 
-class IngredienteDataSerializer(serializers.Serializer):
+class IngredientErrorsSerializer(serializers.Serializer):
     name = serializers.ListField()
     quantity = serializers.ListField()
     recipe = serializers.ListField()
@@ -99,6 +99,10 @@ class InstructionSerializer(NestedHyperlinkedModelSerializer):
             'url': {'view_name': 'recipeinstruction-detail'},
         }
 
+class InstructionErrorsSerializer(serializers.Serializer):
+    step = serializers.ListField()
+    recipe = serializers.ListField()
+
 class MealtypeSerializer(serializers.HyperlinkedModelSerializer):
     recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
 
@@ -109,6 +113,15 @@ class MealtypeSerializer(serializers.HyperlinkedModelSerializer):
                 'url': {'view_name': 'recipemealtype-detail'},
             }
 
+class MealtypeCreateErrorsSerializer(serializers.Serializer):
+    recipe = serializers.ListField() 
+
+class MealtypeErrorsSerializer(serializers.Serializer):
+    breakfast = serializers.ListField() 
+    brunch = serializers.ListField() 
+    lunch = serializers.ListField() 
+    dinner = serializers.ListField() 
+
 class DietarypreferenceSerializer(serializers.HyperlinkedModelSerializer):
     recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
 
@@ -118,6 +131,13 @@ class DietarypreferenceSerializer(serializers.HyperlinkedModelSerializer):
             extra_kwargs = {
                 'url': {'view_name': 'recipedietarypreference-detail'},
             }
+
+class DietarypreferenceCreateErrorsSerializer(serializers.Serializer):
+    recipe = serializers.ListField() 
+
+class DietarypreferenceErrorsSerializer(serializers.Serializer):
+    vegan = serializers.ListField() 
+    glutenfree = serializers.ListField() 
 
 class BasicErrorSerializer(serializers.Serializer):
     detail = serializers.CharField()
