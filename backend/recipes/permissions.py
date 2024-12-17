@@ -10,11 +10,14 @@ class IsRecipeOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            if request.method == 'POST' and request.data.get('recipe'):
-                recipe_pk = self.get_pk_from_hyperlink(request.data.get('recipe'))
-                
+            if request.method == 'POST' and ('recipe' in  request.data or 'recipe_pk' in view.kwargs):                
                 try:
-                    recipe_instance = Recipe.objects.get(pk=recipe_pk)
+                    if 'recipe_pk' in view.kwargs:
+                        recipe_instance = Recipe.objects.get(pk=view.kwargs['recipe_pk'])
+                    elif 'recipe' in  request.data:
+                        recipe_instance = Recipe.objects.get(pk=self.get_pk_from_hyperlink(request.data.get('recipe')))
+                    else:
+                        return False
                 except Recipe.DoesNotExist:
                     return False
 

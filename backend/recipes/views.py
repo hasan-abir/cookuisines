@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, mixins, GenericViewSet
 from rest_framework import permissions
+from rest_framework.reverse import reverse
+from rest_framework import status
 from recipes.permissions import IsRecipeOwnerOrReadOnly
 from recipes.models import Recipe, Ingredient, Instruction, MealType, DietaryPreference
-from recipes.serializers import RecipeSerializer, IngredientSerializer, InstructionSerializer, MealtypeSerializer, DietarypreferenceSerializer, BasicErrorSerializer, RecipeDataSerializer
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from recipes.serializers import RecipeSerializer, IngredientSerializer, InstructionSerializer, MealtypeSerializer, DietarypreferenceSerializer, BasicErrorSerializer, RecipeDataSerializer, IngredienteDataSerializer
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
 from recipes.services import delete_image
 
 # Create your views here.
@@ -94,7 +96,7 @@ class RecipeViewSet(ModelViewSet):
         return super().partial_update(request, *args, **kwargs)
     
     @extend_schema(
-        responses = {204: 'No Content', 403: BasicErrorSerializer, 401: BasicErrorSerializer, 404: BasicErrorSerializer, 400: RecipeDataSerializer}
+        responses = {204: OpenApiResponse(description='No response body.'), 403: BasicErrorSerializer, 401: BasicErrorSerializer, 404: BasicErrorSerializer, 400: RecipeDataSerializer}
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
@@ -111,6 +113,46 @@ class IngredientViewSet(ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
+
+    @extend_schema(
+        responses = {200: IngredientSerializer, 404: BasicErrorSerializer}
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        responses = {201: IngredientSerializer, 400: IngredienteDataSerializer, 401: BasicErrorSerializer, 403: BasicErrorSerializer}
+    )
+    def create(self, request, *args, **kwargs):
+        recipe_pk = self.kwargs['recipe_pk']
+
+        recipe_url = reverse('recipe-detail', args=[recipe_pk], request=request)
+
+        request.data._mutable = True
+        request.data.update({'recipe': recipe_url})
+
+        return super().create(request, *args, **kwargs)
+    
+    @extend_schema(
+        responses = {200: IngredientSerializer, 400: IngredienteDataSerializer, 404: BasicErrorSerializer, 
+        401: BasicErrorSerializer, 403: BasicErrorSerializer}
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(
+        responses = {200: IngredientSerializer, 400: IngredienteDataSerializer, 404: BasicErrorSerializer, 
+        401: BasicErrorSerializer, 403: BasicErrorSerializer}
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(
+        responses = {204: OpenApiResponse(description='No response body.'), 400: IngredienteDataSerializer, 404: BasicErrorSerializer, 
+        401: BasicErrorSerializer, 403: BasicErrorSerializer}
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
     def get_queryset(self):
         recipe_pk = self.kwargs['recipe_pk']

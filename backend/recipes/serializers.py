@@ -80,6 +80,11 @@ class IngredientSerializer(NestedHyperlinkedModelSerializer):
             'url': {'view_name': 'recipeingredient-detail'},
         }
 
+class IngredienteDataSerializer(serializers.Serializer):
+    name = serializers.ListField()
+    quantity = serializers.ListField()
+    recipe = serializers.ListField()
+
 class InstructionSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
 		'recipe_pk': 'recipe__pk',

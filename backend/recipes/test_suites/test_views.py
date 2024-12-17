@@ -228,6 +228,9 @@ class IngredientViewsTestCase(TestCase):
     def test_get_list(self):
         url = '/recipes/{recipe_pk}/ingredients/'.format(recipe_pk=self.recipe1.pk)
 
+        # response = self.api_client.get('/recipes/123/ingredients/')
+        # self.assertEqual(response.status_code, 404)
+
         response = self.api_client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -258,7 +261,6 @@ class IngredientViewsTestCase(TestCase):
         data = {
             'name': 'Ingredient 1',
             'quantity': '1 spoon',
-            'recipe': 'http://testserver/recipes/{pk}/'.format(pk=self.recipe1.pk)
         }
 
         response = self.api_client.post(url, data)
@@ -270,6 +272,12 @@ class IngredientViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
         self.login()
+
+        response = self.api_client.post(url, {})
+        self.assertEqual(response.status_code, 400)
+
+        response = self.api_client.post('/recipes/123/ingredients/', data)
+        self.assertEqual(response.status_code, 403)
 
         response = self.api_client.post(url, data)
         self.assertEqual(response.status_code, 201)
@@ -294,6 +302,15 @@ class IngredientViewsTestCase(TestCase):
 
         self.login()
 
+        response = self.api_client.patch(url, {
+            'name': '',
+            'quantity': '',
+        })
+        self.assertEqual(response.status_code, 400)
+
+        response = self.api_client.patch('/recipes/123/ingredients/321/', data)
+        self.assertEqual(response.status_code, 404)
+
         response = self.api_client.patch(url, data)
         self.assertEqual(response.status_code, 200)
 
@@ -314,6 +331,9 @@ class IngredientViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
         self.login()
+
+        response = self.api_client.delete('/recipes/123/ingredients/321/')
+        self.assertEqual(response.status_code, 404)
 
         response = self.api_client.delete(url)
         self.assertEqual(response.status_code, 204)
