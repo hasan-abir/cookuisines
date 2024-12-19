@@ -31,7 +31,29 @@ class RegisterViewTestCase(TestCase):
         self.assertEqual(response.json()['username'], data['username'])
         self.assertEqual(response.json()['email'], data['email'])
 
-class TokenViewsTestCase(TestCase):
+class VerifyViewTestCase(TestCase):
+    def setUp(self):
+        self.api_client = APIClient()
+        self.user_created = User.objects.create_user('hasan_abir', 'hasanabir@test.com', 'testtest')
+
+    def test_post_method(self):
+        response = self.api_client.post('/api-user-verify/')
+        self.assertEqual(response.status_code, 401)
+
+        data = {
+            'username': 'hasan_abir',
+            'password': 'testtest'
+        }
+        response = self.api_client.post('/api-token-obtain/', data)
+        self.assertEqual(response.status_code, 204)
+
+        response = self.api_client.post('/api-user-verify/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 2)
+        self.assertEqual(response.json()['username'], self.user_created.username)
+        self.assertEqual(response.json()['email'], self.user_created.email)
+
+class TokenViewTestCase(TestCase):
     def setUp(self):
         self.api_client = APIClient()
         self.user_created = User.objects.create_user('hasan_abir', 'hasanabir@test.com', 'testtest')
@@ -51,9 +73,7 @@ class TokenViewsTestCase(TestCase):
             'password': 'testtest'
         }
         response = self.api_client.post('/api-token-obtain/', data)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.json()['access'])
-        self.assertTrue(response.json()['refresh'])
+        self.assertEqual(response.status_code, 204)
         self.assertTrue(response.cookies.get('access-token'))
         self.assertTrue(response.cookies.get('refresh-token'))
 
@@ -63,13 +83,12 @@ class TokenViewsTestCase(TestCase):
             'password': 'testtest'
         }
         response = self.api_client.post('/api-token-obtain/', data)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
 
         response = self.api_client.post('/api-token-refresh/')
 
 
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.json()['access'])
+        self.assertEqual(response.status_code, 204)
         self.assertTrue(response.cookies.get('access-token'))
 
     def test_token_refresh_without_cookie(self):

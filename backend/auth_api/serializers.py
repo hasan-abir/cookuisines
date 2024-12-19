@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.models import User
-from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer, TokenVerifySerializer
 from drf_spectacular.utils import extend_schema_serializer
 
 class UserSerializer(serializers.ModelSerializer):
@@ -44,3 +44,20 @@ class RefreshSerializer(TokenRefreshSerializer):
         
 class RefreshErrorSerializer(serializers.Serializer):
     refresh = serializers.ListField()
+
+@extend_schema_serializer(exclude_fields=['token'])
+class VerifySerializer(TokenVerifySerializer):
+    token = serializers.CharField(required=False)
+
+    def validate(self, attrs):
+        if 'access-token' in self.context['request'].COOKIES:
+
+            attrs['token'] = self.context['request'].COOKIES.get('access-token')
+        
+            return super().validate(attrs)
+        
+        else:
+            raise serializers.ValidationError({'token': 'Cookie not found. Login again.'})
+        
+class VerifyErrorSerializer(serializers.Serializer):
+    token = serializers.ListField()
