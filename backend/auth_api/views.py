@@ -47,10 +47,10 @@ class LoginView(TokenObtainPairView):
         response = super().post(request, *args, **kwargs)
 
         access_token = response.data['access']
-        response.set_cookie('access-token', access_token)
+        response.set_cookie(key='access-token', value=access_token, secure=True, httponly=True, samesite='None')
 
         refresh_token = response.data['refresh']
-        response.set_cookie('refresh-token', refresh_token)
+        response.set_cookie(key='refresh-token', value=refresh_token, secure=True, httponly=True, samesite='None')
 
         response.status_code = status.HTTP_204_NO_CONTENT
 
@@ -66,7 +66,7 @@ class RefreshView(TokenRefreshView):
         response = super().post(request, *args, **kwargs)
 
         access_token = response.data['access']
-        response.set_cookie('access-token', access_token)
+        response.set_cookie(key='access-token', value=access_token, secure=True, httponly=True, samesite='None')
 
         response.status_code = status.HTTP_204_NO_CONTENT
 
