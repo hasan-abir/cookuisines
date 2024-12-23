@@ -40,6 +40,15 @@ describe('AuthService', () => {
     expect(req.request.body).toBe(body);
   });
 
+  it('verify: should call API', () => {
+    service.verify().subscribe();
+
+    const req = httpTesting.expectOne(
+      'https://cookuisines.onrender.com/api-user-verify/'
+    );
+    expect(req.request.method).toBe('POST');
+  });
+
   it('signup: should call API', () => {
     const body = {
       username: 'test_user',
@@ -56,16 +65,11 @@ describe('AuthService', () => {
   });
 
   it('refresh: should call API', () => {
-    const body = {
-      username: 'test_user',
-      password: 'testtest',
-    };
-    service.refresh(body).subscribe();
+    service.refresh().subscribe();
 
     const req = httpTesting.expectOne(
       'https://cookuisines.onrender.com/api-token-refresh/'
     );
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toBe(body);
   });
 });

@@ -1,15 +1,14 @@
-<article *ngIf="errMsg.length > 0" class="message is-danger is-small">
-  <div class="message-body">
-    {{ errMsg }}
-  </div>
-</article>
-
 <form
   [formGroup]="loginForm"
   (ngSubmit)="onSubmit()"
   style="max-width: 400px"
   class="mx-auto"
 >
+  <article *ngIf="errMsg.length > 0" class="message is-danger is-small">
+    <div class="message-body">
+      {{ errMsg }}
+    </div>
+  </article>
   <h1 class="title is-1 pb-4">Login</h1>
   <div class="field">
     <label for="username" class="label username is-4"
