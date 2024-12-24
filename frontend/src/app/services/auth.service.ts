@@ -1,6 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, catchError, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface LoginBody {
   username: string;
