@@ -32,7 +32,9 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(body: LoginBody): Observable<null> {
-    return this.http.post<null>(this.url + 'api-token-obtain/', body);
+    return this.http.post<null>(this.url + 'api-token-obtain/', body, {
+      withCredentials: true,
+    });
   }
 
   verify(): Observable<UserResponse> {
@@ -48,7 +50,13 @@ export class AuthService {
   }
 
   refresh(): Observable<null> {
-    return this.http.post<null>(this.url + 'api-token-refresh/', {});
+    return this.http.post<null>(
+      this.url + 'api-token-refresh/',
+      {},
+      {
+        withCredentials: true,
+      }
+    );
   }
 
   setVerifyingState(state: boolean) {

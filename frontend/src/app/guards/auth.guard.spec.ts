@@ -15,6 +15,7 @@ describe('authGuard', () => {
     authService = jasmine.createSpyObj('AuthService', [
       'setVerifyingState',
       'verify',
+      'refresh',
     ]);
     router = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -47,8 +48,11 @@ describe('authGuard', () => {
     );
   });
 
-  it('should return false and navigate to login when verify() fails', () => {
+  it('should return true when verify() fails but refresh() succeeds', () => {
     authService.verify.and.returnValue(
+      throwError(() => new Error('Unauthorized'))
+    );
+    authService.refresh.and.returnValue(
       throwError(() => new Error('Unauthorized'))
     );
 
@@ -60,6 +64,22 @@ describe('authGuard', () => {
         expect(authService.setVerifyingState).toHaveBeenCalledWith(false);
 
         expect(router.navigate).toHaveBeenCalledWith(['/login']);
+      }
+    );
+  });
+
+  it('should return false and navigate to login when both verify() and refresh() fails', () => {
+    authService.verify.and.returnValue(
+      throwError(() => new Error('Unauthorized'))
+    );
+    authService.refresh.and.returnValue(of(null));
+
+    (executeGuard(null as any, null as any) as Observable<any>).subscribe(
+      (result) => {
+        expect(result).toBeTrue();
+
+        expect(authService.setVerifyingState).toHaveBeenCalledWith(true);
+        expect(authService.setVerifyingState).toHaveBeenCalledWith(false);
       }
     );
   });

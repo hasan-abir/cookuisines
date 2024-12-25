@@ -14,10 +14,18 @@ export const authGuard: CanActivateFn = (route, state) => {
       return true;
     }),
     catchError((err) => {
-      router.navigate(['/login']);
+      return authService.refresh().pipe(
+        map(() => {
+          authService.setVerifyingState(false);
+          return true;
+        }),
+        catchError((err) => {
+          router.navigate(['/login']);
 
-      authService.setVerifyingState(false);
-      return of(false);
+          authService.setVerifyingState(false);
+          return of(false);
+        })
+      );
     })
   );
 };
