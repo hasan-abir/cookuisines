@@ -32,9 +32,7 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(body: LoginBody): Observable<null> {
-    return this.http.post<null>(this.url + 'api-token-obtain/', body, {
-      withCredentials: true,
-    });
+    return this.http.post<null>(this.url + 'api-token-obtain/', body);
   }
 
   verify(): Observable<UserResponse> {
