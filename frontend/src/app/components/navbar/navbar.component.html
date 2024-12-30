@@ -39,11 +39,12 @@
         routerLink="/recipemaker"
         routerLinkActive="active"
         ariaCurrentWhenActive="page"
+        *ngIf="authenticated$ | async"
         >Maker</a
       >
     </div>
 
-    <div class="navbar-end">
+    <div class="navbar-end" *ngIf="!(authenticated$ | async)">
       <div class="navbar-item">
         <div class="buttons">
           <a

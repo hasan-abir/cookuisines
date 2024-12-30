@@ -6,8 +6,8 @@ import { HomeComponent } from './pages/home/home.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: 'signup', component: SignupComponent },
-  { path: 'login', component: LoginComponent },
+  { path: 'signup', component: SignupComponent, canActivate: [authGuard] },
+  { path: 'login', component: LoginComponent, canActivate: [authGuard] },
   {
     path: 'recipemaker',
     component: RecipemakerComponent,

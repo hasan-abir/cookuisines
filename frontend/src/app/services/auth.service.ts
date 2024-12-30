@@ -26,8 +26,12 @@ export interface TokenResponse {
 })
 export class AuthService {
   url = 'https://cookuisines.onrender.com/';
+  private authenticatedSubject = new BehaviorSubject<boolean>(false);
+  authenticated$ = this.authenticatedSubject.asObservable();
   private verifyingSubject = new BehaviorSubject<boolean>(false);
   verifying$ = this.verifyingSubject.asObservable();
+  private verifiedSubject = new BehaviorSubject<boolean>(false);
+  verified$ = this.verifiedSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -61,5 +65,11 @@ export class AuthService {
 
   setVerifyingState(state: boolean) {
     this.verifyingSubject.next(state);
+  }
+  setVerifiedState(state: boolean) {
+    this.verifiedSubject.next(state);
+  }
+  setAuthenticatedState(state: boolean) {
+    this.authenticatedSubject.next(state);
   }
 }

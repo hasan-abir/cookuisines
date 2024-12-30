@@ -50,6 +50,7 @@ export class LoginComponent {
           this.isProcessing = false;
         },
         complete: () => {
+          this.authService.setVerifiedState(false);
           this.router.navigate(['/recipemaker']);
         },
       });
