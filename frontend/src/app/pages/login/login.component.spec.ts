@@ -14,7 +14,10 @@ describe('LoginComponent', () => {
   let router: Router;
 
   beforeEach(async () => {
-    const loginSpy = jasmine.createSpyObj('AuthService', ['login']);
+    const loginSpy = jasmine.createSpyObj('AuthService', [
+      'login',
+      'setVerifiedState',
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent],

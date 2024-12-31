@@ -17,6 +17,7 @@ describe('SignupComponent', () => {
     const signupAndLoginSpy = jasmine.createSpyObj('AuthService', [
       'signup',
       'login',
+      'setVerifiedState',
     ]);
 
     await TestBed.configureTestingModule({
