@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CanActivateFn, Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
@@ -38,56 +38,85 @@ describe('authGuard', () => {
     expect(executeGuard).toBeTruthy();
   });
 
-  it('should return true when verify() succeeds', async () => {
+  it('should not run verify() when isVerified', async () => {
+    (authService.verified$ as BehaviorSubject<boolean>).next(true);
     authService.verify.and.returnValue(
       of({ username: 'hasan_abir', email: 'hasanabir@test.com' })
     );
 
-    const result = await executeGuard(
-      { url: [{ path: 'recipemaker' }] } as any,
-      null as any
-    );
-    expect(result).toBeFalse();
-
-    expect(authService.setVerifyingState).toHaveBeenCalledWith(true);
-    expect(authService.setVerifyingState).toHaveBeenCalledWith(false);
+    await executeGuard({ url: [{ path: 'recipemaker' }] } as any, null as any);
+    expect(authService.verify).not.toHaveBeenCalled();
   });
 
-  it('should return true when verify() fails but refresh() succeeds', async () => {
+  it('should return false when verify() succeeds, not authenticated, and not attempting to login', async () => {
     authService.verify.and.returnValue(
-      throwError(() => new Error('Unauthorized'))
-    );
-    authService.refresh.and.returnValue(
-      throwError(() => new Error('Unauthorized'))
+      of({ username: 'hasan_abir', email: 'hasanabir@test.com' })
     );
 
-    const result = await executeGuard(
+    let result = await executeGuard(
       { url: [{ path: 'recipemaker' }] } as any,
       null as any
     );
-
+    expect(authService.verify).toHaveBeenCalled();
     expect(result).toBeFalse();
 
     expect(authService.setVerifyingState).toHaveBeenCalledWith(true);
     expect(authService.setVerifyingState).toHaveBeenCalledWith(false);
-
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });
 
-  it('should return false and navigate to login when both verify() and refresh() fails', async () => {
+  it('should return true when verify() succeeds, authenticated, not authenticated, and not attempting to login', async () => {
+    authService.verify.and.returnValue(
+      of({ username: 'hasan_abir', email: 'hasanabir@test.com' })
+    );
+    (authService.authenticated$ as BehaviorSubject<boolean>).next(true);
+
+    let result = await executeGuard(
+      { url: [{ path: 'recipemaker' }] } as any,
+      null as any
+    );
+    expect(authService.verify).toHaveBeenCalled();
+    expect(result).toBeTrue();
+
+    expect(authService.setVerifyingState).toHaveBeenCalledWith(true);
+    expect(authService.setVerifyingState).toHaveBeenCalledWith(false);
+
+    (authService.authenticated$ as BehaviorSubject<boolean>).next(false);
+
+    result = await executeGuard(
+      { url: [{ path: 'login' }] } as any,
+      null as any
+    );
+    expect(result).toBeTrue();
+  });
+
+  it('should return false when verify() succeeds, authenticated, and attempting to login', async () => {
+    authService.verify.and.returnValue(
+      of({ username: 'hasan_abir', email: 'hasanabir@test.com' })
+    );
+    (authService.authenticated$ as BehaviorSubject<boolean>).next(true);
+
+    const result = await executeGuard(
+      { url: [{ path: 'login' }] } as any,
+      null as any
+    );
+    expect(authService.verify).toHaveBeenCalled();
+    expect(result).toBeFalse();
+
+    expect(authService.setVerifyingState).toHaveBeenCalledWith(true);
+    expect(authService.setVerifyingState).toHaveBeenCalledWith(false);
+    expect(router.navigate).toHaveBeenCalledWith(['/recipemaker']);
+  });
+
+  it('should run refresh when verify fails', async () => {
     authService.verify.and.returnValue(
       throwError(() => new Error('Unauthorized'))
     );
     authService.refresh.and.returnValue(of(null));
 
-    const result = await executeGuard(
-      { url: [{ path: 'recipemaker' }] } as any,
-      null as any
-    );
+    await executeGuard({ url: [{ path: 'recipemaker' }] } as any, null as any);
 
-    expect(result).toBeFalse();
-
-    expect(authService.setVerifyingState).toHaveBeenCalledWith(true);
-    expect(authService.setVerifyingState).toHaveBeenCalledWith(false);
+    expect(authService.verify).toHaveBeenCalled();
+    expect(authService.refresh).toHaveBeenCalled();
   });
 });
