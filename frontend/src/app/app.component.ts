@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
+import { NotificationService } from './services/notification.service';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +15,10 @@ import { CommonModule } from '@angular/common';
 export class AppComponent {
   title = 'cookuisines_frontend';
   verifying$ = this.authService.verifying$;
+  waiting$ = this.notificationService.waiting$;
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private notificationService: NotificationService
+  ) {}
 }
