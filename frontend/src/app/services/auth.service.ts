@@ -25,7 +25,6 @@ export interface TokenResponse {
   providedIn: 'root',
 })
 export class AuthService {
-  url = 'https://cookuisines.onrender.com/';
   private authenticatedSubject = new BehaviorSubject<boolean>(false);
   authenticated$ = this.authenticatedSubject.asObservable();
   private verifyingSubject = new BehaviorSubject<boolean>(false);
@@ -36,26 +35,26 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(body: LoginBody): Observable<null> {
-    return this.http.post<null>(this.url + 'api-token-obtain/', body, {
+    return this.http.post<null>('api-token-obtain/', body, {
       withCredentials: true,
     });
   }
 
   verify(): Observable<UserResponse> {
     return this.http.post<UserResponse>(
-      this.url + 'api-user-verify/',
+      'api-user-verify/',
       {},
       { withCredentials: true }
     );
   }
 
   signup(body: SignupBody): Observable<UserResponse> {
-    return this.http.post<UserResponse>(this.url + 'api-user-register/', body);
+    return this.http.post<UserResponse>('api-user-register/', body);
   }
 
   refresh(): Observable<null> {
     return this.http.post<null>(
-      this.url + 'api-token-refresh/',
+      'api-token-refresh/',
       {},
       {
         withCredentials: true,

@@ -8,11 +8,11 @@ import {
 
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
-import { timeoutInterceptor } from './interceptors/timeout.interceptor';
+import { globalAPIInterceptor } from './interceptors/global_api.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(withFetch(), withInterceptors([timeoutInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([globalAPIInterceptor])),
     provideRouter(routes),
     provideClientHydration(),
   ],

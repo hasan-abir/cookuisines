@@ -6,20 +6,20 @@ import {
   withInterceptors,
 } from '@angular/common/http';
 
-import { timeoutInterceptor } from './timeout.interceptor';
+import { globalAPIInterceptor } from './global_api.interceptor';
 import { NotificationService } from '../services/notification.service';
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 
-describe('timeoutInterceptor', () => {
+describe('globalAPIInterceptor', () => {
   let httpClient: HttpClient;
   let notificationServiceSpy: jasmine.SpyObj<NotificationService>;
   let httpTesting: HttpTestingController;
 
   const interceptor: HttpInterceptorFn = (req, next) =>
-    TestBed.runInInjectionContext(() => timeoutInterceptor(req, next));
+    TestBed.runInInjectionContext(() => globalAPIInterceptor(req, next));
 
   beforeEach(() => {
     notificationServiceSpy = jasmine.createSpyObj('NotificationService', [
@@ -45,26 +45,26 @@ describe('timeoutInterceptor', () => {
   it('should call setWaitingState(true) after 10 seconds timeout', fakeAsync(() => {
     notificationServiceSpy.setWaitingState.calls.reset();
 
-    httpClient.get('/test').subscribe();
+    httpClient.get('test').subscribe();
 
     tick(11000);
 
     expect(notificationServiceSpy.setWaitingState).toHaveBeenCalledWith(true);
 
-    const req = httpTesting.expectOne('/test');
+    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
     req.flush({});
   }));
 
   it('should not call setWaitingState(true) before 10 seconds timeout', fakeAsync(() => {
     notificationServiceSpy.setWaitingState.calls.reset();
 
-    httpClient.get('/test').subscribe();
+    httpClient.get('test').subscribe();
 
     tick(5000);
 
     expect(notificationServiceSpy.setWaitingState).not.toHaveBeenCalled();
 
-    const req = httpTesting.expectOne('/test');
+    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
     req.flush({});
   }));
 });

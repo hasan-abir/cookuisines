@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   provideHttpClientTesting,
   HttpTestingController,
 } from '@angular/common/http/testing';
-import { AuthService } from './auth.service';
+import { AuthService, LoginBody, SignupBody } from './auth.service';
+import { globalAPIInterceptor } from '../interceptors/global_api.interceptor';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -13,7 +14,10 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(withInterceptors([globalAPIInterceptor])),
+        provideHttpClientTesting(),
+      ],
     });
     service = TestBed.inject(AuthService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -27,7 +31,7 @@ describe('AuthService', () => {
   });
 
   it('login: should call API', () => {
-    const body = {
+    const body: LoginBody = {
       username: 'test_user',
       password: 'testtest',
     };
@@ -50,7 +54,7 @@ describe('AuthService', () => {
   });
 
   it('signup: should call API', () => {
-    const body = {
+    const body: SignupBody = {
       username: 'test_user',
       email: 'test@test.com',
       password: 'testtest',
