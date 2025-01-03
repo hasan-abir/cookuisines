@@ -29,6 +29,7 @@ class RegisterView(APIView):
             return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
 class VerifyView(APIView):
+    serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     @extend_schema(

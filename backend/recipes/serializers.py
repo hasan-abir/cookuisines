@@ -3,8 +3,11 @@ from recipes.models import Recipe, Ingredient, Instruction, DietaryPreference, M
 from django.contrib.auth.models import User
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from recipes.services import upload_image, delete_image
+from drf_spectacular.utils import extend_schema_serializer
 
 class RecipeSerializer(serializers.HyperlinkedModelSerializer):
+    preparation_time = serializers.DurationField(help_text='In hh:mm:ss format')
+    cooking_time = serializers.DurationField(help_text='In hh:mm:ss format')
     ingredients = serializers.HyperlinkedIdentityField(
         view_name='recipeingredient-list',
         lookup_url_kwarg='recipe_pk'
@@ -13,7 +16,7 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
         view_name='recipeinstruction-list',
         lookup_url_kwarg='recipe_pk'
     )
-    image = serializers.ImageField(write_only=True)
+    image = serializers.ImageField(write_only=True, help_text='Upload a file')
     image_id = serializers.CharField(read_only=True)
     image_url = serializers.CharField(read_only=True)
     meal_type = serializers.HyperlinkedIdentityField(view_name='recipemealtype-detail')
@@ -66,6 +69,7 @@ class RecipeErrorsSerializer(serializers.Serializer):
     difficulty = serializers.ListField()
     image = serializers.ListField()
     
+@extend_schema_serializer(exclude_fields=['recipe'])
 class IngredientSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
 		'recipe_pk': 'recipe__pk',
@@ -85,6 +89,7 @@ class IngredientErrorsSerializer(serializers.Serializer):
     quantity = serializers.ListField()
     recipe = serializers.ListField()
 
+@extend_schema_serializer(exclude_fields=['recipe'])
 class InstructionSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
 		'recipe_pk': 'recipe__pk',
