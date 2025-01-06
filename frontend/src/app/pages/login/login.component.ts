@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService, LoginBody } from '../../services/auth.service';
+import { handleErrors } from '../../../utils/error.utils';
 
 @Component({
   selector: 'app-login',
@@ -25,7 +26,7 @@ import { AuthService, LoginBody } from '../../services/auth.service';
 })
 export class LoginComponent {
   isProcessing = false;
-  errMsg = '';
+  errMsgs: string[] = [];
 
   loginForm = this.formBuilder.group({
     username: new FormControl<string | null>(null, Validators.required),
@@ -40,12 +41,12 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      this.errMsg = '';
+      this.errMsgs = [];
       this.isProcessing = true;
 
       this.authService.login(this.loginForm.value as LoginBody).subscribe({
         error: (err) => {
-          this.errMsg = err.error && err.error.detail;
+          this.errMsgs = handleErrors(err);
           this.loginForm.reset();
           this.isProcessing = false;
         },

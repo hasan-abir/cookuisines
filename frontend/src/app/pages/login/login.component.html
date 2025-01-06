@@ -4,9 +4,9 @@
   style="max-width: 400px"
   class="mx-auto"
 >
-  <article *ngIf="errMsg.length > 0" class="message is-danger is-small">
+  <article *ngFor="let msg of errMsgs" class="message is-danger is-small mb-2">
     <div class="message-body">
-      {{ errMsg }}
+      {{ msg }}
     </div>
   </article>
   <h1 class="title is-1 pb-4">Login</h1>

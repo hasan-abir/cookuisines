@@ -42,6 +42,7 @@ export interface InstructionResponse extends InstructionBody {
 }
 
 export interface MealTypeBody {
+  recipe: string;
   breakfast?: boolean;
   brunch?: boolean;
   lunch?: boolean;
@@ -53,6 +54,7 @@ export interface MealTypeResponse extends MealTypeBody {
 }
 
 export interface DietaryPreferenceBody {
+  recipe: string;
   vegan?: boolean;
   glutenfree?: boolean;
 }
@@ -64,7 +66,7 @@ export interface DietaryPreferenceResponse extends DietaryPreferenceBody {
 @Injectable({
   providedIn: 'root',
 })
-export class RecipesService {
+export class RecipeService {
   constructor(private http: HttpClient) {}
 
   create_recipe(body: RecipeBody): Observable<RecipeResponse> {
@@ -91,21 +93,21 @@ export class RecipesService {
     });
   }
 
-  create_mealtype(
-    url: string,
-    body: MealTypeBody
-  ): Observable<MealTypeResponse> {
-    return this.http.post<MealTypeResponse>(url, body, {
+  create_mealtype(body: MealTypeBody): Observable<MealTypeResponse> {
+    return this.http.post<MealTypeResponse>('recipes/mealtypes/', body, {
       withCredentials: true,
     });
   }
 
   create_dietarypreference(
-    url: string,
     body: DietaryPreferenceBody
   ): Observable<DietaryPreferenceResponse> {
-    return this.http.post<DietaryPreferenceResponse>(url, body, {
-      withCredentials: true,
-    });
+    return this.http.post<DietaryPreferenceResponse>(
+      'recipes/dietarypreferences/',
+      body,
+      {
+        withCredentials: true,
+      }
+    );
   }
 }

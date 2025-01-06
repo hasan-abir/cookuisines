@@ -10,12 +10,12 @@ import {
   InstructionBody,
   MealTypeBody,
   RecipeBody,
-  RecipesService,
+  RecipeService,
 } from './recipe.service';
 import { globalAPIInterceptor } from '../interceptors/global_api.interceptor';
 
 describe('RecipesService', () => {
-  let service: RecipesService;
+  let service: RecipeService;
   let httpTesting: HttpTestingController;
 
   beforeEach(() => {
@@ -25,7 +25,7 @@ describe('RecipesService', () => {
         provideHttpClientTesting(),
       ],
     });
-    service = TestBed.inject(RecipesService);
+    service = TestBed.inject(RecipeService);
     httpTesting = TestBed.inject(HttpTestingController);
   });
   afterEach(() => {
@@ -80,10 +80,11 @@ describe('RecipesService', () => {
   it('create_mealtype: should call API', () => {
     const url = 'recipes/mealtypes/';
     const body: MealTypeBody = {
+      recipe: '/recipes/123',
       breakfast: true,
       dinner: true,
     };
-    service.create_mealtype(url, body).subscribe();
+    service.create_mealtype(body).subscribe();
 
     const req = httpTesting.expectOne(
       `https://cookuisines.onrender.com/${url}`
@@ -94,9 +95,10 @@ describe('RecipesService', () => {
   it('create_dietarypreference: should call API', () => {
     const url = 'recipes/dietarypreferences/';
     const body: DietaryPreferenceBody = {
+      recipe: '/recipes/123',
       vegan: true,
     };
-    service.create_dietarypreference(url, body).subscribe();
+    service.create_dietarypreference(body).subscribe();
 
     const req = httpTesting.expectOne(
       `https://cookuisines.onrender.com/${url}`

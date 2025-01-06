@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService, SignupBody } from '../../services/auth.service';
+import { handleErrors } from '../../../utils/error.utils';
 
 @Component({
   selector: 'app-signup',
@@ -46,15 +47,7 @@ export class SignupComponent {
 
       this.authService.signup(this.signupForm.value as SignupBody).subscribe({
         error: (err) => {
-          err.error &&
-            err.error.username &&
-            this.errMsgs.push(err.error.username[0]);
-
-          err.error && err.error.email && this.errMsgs.push(err.error.email[0]);
-
-          err.error &&
-            err.error.password &&
-            this.errMsgs.push(err.error.password[0]);
+          this.errMsgs = handleErrors(err);
 
           this.isProcessing = false;
         },
@@ -66,9 +59,7 @@ export class SignupComponent {
             })
             .subscribe({
               error: (err) => {
-                err.error &&
-                  err.error.detail &&
-                  this.errMsgs.push(err.error.detail);
+                this.errMsgs = handleErrors(err);
 
                 this.signupForm.reset();
                 this.isProcessing = false;

@@ -36,7 +36,7 @@ describe('MealtypesComponent', () => {
       "input[formControlName='dinner']"
     );
 
-    expect(mainLabel?.textContent).toBe('Meal type*');
+    expect(mainLabel?.textContent).toBe('Meal type');
     expect(breakfastLabel?.textContent?.trim()).toBe('Breakfast');
     expect(brunchLabel?.textContent?.trim()).toBe('Brunch');
     expect(lunchLabel?.textContent?.trim()).toBe('Lunch');
@@ -85,26 +85,5 @@ describe('MealtypesComponent', () => {
     expect(component.makerForm.get('mealType')?.value.brunch).toBeTrue();
     expect(component.makerForm.get('mealType')?.value.lunch).toBeTrue();
     expect(component.makerForm.get('mealType')?.value.dinner).toBeTrue();
-  });
-
-  it('should display the error', () => {
-    const mockForm = new FormGroup({
-      mealType: new FormGroup({
-        breakfast: new FormControl(false),
-        brunch: new FormControl(false),
-        lunch: new FormControl(false),
-        dinner: new FormControl(false),
-      }),
-    });
-    component.makerForm = mockForm as any;
-    fixture.detectChanges();
-    component.makerForm.get('mealType')?.setErrors({ mealTypeExists: true });
-    fixture.detectChanges();
-
-    const errEl = compiled.querySelector('.help') as HTMLInputElement;
-
-    expect(errEl.textContent?.trim()).toBe(
-      'Which time(s) of day does it suit? Provide the detail'
-    );
   });
 });

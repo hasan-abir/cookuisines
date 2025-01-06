@@ -1,6 +1,10 @@
-<h1 class="title is-1 pb-4">Recipe Maker</h1>
-
 <form [formGroup]="makerForm" (ngSubmit)="onSubmit()">
+  <article *ngFor="let msg of errMsgs" class="message is-danger is-small mb-2">
+    <div class="message-body">
+      {{ msg }}
+    </div>
+  </article>
+  <h1 class="title is-1 pb-4">Recipe Maker</h1>
   <div class="columns">
     <div class="field column is-half">
       <label for="title" class="label title is-4"
@@ -25,7 +29,9 @@
     </div>
     <div class="field column is-half">
       <app-ingredientsformarray [makerForm]="makerForm" />
-      <label class="label mt-4 title is-4">Time</label>
+      <label class="label mt-4 title is-4"
+        >Time<span class="has-text-danger">*</span></label
+      >
       <div class="columns mb-5">
         <div class="column is-half">
           <label class="label"
@@ -69,6 +75,8 @@
       <button
         class="button is-primary is-uppercase has-text-weight-bold is-fullwidth"
         type="submit"
+        [class.is-loading]="isProcessing"
+        [disabled]="isProcessing"
       >
         Make
       </button>

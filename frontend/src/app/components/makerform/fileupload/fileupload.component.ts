@@ -77,14 +77,20 @@ export class FileuploadComponent {
     this.previewImg = null;
   }
 
-  imageErrs(): { invalidFileType: boolean; invalidFileSize: boolean } {
+  imageErrs(): {
+    required: boolean;
+    invalidFileType: boolean;
+    invalidFileSize: boolean;
+  } {
     const control = this.image;
+    const required = control && control.errors && control.errors['required'];
     const invalidFileType =
       control && control.errors && control.errors['invalidFileType'];
     const invalidFileSize =
       control && control.errors && control.errors['invalidFileSize'];
 
     return {
+      required,
       invalidFileType,
       invalidFileSize,
     };

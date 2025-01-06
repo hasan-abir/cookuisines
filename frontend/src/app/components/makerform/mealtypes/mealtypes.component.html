@@ -1,7 +1,5 @@
 <div class="control" [formGroup]="makerForm">
-  <label class="label title is-4"
-    >Meal type<span class="has-text-danger">*</span>
-  </label>
+  <label class="label title is-4">Meal type</label>
   <div class="checkboxes" formGroupName="mealType">
     <label class="checkbox">
       <input type="checkbox" formControlName="breakfast" />
@@ -20,7 +18,4 @@
       Dinner
     </label>
   </div>
-  <p class="help" *ngIf="mealTypeErrs().mealTypeExists">
-    Which time(s) of day does it suit? Provide the detail
-  </p>
 </div>

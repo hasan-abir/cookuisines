@@ -1,5 +1,7 @@
 <div class="control mb-5">
-  <label for="image" class="label title is-4">Image</label>
+  <label for="image" class="label title is-4"
+    >Image<span class="has-text-danger">*</span></label
+  >
   <div class="file is-outlined has-name">
     <label class="file-label">
       <input
@@ -16,7 +18,7 @@
       </span>
     </label>
   </div>
-  <div *ngIf="previewImg">
+  <div *ngIf="previewImg && image.value">
     <figure class="image is-128x128 mb-2">
       <img [src]="previewImg" style="object-fit: cover; height: 100%" />
     </figure>
@@ -24,6 +26,9 @@
       Remove
     </button>
   </div>
+  <p *ngIf="imageErrs().required" class="help">
+    Show the world how the recipe looks!
+  </p>
   <p *ngIf="imageErrs().invalidFileType" class="help">
     File must be of image type
   </p>
