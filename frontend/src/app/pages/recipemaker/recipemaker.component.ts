@@ -10,6 +10,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { catchError, combineLatest, forkJoin, of } from 'rxjs';
+import { handleErrors } from '../../../utils/error.utils';
 import { DietarypreferencesComponent } from '../../components/makerform/dietarypreferences/dietarypreferences.component';
 import {
   checkDurationGreaterThanZero,
@@ -31,8 +33,6 @@ import {
   RecipeService,
 } from '../../services/recipe.service';
 import { MakerForm } from '../../types/MakerForm';
-import { concat } from 'rxjs';
-import { handleErrors } from '../../../utils/error.utils';
 
 export interface Duration {
   hours: number;
@@ -190,8 +190,6 @@ export class RecipemakerComponent {
         image: value.image as File,
       };
 
-      console.log(value);
-
       this.recipeService.create_recipe(recipeBody).subscribe({
         next: (recipe) => {
           const ingredientsRequest = (
@@ -220,12 +218,14 @@ export class RecipemakerComponent {
               ...value.dietaryPreference,
             } as DietaryPreferenceBody);
 
-          concat(
-            ingredientsRequest,
-            instructionsRequest,
+          const nestedRequests = combineLatest([
+            ...ingredientsRequest,
+            ...instructionsRequest,
             mealtypeRequest,
-            dietarypreferenceRequest
-          ).subscribe({
+            dietarypreferenceRequest,
+          ]);
+
+          nestedRequests.subscribe({
             complete: () => {
               this.isProcessing = false;
 
@@ -255,6 +255,7 @@ export class RecipemakerComponent {
           });
         },
         error: (err) => {
+          console.log(err);
           this.errMsgs = handleErrors(err);
 
           this.isProcessing = false;
