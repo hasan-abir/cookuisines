@@ -255,7 +255,6 @@ export class RecipemakerComponent {
           });
         },
         error: (err) => {
-          console.log(err);
           this.errMsgs = handleErrors(err);
 
           this.isProcessing = false;

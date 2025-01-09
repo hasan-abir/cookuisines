@@ -19,15 +19,8 @@ export const authGuard: CanActivateFn = async (route, state) => {
           authService.setAuthenticatedState(true);
         }),
         catchError((err) => {
-          return authService.refresh().pipe(
-            map(() => {
-              authService.setAuthenticatedState(true);
-            }),
-            catchError((err) => {
-              authService.setAuthenticatedState(false);
-              return of(false);
-            })
-          );
+          authService.setAuthenticatedState(false);
+          return of(false);
         }),
         finalize(async () => {
           authService.setVerifiedState(true);

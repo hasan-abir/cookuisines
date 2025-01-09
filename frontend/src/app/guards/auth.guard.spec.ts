@@ -107,16 +107,4 @@ describe('authGuard', () => {
     expect(authService.setVerifyingState).toHaveBeenCalledWith(false);
     expect(router.navigate).toHaveBeenCalledWith(['/recipemaker']);
   });
-
-  it('should run refresh when verify fails', async () => {
-    authService.verify.and.returnValue(
-      throwError(() => new Error('Unauthorized'))
-    );
-    authService.refresh.and.returnValue(of(null));
-
-    await executeGuard({ url: [{ path: 'recipemaker' }] } as any, null as any);
-
-    expect(authService.verify).toHaveBeenCalled();
-    expect(authService.refresh).toHaveBeenCalled();
-  });
 });

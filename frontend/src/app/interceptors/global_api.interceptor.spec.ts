@@ -1,6 +1,7 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import {
   HttpClient,
+  HttpErrorResponse,
   HttpInterceptorFn,
   provideHttpClient,
   withInterceptors,
@@ -12,11 +13,16 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
+import { AuthService } from '../services/auth.service';
+import { Observable, of, throwError, timer } from 'rxjs';
+import { Router } from '@angular/router';
 
 describe('globalAPIInterceptor', () => {
   let httpClient: HttpClient;
   let notificationServiceSpy: jasmine.SpyObj<NotificationService>;
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
   let httpTesting: HttpTestingController;
+  let router: jasmine.SpyObj<Router>;
 
   const interceptor: HttpInterceptorFn = (req, next) =>
     TestBed.runInInjectionContext(() => globalAPIInterceptor(req, next));
@@ -25,12 +31,17 @@ describe('globalAPIInterceptor', () => {
     notificationServiceSpy = jasmine.createSpyObj('NotificationService', [
       'setWaitingState',
     ]);
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['refresh']);
+
+    router = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([interceptor])),
         provideHttpClientTesting(),
         { provide: NotificationService, useValue: notificationServiceSpy },
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: Router, useValue: router },
       ],
     });
 
@@ -66,5 +77,48 @@ describe('globalAPIInterceptor', () => {
 
     const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
     req.flush({});
+  }));
+
+  it('should rerun the request when status is 401 and refresh is successful', fakeAsync(() => {
+    authServiceSpy.refresh.and.returnValue(of(null));
+
+    httpClient.get('test').subscribe({
+      error: (err) => {
+        expect(err.status).toBe(401);
+      },
+    });
+
+    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
+
+    req.error(new ProgressEvent('Unauth'), {
+      status: 401,
+      statusText: 'Unauthorized',
+    });
+
+    expect(authServiceSpy.refresh).toHaveBeenCalled();
+
+    httpTesting.expectOne('https://cookuisines.onrender.com/test');
+  }));
+
+  it('should navigate to login when status is 401 and refresh is unsuccessful', fakeAsync(() => {
+    authServiceSpy.refresh.and.returnValue(throwError(() => new Error()));
+
+    httpClient.get('test').subscribe({
+      error: (err) => {
+        expect(err).toBeTruthy();
+      },
+    });
+
+    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
+
+    req.error(new ProgressEvent('Unauth'), {
+      status: 401,
+      statusText: 'Unauthorized',
+    });
+
+    expect(authServiceSpy.refresh).toHaveBeenCalled();
+
+    httpTesting.expectNone('https://cookuisines.onrender.com/test');
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
   }));
 });
