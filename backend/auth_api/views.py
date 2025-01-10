@@ -39,6 +39,20 @@ class VerifyView(APIView):
         user = UserSerializer(request.user).data
 
         return Response(user, status.HTTP_200_OK)
+
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        responses = {204: OpenApiResponse(description='No response body.'), 401: BasicErrorSerializer}
+    )
+    def delete(self, request, format=None):
+        response = Response(status=status.HTTP_204_NO_CONTENT)
+
+        response.delete_cookie('access-token')
+        response.delete_cookie('refresh-token')
+
+        return response
         
 class LoginView(TokenObtainPairView):
     @extend_schema(

@@ -5,6 +5,7 @@ from recipes.test_suites.utils import get_demo_user
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.serializers import ValidationError
+import time
 
 # Create your tests here.
 class RegisterViewTestCase(TestCase):
@@ -52,6 +53,33 @@ class VerifyViewTestCase(TestCase):
         self.assertEqual(len(response.json()), 2)
         self.assertEqual(response.json()['username'], self.user_created.username)
         self.assertEqual(response.json()['email'], self.user_created.email)
+
+class LogoutViewTestCase(TestCase):
+    def setUp(self):
+        self.api_client = APIClient()
+        self.user_created = User.objects.create_user('hasan_abir', 'hasanabir@test.com', 'testtest')
+
+    def test_delete_method(self):
+        response = self.api_client.delete('/api-token-delete/')
+        self.assertEqual(response.status_code, 401)
+
+        data = {
+            'username': 'hasan_abir',
+            'password': 'testtest'
+        }
+        response = self.api_client.post('/api-token-obtain/', data)
+        self.assertEqual(response.status_code, 204)
+
+        response = self.api_client.delete('/api-token-delete/')
+
+        self.assertEqual(response.status_code, 204)
+        access_token = response.cookies.get('access-token')
+        refresh_token = response.cookies.get('refresh-token')
+        self.assertTrue(access_token and 'Thu, 01 Jan 1970 00:00:00 GMT' == access_token.get('expires'))
+        self.assertTrue(refresh_token and 'Thu, 01 Jan 1970 00:00:00 GMT' == refresh_token.get('expires'))
+
+        response = self.api_client.post('/api-user-verify/')
+        self.assertEqual(response.status_code, 401)
 
 class TokenViewTestCase(TestCase):
     def setUp(self):
