@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -14,5 +15,24 @@ export class NavbarComponent {
   authenticated$ = this.authService.authenticated$;
   isActive = false;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
+
+  logoutUser() {
+    const clearUser = () => {
+      this.authService.setAuthenticatedState(false);
+      this.authService.setVerifyingState(false);
+      this.router.navigate(['/login']);
+    };
+
+    this.authService.setVerifyingState(true);
+
+    this.authService.logout().subscribe({
+      error: (err) => {
+        clearUser();
+      },
+      complete: () => {
+        clearUser();
+      },
+    });
+  }
 }

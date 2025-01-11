@@ -49,8 +49,8 @@ class LogoutView(APIView):
     def delete(self, request, format=None):
         response = Response(status=status.HTTP_204_NO_CONTENT)
 
-        response.delete_cookie('access-token')
-        response.delete_cookie('refresh-token')
+        response.delete_cookie('access-token', samesite='None')
+        response.delete_cookie('refresh-token', samesite='None')
 
         return response
         

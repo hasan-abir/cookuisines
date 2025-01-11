@@ -53,6 +53,15 @@ describe('AuthService', () => {
     expect(req.request.method).toBe('POST');
   });
 
+  it('logout: should call API', () => {
+    service.logout().subscribe();
+
+    const req = httpTesting.expectOne(
+      'https://cookuisines.onrender.com/api-token-delete/'
+    );
+    expect(req.request.method).toBe('DELETE');
+  });
+
   it('signup: should call API', () => {
     const body: SignupBody = {
       username: 'test_user',

@@ -76,7 +76,11 @@ class LogoutViewTestCase(TestCase):
         access_token = response.cookies.get('access-token')
         refresh_token = response.cookies.get('refresh-token')
         self.assertTrue(access_token and 'Thu, 01 Jan 1970 00:00:00 GMT' == access_token.get('expires'))
+        self.assertTrue(access_token and 'None' == access_token.get('samesite'))
+        self.assertTrue(access_token and True == access_token.get('secure'))
         self.assertTrue(refresh_token and 'Thu, 01 Jan 1970 00:00:00 GMT' == refresh_token.get('expires'))
+        self.assertTrue(refresh_token and 'None' == refresh_token.get('samesite'))
+        self.assertTrue(refresh_token and True == refresh_token.get('secure'))
 
         response = self.api_client.post('/api-user-verify/')
         self.assertEqual(response.status_code, 401)
@@ -102,8 +106,16 @@ class TokenViewTestCase(TestCase):
         }
         response = self.api_client.post('/api-token-obtain/', data)
         self.assertEqual(response.status_code, 204)
-        self.assertTrue(response.cookies.get('access-token'))
-        self.assertTrue(response.cookies.get('refresh-token'))
+        access_token = response.cookies.get('access-token')
+        self.assertTrue(access_token)
+        self.assertTrue(access_token and True == access_token.get('httponly'))
+        self.assertTrue(access_token and 'None' == access_token.get('samesite'))
+        self.assertTrue(access_token and True == access_token.get('secure'))
+        refresh_token = response.cookies.get('refresh-token')
+        self.assertTrue(refresh_token)
+        self.assertTrue(refresh_token and True == refresh_token.get('httponly'))
+        self.assertTrue(refresh_token and 'None' == refresh_token.get('samesite'))
+        self.assertTrue(refresh_token and True == refresh_token.get('secure'))
 
     def test_token_refresh(self):
         data = {
@@ -117,7 +129,11 @@ class TokenViewTestCase(TestCase):
 
 
         self.assertEqual(response.status_code, 204)
-        self.assertTrue(response.cookies.get('access-token'))
+        access_token = response.cookies.get('access-token')
+        self.assertTrue(access_token)
+        self.assertTrue(access_token and True == access_token.get('httponly'))
+        self.assertTrue(access_token and 'None' == access_token.get('samesite'))
+        self.assertTrue(access_token and True == access_token.get('secure'))
 
     def test_token_refresh_without_cookie(self):
         self.api_client.cookies.clear()

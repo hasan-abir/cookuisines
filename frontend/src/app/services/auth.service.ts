@@ -48,6 +48,12 @@ export class AuthService {
     );
   }
 
+  logout(): Observable<null> {
+    return this.http.delete<null>('api-token-delete/', {
+      withCredentials: true,
+    });
+  }
+
   signup(body: SignupBody): Observable<UserResponse> {
     return this.http.post<UserResponse>('api-user-register/', body);
   }

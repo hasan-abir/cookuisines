@@ -44,9 +44,14 @@
       >
     </div>
 
-    <div class="navbar-end" *ngIf="!(authenticated$ | async)">
+    <div class="navbar-end">
       <div class="navbar-item">
-        <div class="buttons">
+        <div class="buttons" *ngIf="authenticated$ | async">
+          <button class="button is-primary" (click)="logoutUser()">
+            <strong>Log out</strong>
+          </button>
+        </div>
+        <div class="buttons" *ngIf="!(authenticated$ | async)">
           <a
             class="button is-primary"
             routerLink="/signup"
