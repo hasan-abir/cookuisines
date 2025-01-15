@@ -8,6 +8,7 @@ from recipes.models import Recipe, Ingredient, Instruction, MealType, DietaryPre
 from recipes.serializers import RecipeSerializer, IngredientSerializer, InstructionSerializer, MealtypeSerializer, DietarypreferenceSerializer, BasicErrorSerializer, RecipeErrorsSerializer, IngredientErrorsSerializer, InstructionErrorsSerializer, MealtypeErrorsSerializer, MealtypeCreateErrorsSerializer, DietarypreferenceCreateErrorsSerializer, DietarypreferenceErrorsSerializer
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
 from recipes.services import delete_image
+from django.http.request import QueryDict
 
 # Create your views here.
 class RecipeViewSet(ModelViewSet):
@@ -128,7 +129,9 @@ class IngredientViewSet(ModelViewSet):
 
         recipe_url = reverse('recipe-detail', args=[recipe_pk], request=request)
 
-        request.data._mutable = True
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = True
+            
         request.data.update({'recipe': recipe_url})
 
         return super().create(request, *args, **kwargs)
@@ -178,7 +181,8 @@ class InstructionViewSet(ModelViewSet):
 
         recipe_url = reverse('recipe-detail', args=[recipe_pk], request=request)
 
-        request.data._mutable = True
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = True
         request.data.update({'recipe': recipe_url})
 
         return super().create(request, *args, **kwargs)
