@@ -100,6 +100,27 @@ describe('globalAPIInterceptor', () => {
     httpTesting.expectOne('https://cookuisines.onrender.com/test');
   }));
 
+  it('should rerun the request when status is 0 and refresh is successful', fakeAsync(() => {
+    authServiceSpy.refresh.and.returnValue(of(null));
+
+    httpClient.get('test').subscribe({
+      error: (err) => {
+        expect(err.status).toBe(0);
+      },
+    });
+
+    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
+
+    req.error(new ProgressEvent('Unauth'), {
+      status: 0,
+      statusText: 'Unauthorized',
+    });
+
+    expect(authServiceSpy.refresh).toHaveBeenCalled();
+
+    httpTesting.expectOne('https://cookuisines.onrender.com/test');
+  }));
+
   it('should navigate to login when status is 401 and refresh is unsuccessful', fakeAsync(() => {
     authServiceSpy.refresh.and.returnValue(throwError(() => new Error()));
 
@@ -113,6 +134,34 @@ describe('globalAPIInterceptor', () => {
 
     req.error(new ProgressEvent('Unauth'), {
       status: 401,
+      statusText: 'Unauthorized',
+    });
+
+    expect(authServiceSpy.refresh).toHaveBeenCalled();
+
+    httpTesting.expectNone('https://cookuisines.onrender.com/test');
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+  }));
+
+  it('should navigate to login when status is 0 and refresh is unsuccessful', fakeAsync(() => {
+    authServiceSpy.refresh.and.returnValue(
+      throwError(() => {
+        const err: any = new Error();
+        err.status = 0;
+        return err;
+      })
+    );
+
+    httpClient.get('test').subscribe({
+      error: (err) => {
+        expect(err).toBeTruthy();
+      },
+    });
+
+    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
+
+    req.error(new ProgressEvent('Unauth'), {
+      status: 0,
       statusText: 'Unauthorized',
     });
 

@@ -10,7 +10,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { catchError, combineLatest, forkJoin, of } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { handleErrors } from '../../../utils/error.utils';
 import { DietarypreferencesComponent } from '../../components/makerform/dietarypreferences/dietarypreferences.component';
 import {
@@ -178,6 +178,7 @@ export class RecipemakerComponent {
       const value = this.makerForm.value;
       this.errMsgs = [];
       this.isProcessing = true;
+
       const recipeBody: RecipeBody = {
         title: value.title as string,
         cooking_time: value.cookingTime
@@ -192,40 +193,41 @@ export class RecipemakerComponent {
 
       this.recipeService.create_recipe(recipeBody).subscribe({
         next: (recipe) => {
-          const ingredientsRequest = (
-            value.ingredients as IngredientBody[]
-          ).map((ingredient) =>
-            this.recipeService.create_ingredient(recipe.ingredients, ingredient)
-          );
+          const nestedRequests: Observable<any>[] = [];
 
-          const instructionsRequest = (
-            value.instructions as InstructionBody[]
-          ).map((instruction) =>
-            this.recipeService.create_instruction(
-              recipe.instructions,
-              instruction
+          (value.ingredients as IngredientBody[]).forEach((ingredient) =>
+            nestedRequests.push(
+              this.recipeService.create_ingredient(
+                recipe.ingredients,
+                ingredient
+              )
             )
           );
 
-          const mealtypeRequest = this.recipeService.create_mealtype({
-            recipe: recipe.url,
-            ...value.mealType,
-          } as MealTypeBody);
+          (value.instructions as InstructionBody[]).forEach((instruction) =>
+            nestedRequests.push(
+              this.recipeService.create_instruction(
+                recipe.instructions,
+                instruction
+              )
+            )
+          );
 
-          const dietarypreferenceRequest =
+          nestedRequests.push(
+            this.recipeService.create_mealtype({
+              recipe: recipe.url,
+              ...value.mealType,
+            } as MealTypeBody)
+          );
+
+          nestedRequests.push(
             this.recipeService.create_dietarypreference({
               recipe: recipe.url,
               ...value.dietaryPreference,
-            } as DietaryPreferenceBody);
+            } as DietaryPreferenceBody)
+          );
 
-          const nestedRequests = combineLatest([
-            ...ingredientsRequest,
-            ...instructionsRequest,
-            mealtypeRequest,
-            dietarypreferenceRequest,
-          ]);
-
-          nestedRequests.subscribe({
+          combineLatest(nestedRequests).subscribe({
             complete: () => {
               this.isProcessing = false;
 

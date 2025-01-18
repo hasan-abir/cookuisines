@@ -70,7 +70,15 @@ export class RecipeService {
   constructor(private http: HttpClient) {}
 
   create_recipe(body: RecipeBody): Observable<RecipeResponse> {
-    return this.http.post<RecipeResponse>('recipes/', body, {
+    const formData = new FormData();
+
+    Object.keys(body).forEach((val) => {
+      const key = val as keyof RecipeBody;
+
+      formData.append(key, body[key]);
+    });
+
+    return this.http.post<RecipeResponse>('recipes/', formData, {
       withCredentials: true,
     });
   }

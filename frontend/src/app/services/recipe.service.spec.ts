@@ -33,6 +33,8 @@ describe('RecipesService', () => {
   });
 
   it('create_recipe: should call API', () => {
+    const formData = new FormData();
+
     const body: RecipeBody = {
       title: 'Title',
       preparation_time: 'time',
@@ -40,13 +42,20 @@ describe('RecipesService', () => {
       difficulty: 'hard',
       image: new File([''], 'test-image.png', { type: 'image/png' }),
     };
+
+    Object.keys(body).forEach((val) => {
+      const key = val as keyof RecipeBody;
+
+      formData.append(key, body[key]);
+    });
+
     service.create_recipe(body).subscribe();
 
     const req = httpTesting.expectOne(
       'https://cookuisines.onrender.com/recipes/'
     );
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toBe(body);
+    expect(req.request.body).toEqual(formData);
   });
 
   it('create_ingredient: should call API', () => {

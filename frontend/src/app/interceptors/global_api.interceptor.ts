@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 export const globalAPIInterceptor: HttpInterceptorFn = (req, next) => {
-  const url = 'https://cookuisines.onrender.com/';
+  const domain = 'https://cookuisines.onrender.com/';
   const notificationService = inject(NotificationService);
   const authService = inject(AuthService);
   const router = inject(Router);
@@ -19,14 +19,15 @@ export const globalAPIInterceptor: HttpInterceptorFn = (req, next) => {
     notificationService.setWaitingState(true);
   }, 10000);
 
-  const api_request = req.clone({ url: url + req.url });
+  const fullUrl = req.url.includes(domain) ? req.url : domain + req.url;
+  const api_request = req.clone({ url: fullUrl });
 
   return next(api_request).pipe(
     catchError((err: HttpErrorResponse) => {
       clearTimeout(timer);
       notificationService.setWaitingState(false);
-
-      if (err.status === 401) {
+      const failStatuses = [401, 0];
+      if (failStatuses.includes(err.status)) {
         return authService.refresh().pipe(
           switchMap(() => {
             return next(api_request);
