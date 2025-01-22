@@ -24,6 +24,13 @@ export interface RecipeResponse extends BaseRecipe {
   image_url: string;
 }
 
+export interface PaginatedRecipes {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: RecipeResponse[];
+}
+
 export interface IngredientBody {
   name: string;
   quantity: string;
@@ -68,6 +75,10 @@ export interface DietaryPreferenceResponse extends DietaryPreferenceBody {
 })
 export class RecipeService {
   constructor(private http: HttpClient) {}
+
+  get_recipes(url?: string): Observable<PaginatedRecipes> {
+    return this.http.get<PaginatedRecipes>(url || 'recipes/');
+  }
 
   create_recipe(body: RecipeBody): Observable<RecipeResponse> {
     const formData = new FormData();

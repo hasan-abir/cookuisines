@@ -32,6 +32,22 @@ describe('RecipesService', () => {
     TestBed.inject(HttpTestingController).verify();
   });
 
+  it('get_recipes: should call API', () => {
+    service.get_recipes().subscribe();
+
+    let req = httpTesting.expectOne(
+      'https://cookuisines.onrender.com/recipes/'
+    );
+    expect(req.request.method).toBe('GET');
+
+    const url = 'abc/';
+
+    service.get_recipes(url).subscribe();
+
+    req = httpTesting.expectOne('https://cookuisines.onrender.com/' + url);
+    expect(req.request.method).toBe('GET');
+  });
+
   it('create_recipe: should call API', () => {
     const formData = new FormData();
 

@@ -47,11 +47,13 @@ describe('NavbarComponent', () => {
   it('should render component with the correct links', () => {
     const homeLink = compiled.querySelectorAll('a')[0];
     const recipesLink = compiled.querySelectorAll('a')[2];
-    const signupLink = compiled.querySelectorAll('a')[3];
-    const loginLink = compiled.querySelectorAll('a')[4];
+    const recipeMakerLink = compiled.querySelectorAll('a')[3];
+    const signupLink = compiled.querySelectorAll('a')[4];
+    const loginLink = compiled.querySelectorAll('a')[5];
 
     expect(homeLink.getAttribute('routerLink')).toBe('/');
     expect(recipesLink.getAttribute('routerLink')).toBe('/recipes');
+    expect(recipeMakerLink.getAttribute('routerLink')).toBe('/recipemaker');
     expect(signupLink.getAttribute('routerLink')).toBe('/signup');
     expect(loginLink.getAttribute('routerLink')).toBe('/login');
   });
