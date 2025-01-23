@@ -193,6 +193,16 @@ export class RecipemakerComponent {
 
       this.recipeService.create_recipe(recipeBody).subscribe({
         next: (recipe) => {
+          this.makerForm.get('title')?.reset();
+          this.makerForm.get('image')?.reset();
+          this.makerForm
+            .get('preparationTime')
+            ?.reset({ hours: 0, minutes: 0, seconds: 0 });
+          this.makerForm
+            .get('cookingTime')
+            ?.reset({ hours: 0, minutes: 0, seconds: 0 });
+          this.makerForm.get('difficulty')?.reset(this.difficulties[0]);
+
           const nestedRequests: Observable<any>[] = [];
 
           (value.ingredients as IngredientBody[]).forEach((ingredient) =>
@@ -231,20 +241,15 @@ export class RecipemakerComponent {
             complete: () => {
               this.isProcessing = false;
 
-              this.makerForm.reset({
-                preparationTime: { hours: 0, minutes: 0, seconds: 0 },
-                cookingTime: { hours: 0, minutes: 0, seconds: 0 },
-                difficulty: this.difficulties[0],
-                mealType: {
-                  breakfast: false,
-                  brunch: false,
-                  lunch: false,
-                  dinner: false,
-                },
-                dietaryPreference: {
-                  vegan: false,
-                  glutenfree: false,
-                },
+              this.makerForm.get('mealType')?.reset({
+                breakfast: false,
+                brunch: false,
+                lunch: false,
+                dinner: false,
+              });
+              this.makerForm.get('dietaryPreference')?.reset({
+                vegan: false,
+                glutenfree: false,
               });
               (this.makerForm.get('ingredients') as FormArray)?.clear();
               (this.makerForm.get('instructions') as FormArray)?.clear();

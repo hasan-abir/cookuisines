@@ -24,12 +24,24 @@ export class RecipesComponent {
     this.fetchRecipes();
   }
 
-  fetchRecipes() {
+  fetchMoreRecipes() {
+    if (this.paginatedRecipes.next) {
+      this.fetchRecipes(this.paginatedRecipes.next);
+    }
+  }
+
+  fetchRecipes(url?: string) {
     this.isProcessing = true;
 
-    this.recipeService.get_recipes().subscribe({
+    this.recipeService.get_recipes(url).subscribe({
       next: (result) => {
-        this.paginatedRecipes = { ...result };
+        this.paginatedRecipes.count = result.count;
+        this.paginatedRecipes.next = result.next;
+        this.paginatedRecipes.previous = result.previous;
+        this.paginatedRecipes.results = [
+          ...this.paginatedRecipes.results,
+          ...result.results,
+        ];
         this.isProcessing = false;
       },
       error: (err) => {

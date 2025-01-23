@@ -1,9 +1,4 @@
 <h1 class="title is-1 pb-4">Latest Recipes</h1>
-<!-- *ngIf="isProcessing" -->
-<div *ngIf="isProcessing" class="pb-4 is-flex is-justify-content-center">
-  <div class="loader" style="width: 2rem; height: 2rem"></div>
-</div>
-
 <div class="grid is-col-min-14">
   <div class="cell" *ngFor="let recipe of paginatedRecipes.results">
     <div class="card">
@@ -24,9 +19,18 @@
   </div>
 </div>
 
-<div
-  *ngIf="!isProcessing && !paginatedRecipes.next"
-  class="no-more-recipes pt-4 is-flex is-justify-content-center"
->
-  <p>That's all for now!</p>
+<div class="pt-4 is-flex is-justify-content-center">
+  <div *ngIf="isProcessing">
+    <div class="loader" style="width: 2rem; height: 2rem"></div>
+  </div>
+  <button
+    *ngIf="!isProcessing && paginatedRecipes.next"
+    class="button"
+    (click)="fetchMoreRecipes()"
+  >
+    Show more
+  </button>
+  <p *ngIf="!isProcessing && !paginatedRecipes.next" class="no-more-recipes">
+    That's all for now!
+  </p>
 </div>
