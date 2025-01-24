@@ -1,4 +1,32 @@
 <h1 class="title is-1 pb-4">Latest Recipes</h1>
+
+<form class="pb-4" [formGroup]="searchForm" (ngSubmit)="onSearch()">
+  <h1 class="title is-4">Search</h1>
+  <div class="field">
+    <label for="title" class="label">By title</label>
+    <div class="control">
+      <input
+        id="title"
+        class="input"
+        placeholder="Title"
+        formControlName="title"
+      />
+    </div>
+  </div>
+  <div class="field">
+    <div class="control">
+      <button
+        class="button is-primary is-fullwidth"
+        [class.is-loading]="isProcessing"
+        [disabled]="isProcessing"
+        type="submit"
+      >
+        Search
+      </button>
+    </div>
+  </div>
+</form>
+
 <div class="grid is-col-min-14">
   <div class="cell" *ngFor="let recipe of paginatedRecipes.results">
     <div class="card">
@@ -25,12 +53,25 @@
   </div>
   <button
     *ngIf="!isProcessing && paginatedRecipes.next"
-    class="button"
+    class="button fetch-more-recipe"
     (click)="fetchMoreRecipes()"
   >
     Show more
   </button>
-  <p *ngIf="!isProcessing && !paginatedRecipes.next" class="no-more-recipes">
+  <p
+    *ngIf="
+      !isProcessing &&
+      !paginatedRecipes.next &&
+      paginatedRecipes.results.length > 0
+    "
+    class="no-more-recipes"
+  >
     That's all for now!
+  </p>
+  <p
+    *ngIf="!isProcessing && paginatedRecipes.results.length === 0"
+    class="empty-recipes"
+  >
+    No recipes found!
   </p>
 </div>

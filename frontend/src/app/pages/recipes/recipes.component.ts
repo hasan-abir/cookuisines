@@ -1,11 +1,19 @@
 import { Component } from '@angular/core';
 import { PaginatedRecipes, RecipeService } from '../../services/recipe.service';
 import { CommonModule } from '@angular/common';
+import {
+  FormBuilder,
+  FormControl,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-recipes',
   standalone: true,
-  imports: [CommonModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule],
   templateUrl: './recipes.component.html',
   styleUrl: './recipes.component.css',
 })
@@ -18,10 +26,28 @@ export class RecipesComponent {
     results: [],
   };
 
-  constructor(private recipeService: RecipeService) {}
+  searchForm = this.formBuilder.group({
+    title: new FormControl<string | null>(null),
+  });
+
+  constructor(
+    private recipeService: RecipeService,
+    private formBuilder: FormBuilder,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    this.fetchRecipes();
+    this.fetchRecipes(this.router.url.replace('/', ''));
+  }
+
+  onSearch() {
+    if (this.searchForm.valid) {
+      this.router.navigate(['recipes'], {
+        queryParams: { title: this.searchForm.value.title },
+      });
+
+      this.fetchRecipes('recipes/?title=' + this.searchForm.value.title, true);
+    }
   }
 
   fetchMoreRecipes() {
@@ -30,7 +56,7 @@ export class RecipesComponent {
     }
   }
 
-  fetchRecipes(url?: string) {
+  fetchRecipes(url?: string, refresh?: boolean) {
     this.isProcessing = true;
 
     this.recipeService.get_recipes(url).subscribe({
@@ -38,10 +64,16 @@ export class RecipesComponent {
         this.paginatedRecipes.count = result.count;
         this.paginatedRecipes.next = result.next;
         this.paginatedRecipes.previous = result.previous;
-        this.paginatedRecipes.results = [
-          ...this.paginatedRecipes.results,
-          ...result.results,
-        ];
+
+        if (refresh) {
+          this.paginatedRecipes.results = [...result.results];
+        } else {
+          this.paginatedRecipes.results = [
+            ...this.paginatedRecipes.results,
+            ...result.results,
+          ];
+        }
+
         this.isProcessing = false;
       },
       error: (err) => {
