@@ -1,0 +1,34 @@
+<div
+  class="tags mb-4"
+  *ngIf="
+    mealtype &&
+    (mealtype.breakfast || mealtype.brunch || mealtype.lunch || mealtype.dinner)
+  "
+>
+  <span
+    class="tag is-primary is-normal has-text-weight-bold"
+    *ngIf="mealtype.breakfast"
+    >Breakfast</span
+  >
+  <span
+    class="tag is-primary is-normal has-text-weight-bold"
+    *ngIf="mealtype.brunch"
+    >Brunch</span
+  >
+  <span
+    class="tag is-primary is-normal has-text-weight-bold"
+    *ngIf="mealtype.lunch"
+    >Lunch</span
+  >
+  <span
+    class="tag is-primary is-normal has-text-weight-bold"
+    *ngIf="mealtype.dinner"
+    >Dinner</span
+  >
+</div>
+
+<div class="py-4" *ngIf="isProcessing">
+  <div>
+    <div class="loader" style="width: 2rem; height: 2rem"></div>
+  </div>
+</div>

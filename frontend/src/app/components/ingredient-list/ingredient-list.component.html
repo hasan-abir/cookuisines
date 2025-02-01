@@ -1,0 +1,13 @@
+<div class="content">
+  <ul>
+    <li *ngFor="let ingredient of ingredients">
+      {{ ingredient.name }} - {{ ingredient.quantity }}
+    </li>
+  </ul>
+</div>
+
+<div class="py-4" *ngIf="isProcessing">
+  <div>
+    <div class="loader" style="width: 2rem; height: 2rem"></div>
+  </div>
+</div>

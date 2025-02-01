@@ -37,6 +37,8 @@ export const globalAPIInterceptor: HttpInterceptorFn = (req, next) => {
             return throwError(() => refreshErr);
           })
         );
+      } else if (err.status === 404) {
+        router.navigate(['/not-found']);
       }
 
       return throwError(() => err);

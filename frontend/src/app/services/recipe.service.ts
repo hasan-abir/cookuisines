@@ -40,12 +40,26 @@ export interface IngredientResponse extends IngredientBody {
   url: string;
 }
 
+export interface PaginatedIngredients {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: IngredientResponse[];
+}
+
 export interface InstructionBody {
   step: string;
 }
 
 export interface InstructionResponse extends InstructionBody {
   url: string;
+}
+
+export interface PaginatedInstructions {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: InstructionResponse[];
 }
 
 export interface MealTypeBody {
@@ -76,6 +90,10 @@ export interface DietaryPreferenceResponse extends DietaryPreferenceBody {
 export class RecipeService {
   constructor(private http: HttpClient) {}
 
+  get_recipe(id: string): Observable<RecipeResponse> {
+    return this.http.get<RecipeResponse>('recipes/' + id + '/');
+  }
+
   get_recipes(url?: string): Observable<PaginatedRecipes> {
     return this.http.get<PaginatedRecipes>(url || 'recipes/');
   }
@@ -94,6 +112,10 @@ export class RecipeService {
     });
   }
 
+  get_ingredients(url: string): Observable<PaginatedIngredients> {
+    return this.http.get<PaginatedIngredients>(url);
+  }
+
   create_ingredient(
     url: string,
     body: IngredientBody
@@ -101,6 +123,10 @@ export class RecipeService {
     return this.http.post<IngredientResponse>(url, body, {
       withCredentials: true,
     });
+  }
+
+  get_instructions(url: string): Observable<PaginatedInstructions> {
+    return this.http.get<PaginatedInstructions>(url);
   }
 
   create_instruction(
@@ -112,10 +138,18 @@ export class RecipeService {
     });
   }
 
+  get_mealtype(url: string): Observable<MealTypeResponse> {
+    return this.http.get<MealTypeResponse>(url);
+  }
+
   create_mealtype(body: MealTypeBody): Observable<MealTypeResponse> {
     return this.http.post<MealTypeResponse>('recipes/mealtypes/', body, {
       withCredentials: true,
     });
+  }
+
+  get_dietarypreference(url: string): Observable<DietaryPreferenceResponse> {
+    return this.http.get<DietaryPreferenceResponse>(url);
   }
 
   create_dietarypreference(

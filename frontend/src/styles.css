@@ -1,2 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @import "bulma/css/bulma.css";
+
+:root {
+  --bulma-primary-h: 17deg;
+  --bulma-primary-s: 55%;
+  --bulma-primary-l: 56%;
+}

@@ -8,7 +8,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
 
 interface QueryParams {
   title: string;
@@ -24,7 +29,13 @@ interface QueryParams {
 @Component({
   selector: 'app-recipes',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+  ],
   templateUrl: './recipes.component.html',
   styleUrl: './recipes.component.css',
 })
