@@ -100,6 +100,24 @@ describe('globalAPIInterceptor', () => {
     httpTesting.expectOne('https://cookuisines.onrender.com/test');
   }));
 
+  it('should navigate to not-found when status is 404', fakeAsync(() => {
+    httpClient.get('test').subscribe({
+      error: (err) => {
+        expect(err).toBeTruthy();
+      },
+    });
+
+    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
+
+    req.error(new ProgressEvent('Unauth'), {
+      status: 404,
+      statusText: 'Not found',
+    });
+
+    httpTesting.expectNone('https://cookuisines.onrender.com/test');
+    expect(router.navigate).toHaveBeenCalledWith(['/not-found']);
+  }));
+
   it('should rerun the request when status is 0 and refresh is successful', fakeAsync(() => {
     authServiceSpy.refresh.and.returnValue(of(null));
 
