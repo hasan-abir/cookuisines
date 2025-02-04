@@ -32,6 +32,17 @@ describe('RecipesService', () => {
     TestBed.inject(HttpTestingController).verify();
   });
 
+  it('get_recipe: should call API', () => {
+    const id = '123';
+
+    service.get_recipe(id).subscribe();
+
+    const req = httpTesting.expectOne(
+      'https://cookuisines.onrender.com/recipes/' + id + '/'
+    );
+    expect(req.request.method).toBe('GET');
+  });
+
   it('get_recipes: should call API', () => {
     service.get_recipes().subscribe();
 
@@ -74,6 +85,17 @@ describe('RecipesService', () => {
     expect(req.request.body).toEqual(formData);
   });
 
+  it('get_ingredients: should call API', () => {
+    const url = 'ingredients';
+
+    service.get_ingredients(url).subscribe();
+
+    const req = httpTesting.expectOne(
+      `https://cookuisines.onrender.com/${url}`
+    );
+    expect(req.request.method).toBe('GET');
+  });
+
   it('create_ingredient: should call API', () => {
     const url = 'recipes/123/ingredients/';
     const body: IngredientBody = {
@@ -89,6 +111,17 @@ describe('RecipesService', () => {
     expect(req.request.body).toBe(body);
   });
 
+  it('get_instructions: should call API', () => {
+    const url = 'instructions';
+
+    service.get_instructions(url).subscribe();
+
+    const req = httpTesting.expectOne(
+      `https://cookuisines.onrender.com/${url}`
+    );
+    expect(req.request.method).toBe('GET');
+  });
+
   it('create_instruction: should call API', () => {
     const url = 'recipes/123/instructions/';
     const body: InstructionBody = {
@@ -102,6 +135,18 @@ describe('RecipesService', () => {
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBe(body);
   });
+
+  it('get_mealtype: should call API', () => {
+    const url = 'mealtype';
+
+    service.get_mealtype(url).subscribe();
+
+    const req = httpTesting.expectOne(
+      `https://cookuisines.onrender.com/${url}`
+    );
+    expect(req.request.method).toBe('GET');
+  });
+
   it('create_mealtype: should call API', () => {
     const url = 'recipes/mealtypes/';
     const body: MealTypeBody = {
@@ -117,6 +162,18 @@ describe('RecipesService', () => {
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBe(body);
   });
+
+  it('get_dietarypreference: should call API', () => {
+    const url = 'dietarypreference';
+
+    service.get_dietarypreference(url).subscribe();
+
+    const req = httpTesting.expectOne(
+      `https://cookuisines.onrender.com/${url}`
+    );
+    expect(req.request.method).toBe('GET');
+  });
+
   it('create_dietarypreference: should call API', () => {
     const url = 'recipes/dietarypreferences/';
     const body: DietaryPreferenceBody = {

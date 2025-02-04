@@ -11,7 +11,7 @@ import { RecipesComponent } from './recipes.component';
 import { provideRouter, Router } from '@angular/router';
 import { routes } from '../../app.routes';
 
-describe('RecipeComponent', () => {
+describe('RecipesComponent', () => {
   let component: RecipesComponent;
   let fixture: ComponentFixture<RecipesComponent>;
   let compiled: HTMLElement;
@@ -103,7 +103,7 @@ describe('RecipeComponent', () => {
 
     tick(2000);
     fixture.detectChanges();
-    const recipes = compiled.querySelectorAll('.cell');
+    const recipes = compiled.querySelectorAll('.column');
     const noMoreRecipes = compiled.querySelector('.no-more-recipes');
     loader = compiled.querySelector('.loader');
     expect(recipeServiceSpy.get_recipes).toHaveBeenCalled();
@@ -174,7 +174,7 @@ describe('RecipeComponent', () => {
 
     tick(2000);
     fixture.detectChanges();
-    const recipes = compiled.querySelectorAll('.cell');
+    const recipes = compiled.querySelectorAll('.column');
     const noMoreRecipes = compiled.querySelector('.no-more-recipes');
     loader = compiled.querySelector('.loader');
     expect(recipeServiceSpy.get_recipes).toHaveBeenCalledWith(nextPage);
@@ -280,7 +280,7 @@ describe('RecipeComponent', () => {
 
     tick(2000);
     fixture.detectChanges();
-    const recipes = compiled.querySelectorAll('.cell');
+    const recipes = compiled.querySelectorAll('.column');
     loader = compiled.querySelector('.loader');
     expect(router.navigate).toHaveBeenCalledWith(['recipes'], {
       queryParams: {
@@ -372,7 +372,7 @@ describe('RecipeComponent', () => {
 
     tick(2000);
     fixture.detectChanges();
-    const recipes = compiled.querySelectorAll('.cell');
+    const recipes = compiled.querySelectorAll('.column');
     loader = compiled.querySelector('.loader');
     expect(router.navigate).toHaveBeenCalledWith(['recipes'], {
       queryParams: {
