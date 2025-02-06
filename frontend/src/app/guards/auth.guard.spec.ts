@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CanActivateFn, Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { AuthService } from '../services/auth.service';
+import { AuthService, UserResponse } from '../services/auth.service';
 import { authGuard } from './auth.guard';
 
 describe('authGuard', () => {
@@ -15,14 +15,14 @@ describe('authGuard', () => {
     authService = jasmine.createSpyObj('AuthService', [
       'setVerifyingState',
       'setVerifiedState',
-      'setAuthenticatedState',
+      'setUserState',
       'verified$',
-      'authenticated$',
+      'user$',
       'verify',
       'refresh',
     ]);
     authService.verified$ = new BehaviorSubject<boolean>(false);
-    authService.authenticated$ = new BehaviorSubject<boolean>(false);
+    authService.user$ = new BehaviorSubject<UserResponse | null>(null);
 
     router = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -69,7 +69,10 @@ describe('authGuard', () => {
     authService.verify.and.returnValue(
       of({ username: 'hasan_abir', email: 'hasanabir@test.com' })
     );
-    (authService.authenticated$ as BehaviorSubject<boolean>).next(true);
+    (authService.user$ as BehaviorSubject<UserResponse | null>).next({
+      username: 'test',
+      email: 'test@test.com',
+    });
 
     let result = await executeGuard(
       { url: [{ path: 'recipemaker' }] } as any,
@@ -81,7 +84,7 @@ describe('authGuard', () => {
     expect(authService.setVerifyingState).toHaveBeenCalledWith(true);
     expect(authService.setVerifyingState).toHaveBeenCalledWith(false);
 
-    (authService.authenticated$ as BehaviorSubject<boolean>).next(false);
+    (authService.user$ as BehaviorSubject<UserResponse | null>).next(null);
 
     result = await executeGuard(
       { url: [{ path: 'login' }] } as any,
@@ -94,7 +97,10 @@ describe('authGuard', () => {
     authService.verify.and.returnValue(
       of({ username: 'hasan_abir', email: 'hasanabir@test.com' })
     );
-    (authService.authenticated$ as BehaviorSubject<boolean>).next(true);
+    (authService.user$ as BehaviorSubject<UserResponse | null>).next({
+      username: 'test',
+      email: 'test@test.com',
+    });
 
     const result = await executeGuard(
       { url: [{ path: 'login' }] } as any,

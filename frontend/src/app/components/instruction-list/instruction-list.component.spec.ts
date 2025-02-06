@@ -30,13 +30,11 @@ describe('InstructionListComponent', () => {
     ) as jasmine.SpyObj<RecipeService>;
     recipeServiceSpy.get_instructions.and.returnValue(
       new Observable((subscriber) => {
-        timer(2000).subscribe(() => {
-          subscriber.next({
-            count: 0,
-            previous: null,
-            next: null,
-            results: [],
-          });
+        subscriber.next({
+          count: 0,
+          previous: null,
+          next: null,
+          results: [],
         });
       })
     );
@@ -97,5 +95,48 @@ describe('InstructionListComponent', () => {
     expect(instructionsLi.length).toBe(2);
     expect(instructionsLi[0].textContent?.trim()).toBe(steps[0]);
     expect(instructionsLi[1].textContent?.trim()).toBe(steps[1]);
+  }));
+
+  it('should fetch more instructions', fakeAsync(() => {
+    const nextPage = 'http://testserver/instructions/?page=2';
+    component.paginatedInstructions.next = nextPage;
+    fixture.detectChanges();
+    const steps = ['Step 1', 'Step 2'];
+    recipeServiceSpy.get_instructions.and.returnValue(
+      new Observable((subscriber) => {
+        timer(2000).subscribe(() => {
+          subscriber.next({
+            count: 2,
+            next: null,
+            previous: null,
+            results: [
+              {
+                url: 'http://testserver/recipes/instructions/1/',
+                step: steps[0],
+              },
+              {
+                url: 'http://testserver/recipes/instructions/2/',
+                step: steps[1],
+              },
+            ],
+          });
+        });
+      })
+    );
+    const moreInstructionsBtn = compiled.querySelector(
+      '.fetch-more-instructions'
+    ) as HTMLButtonElement;
+    expect(moreInstructionsBtn).toBeTruthy();
+    moreInstructionsBtn.click();
+    fixture.detectChanges();
+    let loader = compiled.querySelector('.loader');
+    expect(loader).toBeTruthy();
+    tick(2000);
+    fixture.detectChanges();
+    const instructionsLi = compiled.querySelectorAll('li');
+    loader = compiled.querySelector('.loader');
+    expect(recipeServiceSpy.get_instructions).toHaveBeenCalledWith(nextPage);
+    expect(instructionsLi.length).toBe(2);
+    expect(loader).toBeFalsy();
   }));
 });

@@ -16,10 +16,10 @@ export const authGuard: CanActivateFn = async (route, state) => {
     return firstValueFrom(
       authService.verify().pipe(
         map((value) => {
-          authService.setAuthenticatedState(true);
+          authService.setUserState(value);
         }),
         catchError((err) => {
-          authService.setAuthenticatedState(false);
+          authService.setUserState(null);
           return of(false);
         }),
         finalize(async () => {
@@ -36,7 +36,7 @@ export const authGuard: CanActivateFn = async (route, state) => {
     await verifyUser();
   }
 
-  const isAuthenticated = await firstValueFrom(authService.authenticated$);
+  const isAuthenticated = await firstValueFrom(authService.user$);
 
   if (isAuthenticated && attemptingToLogin) {
     router.navigate(['/recipemaker']);

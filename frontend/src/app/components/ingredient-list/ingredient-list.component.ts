@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import {
   IngredientResponse,
+  PaginatedIngredients,
   RecipeService,
 } from '../../services/recipe.service';
 import { CommonModule } from '@angular/common';
@@ -15,6 +16,12 @@ import { CommonModule } from '@angular/common';
 export class IngredientListComponent {
   isProcessing = false;
   ingredients: IngredientResponse[] = [];
+  paginatedIngredients: PaginatedIngredients = {
+    count: 0,
+    next: null,
+    previous: null,
+    results: [],
+  };
   @Input() url = '';
 
   constructor(private recipeService: RecipeService) {}
@@ -23,12 +30,25 @@ export class IngredientListComponent {
     this.fetchIngredients();
   }
 
-  fetchIngredients() {
+  fetchMoreIngredients() {
+    if (this.paginatedIngredients.next) {
+      this.fetchIngredients(this.paginatedIngredients.next);
+    }
+  }
+
+  fetchIngredients(nextUrl?: string) {
     this.isProcessing = true;
 
-    this.recipeService.get_ingredients(this.url).subscribe({
+    this.recipeService.get_ingredients(nextUrl || this.url).subscribe({
       next: (result) => {
-        this.ingredients = result.results;
+        this.paginatedIngredients.count = result.count;
+        this.paginatedIngredients.next = result.next;
+        this.paginatedIngredients.previous = result.previous;
+
+        this.paginatedIngredients.results = [
+          ...this.paginatedIngredients.results,
+          ...result.results,
+        ];
 
         this.isProcessing = false;
       },

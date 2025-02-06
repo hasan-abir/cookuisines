@@ -3,7 +3,7 @@ import { provideRouter, Router } from '@angular/router';
 import { routes } from '../../app.routes';
 
 import { NavbarComponent } from './navbar.component';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, UserResponse } from '../../services/auth.service';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 
 describe('NavbarComponent', () => {
@@ -15,13 +15,13 @@ describe('NavbarComponent', () => {
 
   beforeEach(async () => {
     const authenticatedSpy = jasmine.createSpyObj('AuthService', [
-      'authenticated$',
-      'setAuthenticatedState',
+      'user$',
+      'setUserState',
       'setVerifyingState',
       'logout',
     ]);
 
-    authenticatedSpy.authenticated$ = new BehaviorSubject<boolean>(false);
+    authenticatedSpy.user$ = new BehaviorSubject<UserResponse | null>(null);
 
     await TestBed.configureTestingModule({
       imports: [NavbarComponent],
@@ -59,7 +59,11 @@ describe('NavbarComponent', () => {
   });
 
   it('should render component with the correct links when authenticated', () => {
-    (authServiceSpy.authenticated$ as BehaviorSubject<boolean>).next(true);
+    const user = {
+      username: 'test',
+      email: 'test@test.com',
+    };
+    (authServiceSpy.user$ as BehaviorSubject<UserResponse | null>).next(user);
     spyOn(router, 'navigate');
     fixture.detectChanges();
 
@@ -67,16 +71,21 @@ describe('NavbarComponent', () => {
     const recipesLink = compiled.querySelectorAll('a')[2];
     const makerLink = compiled.querySelectorAll('a')[3];
     const logoutBtn = compiled.querySelectorAll('button')[0];
+    const greetings = compiled.querySelectorAll('p')[0];
 
     expect(homeLink.getAttribute('routerLink')).toBe('/');
     expect(recipesLink.getAttribute('routerLink')).toBe('/recipes');
     expect(makerLink.getAttribute('routerLink')).toBe('/recipemaker');
 
     expect(logoutBtn.textContent).toBe('Log out');
+    expect(greetings.textContent?.trim()).toBe(`Welcome, @${user.username}!`);
   });
 
   it('should logout user when authenticated', () => {
-    (authServiceSpy.authenticated$ as BehaviorSubject<boolean>).next(true);
+    (authServiceSpy.user$ as BehaviorSubject<UserResponse | null>).next({
+      username: 'test',
+      email: 'test@test.com',
+    });
     authServiceSpy.logout.and.returnValue(of(null));
     spyOn(router, 'navigate');
     fixture.detectChanges();
@@ -92,11 +101,14 @@ describe('NavbarComponent', () => {
     expect(authServiceSpy.setVerifyingState).toHaveBeenCalledWith(false);
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
 
-    expect(authServiceSpy.setAuthenticatedState).toHaveBeenCalled();
+    expect(authServiceSpy.setUserState).toHaveBeenCalled();
   });
 
   it('should logout user even if there is error', () => {
-    (authServiceSpy.authenticated$ as BehaviorSubject<boolean>).next(true);
+    (authServiceSpy.user$ as BehaviorSubject<UserResponse | null>).next({
+      username: 'test',
+      email: 'test@test.com',
+    });
     authServiceSpy.logout.and.returnValue(
       new Observable((subscriber) => {
         subscriber.error({ detail: 'Some error' });
@@ -114,7 +126,7 @@ describe('NavbarComponent', () => {
     expect(authServiceSpy.logout).toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
 
-    expect(authServiceSpy.setAuthenticatedState).toHaveBeenCalled();
+    expect(authServiceSpy.setUserState).toHaveBeenCalled();
   });
 
   it('should open the hamburger menu correctly', () => {

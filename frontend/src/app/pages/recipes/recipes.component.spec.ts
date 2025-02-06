@@ -161,6 +161,7 @@ describe('RecipesComponent', () => {
         });
       })
     );
+
     const moreRecipesBtn = compiled.querySelector(
       '.fetch-more-recipe'
     ) as HTMLButtonElement;

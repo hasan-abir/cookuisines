@@ -11,14 +11,14 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './navbar.component.css',
 })
 export class NavbarComponent {
-  authenticated$ = this.authService.authenticated$;
+  user$ = this.authService.user$;
   isActive = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
   logoutUser() {
     const clearUser = () => {
-      this.authService.setAuthenticatedState(false);
+      this.authService.setUserState(null);
       this.authService.setVerifyingState(false);
       this.router.navigate(['/login']);
     };

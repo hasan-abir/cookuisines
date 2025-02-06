@@ -25,8 +25,8 @@ export interface TokenResponse {
   providedIn: 'root',
 })
 export class AuthService {
-  private authenticatedSubject = new BehaviorSubject<boolean>(false);
-  authenticated$ = this.authenticatedSubject.asObservable();
+  private userSubject = new BehaviorSubject<UserResponse | null>(null);
+  user$ = this.userSubject.asObservable();
   private verifyingSubject = new BehaviorSubject<boolean>(false);
   verifying$ = this.verifyingSubject.asObservable();
   private verifiedSubject = new BehaviorSubject<boolean>(false);
@@ -74,7 +74,7 @@ export class AuthService {
   setVerifiedState(state: boolean) {
     this.verifiedSubject.next(state);
   }
-  setAuthenticatedState(state: boolean) {
-    this.authenticatedSubject.next(state);
+  setUserState(state: UserResponse | null) {
+    this.userSubject.next(state);
   }
 }
