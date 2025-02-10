@@ -1,12 +1,10 @@
-import { Component } from '@angular/core';
-import { PaginatedRecipes, RecipeService } from '../../services/recipe.service';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
   FormsModule,
   ReactiveFormsModule,
-  Validators,
 } from '@angular/forms';
 import {
   ActivatedRoute,
@@ -14,6 +12,8 @@ import {
   RouterLink,
   RouterLinkActive,
 } from '@angular/router';
+import { PaginatedRecipes, RecipeService } from '../../services/recipe.service';
+import { BasepageComponent } from '../../components/basepage/basepage.component';
 
 interface QueryParams {
   title: string;
@@ -35,6 +35,7 @@ interface QueryParams {
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
+    BasepageComponent,
   ],
   templateUrl: './recipes.component.html',
   styleUrl: './recipes.component.css',

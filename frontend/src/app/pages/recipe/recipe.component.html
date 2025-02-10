@@ -1,43 +1,44 @@
-<div *ngIf="recipe">
-  <div class="columns">
-    <div class="column is-12-mobile is-6-tablet">
-      <figure class="image is-4by3">
-        <img
-          [src]="recipe.image_url + '?tr=w-700'"
-          [alt]="recipe.title"
-          style="object-fit: cover; border-radius: 1rem"
-        />
-      </figure>
-    </div>
-    <div class="column is-12-mobile is-6-tablet">
-      <h1 class="title is-1">{{ recipe.title }}</h1>
-      <app-mealtype-list [url]="recipe.meal_type" />
-      <app-dietarypreference-list [url]="recipe.dietary_preference" />
-      <div class="columns">
-        <div class="column">
-          <h2 class="subtitle mb-2">Preparation Time</h2>
-          <p class="mb-4 has-text-weight-bold">
-            {{ formatDuration(recipe.preparation_time) }}
-          </p>
-          <h2 class="subtitle mb-2">Cooking Time</h2>
-          <p class="has-text-weight-bold">
-            {{ formatDuration(recipe.cooking_time) }}
-          </p>
-        </div>
-        <div class="column">
-          <h2 class="subtitle mb-2">Difficulty</h2>
-          <p class="has-text-weight-bold is-capitalized">
-            {{ recipe.difficulty }}
-          </p>
+<ng-container *ngIf="recipe">
+  <app-basepage [heading]="recipe.title">
+    <div class="columns">
+      <div class="column is-12-mobile is-6-tablet">
+        <figure class="image is-4by3">
+          <img
+            [src]="recipe.image_url + '?tr=w-700'"
+            [alt]="recipe.title"
+            style="object-fit: cover; border-radius: 1rem"
+          />
+        </figure>
+      </div>
+      <div class="column is-12-mobile is-6-tablet">
+        <app-mealtype-list [url]="recipe.meal_type" />
+        <app-dietarypreference-list [url]="recipe.dietary_preference" />
+        <div class="columns">
+          <div class="column">
+            <h2 class="subtitle mb-2">Preparation Time</h2>
+            <p class="mb-4 has-text-weight-bold">
+              {{ formatDuration(recipe.preparation_time) }}
+            </p>
+            <h2 class="subtitle mb-2">Cooking Time</h2>
+            <p class="has-text-weight-bold">
+              {{ formatDuration(recipe.cooking_time) }}
+            </p>
+          </div>
+          <div class="column">
+            <h2 class="subtitle mb-2">Difficulty</h2>
+            <p class="has-text-weight-bold is-capitalized">
+              {{ recipe.difficulty }}
+            </p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <h2 class="title is-4 mt-4 mb-2">Ingredients list</h2>
-  <app-ingredient-list [url]="recipe.ingredients" />
-  <h2 class="title is-4 mt-4 mb-2">Step by step instructions</h2>
-  <app-instruction-list [url]="recipe.instructions" />
-</div>
+    <h2 class="title is-4 mt-4 mb-2">Ingredients list</h2>
+    <app-ingredient-list [url]="recipe.ingredients" />
+    <h2 class="title is-4 mt-4 mb-2">Step by step instructions</h2>
+    <app-instruction-list [url]="recipe.instructions" />
+  </app-basepage>
+</ng-container>
 
 <div class="pt-4 is-flex is-justify-content-center" *ngIf="isProcessing">
   <div>

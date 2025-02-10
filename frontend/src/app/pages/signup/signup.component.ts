@@ -10,6 +10,7 @@ import {
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService, SignupBody } from '../../services/auth.service';
 import { handleErrors } from '../../../utils/error.utils';
+import { BasepageComponent } from '../../components/basepage/basepage.component';
 
 @Component({
   selector: 'app-signup',
@@ -20,6 +21,7 @@ import { handleErrors } from '../../../utils/error.utils';
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
+    BasepageComponent,
   ],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css',

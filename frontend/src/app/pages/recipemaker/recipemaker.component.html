@@ -1,85 +1,89 @@
-<form [formGroup]="makerForm" (ngSubmit)="onSubmit()">
-  <article *ngFor="let msg of errMsgs" class="message is-danger is-small mb-2">
-    <div class="message-body">
-      {{ msg }}
-    </div>
-  </article>
-  <h1 class="title is-1 pb-4">Recipe Maker</h1>
-  <div class="columns">
-    <div class="field column is-half">
-      <label for="title" class="label title is-4"
-        >Title<span class="has-text-danger">*</span></label
-      >
-      <div class="control mb-5">
-        <input
-          id="title"
-          class="input"
-          type="text"
-          formControlName="title"
-          placeholder="Text..."
-          value=""
-        />
-        <p *ngIf="titleErrs().required" class="help">
-          You might not bother with it, but a proper title is a must
-        </p>
+<app-basepage heading="Recipe Maker">
+  <form [formGroup]="makerForm" (ngSubmit)="onSubmit()">
+    <article
+      *ngFor="let msg of errMsgs"
+      class="message is-danger is-small mb-2"
+    >
+      <div class="message-body">
+        {{ msg }}
       </div>
-      <app-instructionsformarray [makerForm]="makerForm" />
-      <app-fileupload [makerForm]="makerForm" />
-      <app-mealtypes [makerForm]="makerForm" />
-    </div>
-    <div class="field column is-half">
-      <app-ingredientsformarray [makerForm]="makerForm" />
-      <label class="label mt-4 title is-4"
-        >Time<span class="has-text-danger">*</span></label
-      >
-      <div class="columns mb-5">
-        <div class="column is-half">
-          <label class="label"
-            >For preparing<span class="has-text-danger">*</span></label
-          >
+    </article>
+    <div class="columns">
+      <div class="field column is-half">
+        <label for="title" class="label title is-4"
+          >Title<span class="has-text-danger">*</span></label
+        >
+        <div class="control mb-5">
+          <input
+            id="title"
+            class="input"
+            type="text"
+            formControlName="title"
+            placeholder="Text..."
+            value=""
+          />
+          <p *ngIf="titleErrs().required" class="help">
+            You might not bother with it, but a proper title is a must
+          </p>
+        </div>
+        <app-instructionsformarray [makerForm]="makerForm" />
+        <app-fileupload [makerForm]="makerForm" />
+        <app-mealtypes [makerForm]="makerForm" />
+      </div>
+      <div class="field column is-half">
+        <app-ingredientsformarray [makerForm]="makerForm" />
+        <label class="label mt-4 title is-4"
+          >Time<span class="has-text-danger">*</span></label
+        >
+        <div class="columns mb-5">
+          <div class="column is-half">
+            <label class="label"
+              >For preparing<span class="has-text-danger">*</span></label
+            >
 
-          <app-durationpicker
-            [makerForm]="makerForm"
-            [fgName]="'preparationTime'"
-          />
+            <app-durationpicker
+              [makerForm]="makerForm"
+              [fgName]="'preparationTime'"
+            />
+          </div>
+          <div class="column is-half">
+            <label class="label"
+              >For cooking<span class="has-text-danger">*</span></label
+            >
+            <app-durationpicker
+              [makerForm]="makerForm"
+              [fgName]="'cookingTime'"
+            />
+          </div>
         </div>
-        <div class="column is-half">
-          <label class="label"
-            >For cooking<span class="has-text-danger">*</span></label
-          >
-          <app-durationpicker
-            [makerForm]="makerForm"
-            [fgName]="'cookingTime'"
-          />
+        <div class="control mb-5">
+          <label for="difficulty" class="label title is-4">Difficulty</label>
+          <div class="select is-primary">
+            <select
+              id="difficulty"
+              formControlName="difficulty"
+              class="is-capitalized"
+            >
+              <option *ngFor="let option of difficulties" [value]="option">
+                {{ option }}
+              </option>
+            </select>
+          </div>
         </div>
+        <app-dietarypreferences [makerForm]="makerForm" />
       </div>
-      <div class="control mb-5">
-        <label for="difficulty" class="label title is-4">Difficulty</label>
-        <div class="select is-primary">
-          <select
-            id="difficulty"
-            formControlName="difficulty"
-            class="is-capitalized"
-          >
-            <option *ngFor="let option of difficulties" [value]="option">
-              {{ option }}
-            </option>
-          </select>
-        </div>
+    </div>
+    <div class="columns">
+      <div class="column is-one-third">
+        <button
+          class="button is-primary is-uppercase has-text-weight-bold is-fullwidth"
+          type="submit"
+          [class.is-loading]="isProcessing"
+          [disabled]="isProcessing"
+        >
+          Make
+        </button>
       </div>
-      <app-dietarypreferences [makerForm]="makerForm" />
     </div>
-  </div>
-  <div class="columns">
-    <div class="column is-one-third">
-      <button
-        class="button is-primary is-uppercase has-text-weight-bold is-fullwidth"
-        type="submit"
-        [class.is-loading]="isProcessing"
-        [disabled]="isProcessing"
-      >
-        Make
-      </button>
-    </div>
-  </div>
-</form>
+  </form>
+</app-basepage>

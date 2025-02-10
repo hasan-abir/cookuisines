@@ -6,6 +6,7 @@ import { MealtypeListComponent } from '../../components/mealtype-list/mealtype-l
 import { RecipeResponse, RecipeService } from '../../services/recipe.service';
 import { IngredientListComponent } from '../../components/ingredient-list/ingredient-list.component';
 import { InstructionListComponent } from '../../components/instruction-list/instruction-list.component';
+import { BasepageComponent } from '../../components/basepage/basepage.component';
 
 @Component({
   selector: 'app-recipe',
@@ -18,6 +19,7 @@ import { InstructionListComponent } from '../../components/instruction-list/inst
     DietarypreferenceListComponent,
     IngredientListComponent,
     InstructionListComponent,
+    BasepageComponent,
   ],
   templateUrl: './recipe.component.html',
   styleUrl: './recipe.component.css',

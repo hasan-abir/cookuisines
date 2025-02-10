@@ -1,76 +1,80 @@
-<form
-  [formGroup]="signupForm"
-  (ngSubmit)="onSubmit()"
-  style="max-width: 400px"
-  class="mx-auto"
->
-  <article *ngFor="let msg of errMsgs" class="message is-danger is-small mb-2">
-    <div class="message-body">
-      {{ msg }}
-    </div>
-  </article>
-  <h1 class="title is-1 pb-4">Sign up</h1>
-  <div class="field">
-    <label for="username" class="label username is-4"
-      >Username<span class="has-text-danger">*</span></label
+<app-basepage heading="Sign up" [isCentered]="true">
+  <form
+    [formGroup]="signupForm"
+    (ngSubmit)="onSubmit()"
+    style="max-width: 400px"
+    class="mx-auto"
+  >
+    <article
+      *ngFor="let msg of errMsgs"
+      class="message is-danger is-small mb-2"
     >
-    <div class="control">
-      <input
-        id="username"
-        class="input"
-        placeholder="Username"
-        formControlName="username"
-      />
-    </div>
-  </div>
-  <div class="field">
-    <label for="email" class="label email is-4"
-      >Email<span class="has-text-danger">*</span></label
-    >
-    <div class="control">
-      <input
-        id="email"
-        class="input"
-        type="email"
-        placeholder="Email"
-        formControlName="email"
-      />
-    </div>
-  </div>
-  <div class="field">
-    <label for="password" class="label password is-4"
-      >Password<span class="has-text-danger">*</span></label
-    >
-    <div class="control">
-      <input
-        id="password"
-        class="input"
-        type="password"
-        placeholder="Password"
-        formControlName="password"
-      />
-    </div>
-  </div>
-  <div class="field">
-    <div class="control">
-      <button
-        class="button is-primary is-fullwidth"
-        [class.is-loading]="isProcessing"
-        [disabled]="isProcessing"
-        type="submit"
+      <div class="message-body">
+        {{ msg }}
+      </div>
+    </article>
+    <div class="field">
+      <label for="username" class="label username is-4"
+        >Username<span class="has-text-danger">*</span></label
       >
-        Sign up
-      </button>
+      <div class="control">
+        <input
+          id="username"
+          class="input"
+          placeholder="Username"
+          formControlName="username"
+        />
+      </div>
     </div>
-  </div>
-  <p>
-    Have an account already?
-    <a
-      class="is-ghost"
-      routerLink="/login"
-      routerLinkActive="active"
-      ariaCurrentWhenActive="page"
-      >Login</a
-    >
-  </p>
-</form>
+    <div class="field">
+      <label for="email" class="label email is-4"
+        >Email<span class="has-text-danger">*</span></label
+      >
+      <div class="control">
+        <input
+          id="email"
+          class="input"
+          type="email"
+          placeholder="Email"
+          formControlName="email"
+        />
+      </div>
+    </div>
+    <div class="field">
+      <label for="password" class="label password is-4"
+        >Password<span class="has-text-danger">*</span></label
+      >
+      <div class="control">
+        <input
+          id="password"
+          class="input"
+          type="password"
+          placeholder="Password"
+          formControlName="password"
+        />
+      </div>
+    </div>
+    <div class="field">
+      <div class="control">
+        <button
+          class="button is-primary is-fullwidth"
+          [class.is-loading]="isProcessing"
+          [disabled]="isProcessing"
+          type="submit"
+        >
+          Sign up
+        </button>
+      </div>
+    </div>
+    <p>
+      Have an account already?
+      <a
+        class="is-ghost"
+        routerLink="/login"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        >Login</a
+      >
+    </p>
+  </form>
+</app-basepage>

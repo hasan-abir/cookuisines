@@ -10,6 +10,7 @@ import {
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService, LoginBody } from '../../services/auth.service';
 import { handleErrors } from '../../../utils/error.utils';
+import { BasepageComponent } from '../../components/basepage/basepage.component';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +21,7 @@ import { handleErrors } from '../../../utils/error.utils';
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
+    BasepageComponent,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',

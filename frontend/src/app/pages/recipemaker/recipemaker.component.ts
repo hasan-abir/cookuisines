@@ -33,6 +33,7 @@ import {
   RecipeService,
 } from '../../services/recipe.service';
 import { MakerForm } from '../../types/MakerForm';
+import { BasepageComponent } from '../../components/basepage/basepage.component';
 
 export interface Duration {
   hours: number;
@@ -83,6 +84,7 @@ export const initialMakerForm: MakerForm = new FormGroup({
     FileuploadComponent,
     MealtypesComponent,
     DietarypreferencesComponent,
+    BasepageComponent,
   ],
   templateUrl: './recipemaker.component.html',
   styleUrl: './recipemaker.component.css',
