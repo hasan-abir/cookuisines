@@ -1,0 +1,61 @@
+<div [formGroup]="form" class="mb-5">
+  <div [formArrayName]="formArrName">
+    <label class="label title is-4 is-capitalized"
+      >Add {{ formArrName }}<span class="has-text-danger">*</span></label
+    >
+    <ng-container *ngFor="let itemForm of items.controls; let i = index">
+      <div class="columns" [formGroup]="itemForm">
+        <div class="column" *ngFor="let field of fields; let j = index">
+          <div class="field has-addons">
+            <div class="control is-flex-grow-1">
+              <label *ngIf="i === 0" class="label"
+                >{{ field.label }}<span class="has-text-danger">*</span></label
+              >
+              <input
+                *ngIf="field.type === 'text'"
+                [id]="formArrName + '-' + field.name + '-' + i"
+                class="input is-small"
+                type="text"
+                placeholder="Text..."
+                (keydown.enter)="$event.preventDefault()"
+                [formControlName]="field.name"
+              />
+              <textarea
+                *ngIf="field.type === 'textarea'"
+                [id]="formArrName + '-' + field.name + '-' + i"
+                class="textarea"
+                placeholder="Text..."
+                [formControlName]="field.name"
+                rows="2"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="column is-narrow is-flex is-justify-content-center is-align-items-end"
+        >
+          <button
+            type="button"
+            class="button is-danger is-small"
+            (click)="removeItem(i)"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <button
+      class="button is-fullwidth is-primary is-outlined mb-2"
+      type="button"
+      (click)="addItem()"
+    >
+      Add
+    </button>
+    <p *ngIf="itemsErrs().required" class="help">
+      <!-- Ingredients are what makes the meal; you have to provide them -->
+      {{ requiredMsg }}
+    </p>
+  </div>
+</div>

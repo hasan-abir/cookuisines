@@ -26,12 +26,25 @@
             You might not bother with it, but a proper title is a must
           </p>
         </div>
-        <app-instructionsformarray [makerForm]="makerForm" />
+        <app-formgrouparray
+          [form]="makerForm"
+          formArrName="instructions"
+          [fields]="[{ label: 'Step', name: 'step', type: 'textarea' }]"
+          requiredMsg="How do you actually make it? Please tell us the steps"
+        />
         <app-fileupload [makerForm]="makerForm" />
         <app-mealtypes [makerForm]="makerForm" />
       </div>
       <div class="field column is-half">
-        <app-ingredientsformarray [makerForm]="makerForm" />
+        <app-formgrouparray
+          [form]="makerForm"
+          formArrName="ingredients"
+          [fields]="[
+            { label: 'Name', name: 'name', type: 'text' },
+            { label: 'Quantity', name: 'quantity', type: 'text' }
+          ]"
+          requiredMsg="Ingredients are what makes the meal; you have to provide them"
+        />
         <label class="label mt-4 title is-4"
           >Time<span class="has-text-danger">*</span></label
         >

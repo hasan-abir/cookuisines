@@ -12,6 +12,8 @@ import {
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { combineLatest, Observable } from 'rxjs';
 import { handleErrors } from '../../../utils/error.utils';
+import { BasepageComponent } from '../../components/basepage/basepage.component';
+import { FormgrouparrayComponent } from '../../components/formgrouparray/formgrouparray.component';
 import { DietarypreferencesComponent } from '../../components/makerform/dietarypreferences/dietarypreferences.component';
 import {
   checkDurationGreaterThanZero,
@@ -21,8 +23,6 @@ import {
   FileuploadComponent,
   validateImageFile,
 } from '../../components/makerform/fileupload/fileupload.component';
-import { IngredientsformarrayComponent } from '../../components/makerform/ingredientsformarray/ingredientsformarray.component';
-import { InstructionsformarrayComponent } from '../../components/makerform/instructionsformarray/instructionsformarray.component';
 import { MealtypesComponent } from '../../components/makerform/mealtypes/mealtypes.component';
 import {
   DietaryPreferenceBody,
@@ -33,7 +33,6 @@ import {
   RecipeService,
 } from '../../services/recipe.service';
 import { MakerForm } from '../../types/MakerForm';
-import { BasepageComponent } from '../../components/basepage/basepage.component';
 
 export interface Duration {
   hours: number;
@@ -78,13 +77,12 @@ export const initialMakerForm: MakerForm = new FormGroup({
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    IngredientsformarrayComponent,
-    InstructionsformarrayComponent,
     DurationpickerComponent,
     FileuploadComponent,
     MealtypesComponent,
     DietarypreferencesComponent,
     BasepageComponent,
+    FormgrouparrayComponent,
   ],
   templateUrl: './recipemaker.component.html',
   styleUrl: './recipemaker.component.css',
