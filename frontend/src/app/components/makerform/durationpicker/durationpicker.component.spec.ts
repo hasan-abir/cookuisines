@@ -1,10 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FormControl, FormGroup } from '@angular/forms';
-import {
-  checkDurationGreaterThanZero,
-  DurationpickerComponent,
-} from './durationpicker.component';
+import { DurationpickerComponent } from './durationpicker.component';
 
 describe('DurationpickerComponent', () => {
   let component: DurationpickerComponent;
@@ -27,7 +24,7 @@ describe('DurationpickerComponent', () => {
       }),
     });
     component.fgName = 'preparationTime';
-    component.makerForm = mockForm as any;
+    component.form = mockForm as any;
     fixture.detectChanges();
   });
 
@@ -93,13 +90,13 @@ describe('DurationpickerComponent', () => {
     secondsInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
     expect(hoursInput.value).toBe('3');
-    expect(component.makerForm.get('preparationTime.hours')?.value).toBe(3);
-    expect(component.makerForm.get('preparationTime.minutes')?.value).toBe(2);
-    expect(component.makerForm.get('preparationTime.seconds')?.value).toBe(1);
+    expect(component.form.get('preparationTime.hours')?.value).toBe(3);
+    expect(component.form.get('preparationTime.minutes')?.value).toBe(2);
+    expect(component.form.get('preparationTime.seconds')?.value).toBe(1);
   });
 
   it('should display the error when it occurs', () => {
-    component.makerForm
+    component.form
       .get('preparationTime')
       ?.setErrors({ durationGreaterThanZero: true });
     fixture.detectChanges();

@@ -14,7 +14,6 @@ import { combineLatest, Observable } from 'rxjs';
 import { handleErrors } from '../../../utils/error.utils';
 import { BasepageComponent } from '../../components/basepage/basepage.component';
 import { FormgrouparrayComponent } from '../../components/formgrouparray/formgrouparray.component';
-import { DietarypreferencesComponent } from '../../components/makerform/dietarypreferences/dietarypreferences.component';
 import {
   checkDurationGreaterThanZero,
   DurationpickerComponent,
@@ -23,7 +22,7 @@ import {
   FileuploadComponent,
   validateImageFile,
 } from '../../components/makerform/fileupload/fileupload.component';
-import { MealtypesComponent } from '../../components/makerform/mealtypes/mealtypes.component';
+import { FormselectfieldsComponent } from '../../formselectfields/formselectfields.component';
 import {
   DietaryPreferenceBody,
   IngredientBody,
@@ -79,10 +78,9 @@ export const initialMakerForm: MakerForm = new FormGroup({
     CommonModule,
     DurationpickerComponent,
     FileuploadComponent,
-    MealtypesComponent,
-    DietarypreferencesComponent,
     BasepageComponent,
     FormgrouparrayComponent,
+    FormselectfieldsComponent,
   ],
   templateUrl: './recipemaker.component.html',
   styleUrl: './recipemaker.component.css',

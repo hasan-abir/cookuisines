@@ -2,6 +2,8 @@ import { Component, Input } from '@angular/core';
 import { initialMakerForm } from '../../../pages/recipemaker/recipemaker.component';
 import {
   AbstractControl,
+  FormBuilder,
+  FormGroup,
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
@@ -32,10 +34,12 @@ export function checkDurationGreaterThanZero(): ValidatorFn {
 })
 export class DurationpickerComponent {
   @Input() fgName: string = '';
-  @Input() makerForm: MakerForm = initialMakerForm;
+  @Input() form: FormGroup = this.formBuilder.group({});
+
+  constructor(private formBuilder: FormBuilder) {}
 
   timeErrs(): { durationGreaterThanZero: boolean } {
-    const control = this.makerForm.get(this.fgName);
+    const control = this.form.get(this.fgName);
 
     const durationGreaterThanZero =
       control && control.errors && control.errors['durationGreaterThanZero'];
