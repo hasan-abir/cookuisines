@@ -15,7 +15,6 @@ import { CommonModule } from '@angular/common';
 })
 export class IngredientListComponent {
   isProcessing = false;
-  ingredients: IngredientResponse[] = [];
   paginatedIngredients: PaginatedIngredients = {
     count: 0,
     next: null,
@@ -30,16 +29,11 @@ export class IngredientListComponent {
     this.fetchIngredients();
   }
 
-  fetchMoreIngredients() {
-    if (this.paginatedIngredients.next) {
-      this.fetchIngredients(this.paginatedIngredients.next);
-    }
-  }
-
   fetchIngredients(nextUrl?: string) {
     this.isProcessing = true;
+    const fetchUrl = nextUrl || this.url;
 
-    this.recipeService.get_ingredients(nextUrl || this.url).subscribe({
+    this.recipeService.get_ingredients(fetchUrl).subscribe({
       next: (result) => {
         this.paginatedIngredients.count = result.count;
         this.paginatedIngredients.next = result.next;
@@ -51,6 +45,10 @@ export class IngredientListComponent {
         ];
 
         this.isProcessing = false;
+
+        if (result.next) {
+          this.fetchIngredients(result.next);
+        }
       },
     });
   }

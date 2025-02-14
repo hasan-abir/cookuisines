@@ -1,13 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { initialMakerForm } from '../../../pages/recipemaker/recipemaker.component';
 import {
   AbstractControl,
+  FormBuilder,
   FormControl,
+  FormGroup,
   ValidationErrors,
   ValidatorFn,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { MakerForm } from '../../../types/MakerForm';
 
 export function validateImageFile(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -41,7 +41,11 @@ export function validateImageFile(): ValidatorFn {
   styleUrl: './fileupload.component.css',
 })
 export class FileuploadComponent {
-  @Input() makerForm: MakerForm = initialMakerForm;
+  @Input() form: FormGroup = this.formBuilder.group({
+    image: new FormControl(),
+  });
+
+  constructor(private formBuilder: FormBuilder) {}
 
   previewImg: string | null = null;
 
@@ -69,7 +73,7 @@ export class FileuploadComponent {
   }
 
   get image() {
-    return this.makerForm.get('image') as FormControl<File | null>;
+    return this.form.get('image') as FormControl<File | null>;
   }
 
   removeImage() {

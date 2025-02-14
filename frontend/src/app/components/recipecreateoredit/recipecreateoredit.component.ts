@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { MakerForm } from '../../types/MakerForm';
 import {
   FormArray,
   FormBuilder,
@@ -10,18 +10,17 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { combineLatest, Observable } from 'rxjs';
-import { handleErrors } from '../../../utils/error.utils';
-import { BasepageComponent } from '../../components/basepage/basepage.component';
-import { FormgrouparrayComponent } from '../../components/formgrouparray/formgrouparray.component';
+import { CommonModule } from '@angular/common';
 import {
   checkDurationGreaterThanZero,
   DurationpickerComponent,
-} from '../../components/durationpicker/durationpicker.component';
+} from '../durationpicker/durationpicker.component';
 import {
   FileuploadComponent,
   validateImageFile,
-} from '../../components/fileupload/fileupload.component';
+} from '../fileupload/fileupload.component';
+import { BasepageComponent } from '../basepage/basepage.component';
+import { FormgrouparrayComponent } from '../formgrouparray/formgrouparray.component';
 import { FormselectfieldsComponent } from '../../formselectfields/formselectfields.component';
 import {
   DietaryPreferenceBody,
@@ -31,8 +30,8 @@ import {
   RecipeBody,
   RecipeService,
 } from '../../services/recipe.service';
-import { MakerForm } from '../../types/MakerForm';
-import { RecipecreateoreditComponent } from '../../components/recipecreateoredit/recipecreateoredit.component';
+import { combineLatest, Observable } from 'rxjs';
+import { handleErrors } from '../../../utils/error.utils';
 
 export interface Duration {
   hours: number;
@@ -69,7 +68,7 @@ export const initialMakerForm: MakerForm = new FormGroup({
 });
 
 @Component({
-  selector: 'app-recipemaker',
+  selector: 'app-recipecreateoredit',
   standalone: true,
   imports: [
     RouterLink,
@@ -82,12 +81,11 @@ export const initialMakerForm: MakerForm = new FormGroup({
     BasepageComponent,
     FormgrouparrayComponent,
     FormselectfieldsComponent,
-    RecipecreateoreditComponent,
   ],
-  templateUrl: './recipemaker.component.html',
-  styleUrl: './recipemaker.component.css',
+  templateUrl: './recipecreateoredit.component.html',
+  styleUrl: './recipecreateoredit.component.css',
 })
-export class RecipemakerComponent {
+export class RecipecreateoreditComponent {
   difficulties = ['easy', 'medium', 'hard'];
   errMsgs: string[] = [];
   isProcessing = false;

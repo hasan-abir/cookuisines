@@ -99,44 +99,50 @@ describe('InstructionListComponent', () => {
 
   it('should fetch more instructions', fakeAsync(() => {
     const nextPage = 'http://testserver/instructions/?page=2';
-    component.paginatedInstructions.next = nextPage;
-    fixture.detectChanges();
     const steps = ['Step 1', 'Step 2'];
-    recipeServiceSpy.get_instructions.and.returnValue(
+    recipeServiceSpy.get_instructions.and.returnValues(
       new Observable((subscriber) => {
-        timer(2000).subscribe(() => {
-          subscriber.next({
-            count: 2,
-            next: null,
-            previous: null,
-            results: [
-              {
-                url: 'http://testserver/recipes/instructions/1/',
-                step: steps[0],
-              },
-              {
-                url: 'http://testserver/recipes/instructions/2/',
-                step: steps[1],
-              },
-            ],
-          });
+        subscriber.next({
+          count: 2,
+          next: nextPage,
+          previous: null,
+          results: [
+            {
+              url: 'http://testserver/recipes/instructions/1/',
+              step: steps[0],
+            },
+            {
+              url: 'http://testserver/recipes/instructions/2/',
+              step: steps[1],
+            },
+          ],
+        });
+      }),
+      new Observable((subscriber) => {
+        subscriber.next({
+          count: 2,
+          next: null,
+          previous: null,
+          results: [
+            {
+              url: 'http://testserver/recipes/instructions/1/',
+              step: steps[0],
+            },
+            {
+              url: 'http://testserver/recipes/instructions/2/',
+              step: steps[1],
+            },
+          ],
         });
       })
     );
-    const moreInstructionsBtn = compiled.querySelector(
-      '.fetch-more-instructions'
-    ) as HTMLButtonElement;
-    expect(moreInstructionsBtn).toBeTruthy();
-    moreInstructionsBtn.click();
+
+    component.fetchInstructions();
     fixture.detectChanges();
-    let loader = compiled.querySelector('.loader');
-    expect(loader).toBeTruthy();
-    tick(2000);
-    fixture.detectChanges();
+
     const instructionsLi = compiled.querySelectorAll('li');
-    loader = compiled.querySelector('.loader');
+    expect(recipeServiceSpy.get_instructions).toHaveBeenCalledWith('');
     expect(recipeServiceSpy.get_instructions).toHaveBeenCalledWith(nextPage);
-    expect(instructionsLi.length).toBe(2);
-    expect(loader).toBeFalsy();
+    expect(instructionsLi.length).toBe(4);
   }));
 });

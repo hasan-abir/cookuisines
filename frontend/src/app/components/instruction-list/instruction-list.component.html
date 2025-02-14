@@ -4,13 +4,6 @@
       {{ instruction.step }}
     </li>
   </ul>
-  <button
-    *ngIf="!isProcessing && paginatedInstructions.next"
-    class="button is-small mb-4 fetch-more-instructions"
-    (click)="fetchMoreInstructions()"
-  >
-    Show more
-  </button>
 </div>
 
 <div class="py-4" *ngIf="isProcessing">

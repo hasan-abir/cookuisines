@@ -29,16 +29,11 @@ export class InstructionListComponent {
     this.fetchInstructions();
   }
 
-  fetchMoreInstructions() {
-    if (this.paginatedInstructions.next) {
-      this.fetchInstructions(this.paginatedInstructions.next);
-    }
-  }
-
   fetchInstructions(nextUrl?: string) {
     this.isProcessing = true;
+    const fetchUrl = nextUrl || this.url;
 
-    this.recipeService.get_instructions(nextUrl || this.url).subscribe({
+    this.recipeService.get_instructions(fetchUrl).subscribe({
       next: (result) => {
         this.paginatedInstructions.count = result.count;
         this.paginatedInstructions.next = result.next;
@@ -50,6 +45,10 @@ export class InstructionListComponent {
         ];
 
         this.isProcessing = false;
+
+        if (result.next) {
+          this.fetchInstructions(result.next);
+        }
       },
     });
   }

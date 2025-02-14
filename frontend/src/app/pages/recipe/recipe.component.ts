@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
+import { BasepageComponent } from '../../components/basepage/basepage.component';
 import { DietarypreferenceListComponent } from '../../components/dietarypreference-list/dietarypreference-list.component';
-import { MealtypeListComponent } from '../../components/mealtype-list/mealtype-list.component';
-import { RecipeResponse, RecipeService } from '../../services/recipe.service';
 import { IngredientListComponent } from '../../components/ingredient-list/ingredient-list.component';
 import { InstructionListComponent } from '../../components/instruction-list/instruction-list.component';
-import { BasepageComponent } from '../../components/basepage/basepage.component';
+import { MealtypeListComponent } from '../../components/mealtype-list/mealtype-list.component';
+import { RecipeResponse, RecipeService } from '../../services/recipe.service';
 
 @Component({
   selector: 'app-recipe',

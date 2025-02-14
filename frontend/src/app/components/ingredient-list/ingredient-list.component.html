@@ -4,13 +4,6 @@
       {{ ingredient.name }} - {{ ingredient.quantity }}
     </li>
   </ul>
-  <button
-    *ngIf="!isProcessing && paginatedIngredients.next"
-    class="button is-small mb-4 fetch-more-ingredients"
-    (click)="fetchMoreIngredients()"
-  >
-    Show more
-  </button>
 </div>
 
 <div class="py-4" *ngIf="isProcessing">

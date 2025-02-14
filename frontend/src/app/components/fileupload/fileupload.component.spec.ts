@@ -36,7 +36,7 @@ describe('FileuploadComponent', () => {
   it('should update the form when the file is selected and remove the previewImg when remove button is clicked', waitForAsync(() => {
     const mockForm = new FormGroup({ image: new FormControl(null) });
 
-    component.makerForm = mockForm as any;
+    component.form = mockForm as any;
     fixture.detectChanges();
 
     const fileInput = compiled.querySelector(
@@ -93,7 +93,7 @@ describe('FileuploadComponent', () => {
   it('should show the errors when wrong file type is selected', waitForAsync(() => {
     const mockForm = new FormGroup({ image: new FormControl(null) });
 
-    component.makerForm = mockForm as any;
+    component.form = mockForm as any;
     component.image.setErrors({ invalidFileType: true, invalidFileSize: true });
     fixture.detectChanges();
 
