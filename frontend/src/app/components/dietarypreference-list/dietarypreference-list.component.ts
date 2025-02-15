@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   DietaryPreferenceResponse,
+  MealTypeResponse,
   RecipeService,
 } from '../../services/recipe.service';
 
@@ -15,6 +16,9 @@ import {
 export class DietarypreferenceListComponent {
   isProcessing = false;
   dietarypreference: DietaryPreferenceResponse | null = null;
+  @Output() setDietaryPreference =
+    new EventEmitter<DietaryPreferenceResponse>();
+
   @Input() url = '';
 
   constructor(private recipeService: RecipeService) {}
@@ -31,6 +35,8 @@ export class DietarypreferenceListComponent {
         this.dietarypreference = result;
 
         this.isProcessing = false;
+
+        this.setDietaryPreference.emit(result);
       },
     });
   }

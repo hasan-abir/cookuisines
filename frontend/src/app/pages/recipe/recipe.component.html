@@ -11,8 +11,16 @@
         </figure>
       </div>
       <div class="column is-12-mobile is-6-tablet">
-        <app-mealtype-list [url]="recipe.meal_type" />
-        <app-dietarypreference-list [url]="recipe.dietary_preference" />
+        <app-mealtype-list
+          [url]="recipe.meal_type"
+          (setMealType)="setRecipeDetails('meal_type', $event)"
+        />
+        <app-dietarypreference-list
+          [url]="recipe.dietary_preference"
+          (setDietaryPreference)="
+            setRecipeDetails('dietary_preference', $event)
+          "
+        />
         <div class="columns">
           <div class="column">
             <h2 class="subtitle mb-2">Preparation Time</h2>
@@ -34,11 +42,25 @@
       </div>
     </div>
     <h2 class="title is-4 mt-4 mb-2">Ingredients list</h2>
-    <app-ingredient-list [url]="recipe.ingredients" />
+    <app-ingredient-list
+      [url]="recipe.ingredients"
+      (setIngredients)="setRecipeDetails('ingredients', $event)"
+    />
     <h2 class="title is-4 mt-4 mb-2">Step by step instructions</h2>
-    <app-instruction-list [url]="recipe.instructions" />
+    <app-instruction-list
+      [url]="recipe.instructions"
+      (setInstructions)="setRecipeDetails('instructions', $event)"
+    />
   </app-basepage>
 </ng-container>
+
+<button
+  *ngIf="isRecipeFullyLoaded"
+  class="button is-primary mt-4 is-uppercase has-text-weight-bold"
+  type="submit"
+>
+  Edit
+</button>
 
 <div class="pt-4 is-flex is-justify-content-center" *ngIf="isProcessing">
   <div>

@@ -1,12 +1,27 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 import { BasepageComponent } from '../../components/basepage/basepage.component';
 import { DietarypreferenceListComponent } from '../../components/dietarypreference-list/dietarypreference-list.component';
 import { IngredientListComponent } from '../../components/ingredient-list/ingredient-list.component';
 import { InstructionListComponent } from '../../components/instruction-list/instruction-list.component';
 import { MealtypeListComponent } from '../../components/mealtype-list/mealtype-list.component';
-import { RecipeResponse, RecipeService } from '../../services/recipe.service';
+import {
+  DietaryPreferenceResponse,
+  IngredientResponse,
+  InstructionResponse,
+  MealTypeResponse,
+  RecipeResponse,
+  RecipeService,
+} from '../../services/recipe.service';
+
+interface RecipeDetails {
+  ingredients?: IngredientResponse[];
+  instructions?: InstructionResponse[];
+  meal_type?: MealTypeResponse;
+  dietary_preference?: DietaryPreferenceResponse;
+}
 
 @Component({
   selector: 'app-recipe',
@@ -27,10 +42,13 @@ import { RecipeResponse, RecipeService } from '../../services/recipe.service';
 export class RecipeComponent {
   recipe: RecipeResponse | null = null;
   isProcessing = false;
+  recipeDetails: RecipeDetails = {};
+  isRecipeFullyLoaded: boolean = false;
 
   constructor(
     private recipeService: RecipeService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -74,5 +92,24 @@ export class RecipeComponent {
         this.isProcessing = false;
       },
     });
+  }
+
+  setRecipeDetails<K extends keyof RecipeDetails>(
+    key: K,
+    val: RecipeDetails[K]
+  ) {
+    this.recipeDetails[key] = val;
+
+    const isFullyLoaded =
+      this.recipe !== null &&
+      this.recipeDetails.hasOwnProperty('ingredients') &&
+      this.recipeDetails.hasOwnProperty('instructions') &&
+      this.recipeDetails.hasOwnProperty('meal_type') &&
+      this.recipeDetails.hasOwnProperty('dietary_preference');
+
+    if (isFullyLoaded) {
+      this.isRecipeFullyLoaded = true;
+      this.cd.detectChanges();
+    }
   }
 }

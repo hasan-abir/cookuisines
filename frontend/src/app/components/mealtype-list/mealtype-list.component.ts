@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MealTypeResponse, RecipeService } from '../../services/recipe.service';
 import { CommonModule } from '@angular/common';
 
@@ -12,6 +12,8 @@ import { CommonModule } from '@angular/common';
 export class MealtypeListComponent {
   isProcessing = false;
   mealtype: MealTypeResponse | null = null;
+  @Output() setMealType = new EventEmitter<MealTypeResponse>();
+
   @Input() url = '';
 
   constructor(private recipeService: RecipeService) {}
@@ -28,6 +30,8 @@ export class MealtypeListComponent {
         this.mealtype = result;
 
         this.isProcessing = false;
+
+        this.setMealType.emit(result);
       },
     });
   }

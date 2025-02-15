@@ -1,10 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   IngredientResponse,
   PaginatedIngredients,
   RecipeService,
 } from '../../services/recipe.service';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-ingredient-list',
@@ -21,6 +21,7 @@ export class IngredientListComponent {
     previous: null,
     results: [],
   };
+  @Output() setIngredients = new EventEmitter<IngredientResponse[]>();
   @Input() url = '';
 
   constructor(private recipeService: RecipeService) {}
@@ -48,6 +49,8 @@ export class IngredientListComponent {
 
         if (result.next) {
           this.fetchIngredients(result.next);
+        } else {
+          this.setIngredients.emit(result.results);
         }
       },
     });

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   InstructionResponse,
   PaginatedInstructions,
@@ -21,6 +21,7 @@ export class InstructionListComponent {
     previous: null,
     results: [],
   };
+  @Output() setInstructions = new EventEmitter<InstructionResponse[]>();
   @Input() url = '';
 
   constructor(private recipeService: RecipeService) {}
@@ -48,6 +49,8 @@ export class InstructionListComponent {
 
         if (result.next) {
           this.fetchInstructions(result.next);
+        } else {
+          this.setInstructions.emit(result.results);
         }
       },
     });
