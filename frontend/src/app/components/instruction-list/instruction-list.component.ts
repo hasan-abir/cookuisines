@@ -50,7 +50,7 @@ export class InstructionListComponent {
         if (result.next) {
           this.fetchInstructions(result.next);
         } else {
-          this.setInstructions.emit(result.results);
+          this.setInstructions.emit(this.paginatedInstructions.results);
         }
       },
     });

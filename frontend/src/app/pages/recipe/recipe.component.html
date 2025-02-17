@@ -55,7 +55,7 @@
 </ng-container>
 
 <button
-  *ngIf="isRecipeFullyLoaded"
+  *ngIf="isRecipeFullyLoaded && (user$ | async)"
   class="button is-primary mt-4 is-uppercase has-text-weight-bold"
   type="submit"
 >

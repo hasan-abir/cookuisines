@@ -48,6 +48,8 @@ describe('DietarypreferenceListComponent', () => {
   });
 
   it('should fetch the dietarypreference and display the dietarypreference values if they are true', fakeAsync(() => {
+    spyOn(component.setDietaryPreference, 'emit');
+
     const dietarypreferenceUrl = 'dietarypreference-url';
     component.url = dietarypreferenceUrl;
 
@@ -60,15 +62,17 @@ describe('DietarypreferenceListComponent', () => {
     const vegan = true;
     const glutenfree = true;
 
+    const dietaryPreferenceMockResponse = {
+      url: 'http://testserver/recipes/dietarypreferences/1/',
+      vegan,
+      glutenfree,
+      recipe: 'http://testserver/recipes/1/',
+    };
+
     recipeServiceSpy.get_dietarypreference.and.returnValue(
       new Observable((subscriber) => {
         timer(2000).subscribe(() => {
-          subscriber.next({
-            url: 'http://testserver/recipes/dietarypreferences/1/',
-            vegan,
-            glutenfree,
-            recipe: 'http://testserver/recipes/1/',
-          });
+          subscriber.next(dietaryPreferenceMockResponse);
         });
       })
     );
@@ -84,6 +88,9 @@ describe('DietarypreferenceListComponent', () => {
 
     expect(recipeServiceSpy.get_dietarypreference).toHaveBeenCalledWith(
       dietarypreferenceUrl
+    );
+    expect(component.setDietaryPreference.emit).toHaveBeenCalledWith(
+      dietaryPreferenceMockResponse
     );
 
     veganTag = compiled.querySelectorAll('.tag')[0];

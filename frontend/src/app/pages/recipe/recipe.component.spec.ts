@@ -7,7 +7,7 @@ import {
 
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute, provideRouter } from '@angular/router';
-import { Observable, timer } from 'rxjs';
+import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { routes } from '../../app.routes';
 import { MealtypeListComponent } from '../../components/mealtype-list/mealtype-list.component';
 import { RecipeResponse, RecipeService } from '../../services/recipe.service';
@@ -15,6 +15,7 @@ import { RecipeComponent } from './recipe.component';
 import { DietarypreferenceListComponent } from '../../components/dietarypreference-list/dietarypreference-list.component';
 import { IngredientListComponent } from '../../components/ingredient-list/ingredient-list.component';
 import { InstructionListComponent } from '../../components/instruction-list/instruction-list.component';
+import { AuthService, UserResponse } from '../../services/auth.service';
 
 @Component({
   selector: 'app-mealtype-list',
@@ -57,16 +58,21 @@ describe('RecipeComponent', () => {
   let fixture: ComponentFixture<RecipeComponent>;
   let compiled: HTMLElement;
   let recipeServiceSpy: jasmine.SpyObj<RecipeService>;
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
   let route: ActivatedRoute;
 
   beforeEach(async () => {
-    const getMethodSpy = jasmine.createSpyObj('RecipeService', ['get_recipe']);
+    const recipeSpy = jasmine.createSpyObj('RecipeService', ['get_recipe']);
+    const authenticatedSpy = jasmine.createSpyObj('AuthService', ['user$']);
+
+    authenticatedSpy.user$ = new BehaviorSubject<UserResponse | null>(null);
 
     await TestBed.configureTestingModule({
       imports: [RecipeComponent],
       providers: [
         provideRouter(routes),
-        { provide: RecipeService, useValue: getMethodSpy },
+        { provide: RecipeService, useValue: recipeSpy },
+        { provide: AuthService, useValue: authenticatedSpy },
       ],
     })
       .overrideComponent(RecipeComponent, {
@@ -91,6 +97,8 @@ describe('RecipeComponent', () => {
 
     route = TestBed.inject(ActivatedRoute);
     route.snapshot.params = { id: '1' };
+    authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+
     recipeServiceSpy = TestBed.inject(
       RecipeService
     ) as jasmine.SpyObj<RecipeService>;
@@ -166,5 +174,54 @@ describe('RecipeComponent', () => {
     expect(paragraphs[0].textContent?.trim()).toBe('5 minutes, 6 seconds');
     expect(paragraphs[1].textContent?.trim()).toBe('50 hours');
     expect(paragraphs[2].textContent?.trim()).toBe(recipe.difficulty);
+  }));
+
+  it('should display the edit button when recipe fully loads', fakeAsync(() => {
+    let editButton = compiled.querySelectorAll('button')[0];
+
+    expect(editButton).toBeFalsy();
+
+    const user = {
+      username: 'test',
+      email: 'test@test.com',
+    };
+    (authServiceSpy.user$ as BehaviorSubject<UserResponse | null>).next(user);
+
+    component.recipe = {
+      url: 'http://testserver/recipes/1/',
+      cooking_time: '50:00:00',
+      preparation_time: '00:05:06',
+      title: 'Recipe 1',
+      created_by_username: 'hasan_abir',
+      difficulty: 'hard',
+      dietary_preference: 'dietarypreference_url',
+      meal_type: 'mealtype_url',
+      image_id: 'image_id',
+      image_url: 'image_url',
+      ingredients: 'ingredients_url',
+      instructions: 'instructions_url',
+    };
+    component.setRecipeDetails('ingredients', []);
+    component.setRecipeDetails('instructions', []);
+    component.setRecipeDetails('meal_type', {
+      url: 'http://testserver/meal_type/1/',
+      recipe: 'http://testserver/recipes/1/',
+      breakfast: false,
+      brunch: false,
+      lunch: false,
+      dinner: false,
+    });
+    component.setRecipeDetails('dietary_preference', {
+      url: 'http://testserver/dietary_preference/1/',
+      recipe: 'http://testserver/recipes/1/',
+      vegan: false,
+      glutenfree: false,
+    });
+
+    fixture.detectChanges();
+
+    editButton = compiled.querySelectorAll('button')[0];
+
+    expect(editButton).toBeTruthy();
   }));
 });

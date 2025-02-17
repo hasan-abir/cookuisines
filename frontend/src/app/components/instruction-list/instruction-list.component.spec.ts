@@ -8,6 +8,7 @@ import {
 import { InstructionListComponent } from './instruction-list.component';
 import { RecipeService } from '../../services/recipe.service';
 import { Observable, timer } from 'rxjs';
+import { ComponentFactoryResolver } from '@angular/core';
 
 describe('InstructionListComponent', () => {
   let component: InstructionListComponent;
@@ -46,6 +47,8 @@ describe('InstructionListComponent', () => {
   });
 
   it('should fetch the instructions and display the instructions array', fakeAsync(() => {
+    spyOn(component.setInstructions, 'emit');
+
     const instructionsUrl = 'instructions-url';
     component.url = instructionsUrl;
 
@@ -55,24 +58,26 @@ describe('InstructionListComponent', () => {
 
     const steps = ['Step 1', 'Step 2'];
 
+    const instructionsMockResponse = {
+      count: 0,
+      previous: null,
+      next: null,
+      results: [
+        {
+          url: 'http://testserver/recipes/instructions/1/',
+          step: steps[0],
+        },
+        {
+          url: 'http://testserver/recipes/instructions/2/',
+          step: steps[1],
+        },
+      ],
+    };
+
     recipeServiceSpy.get_instructions.and.returnValue(
       new Observable((subscriber) => {
         timer(2000).subscribe(() => {
-          subscriber.next({
-            count: 0,
-            previous: null,
-            next: null,
-            results: [
-              {
-                url: 'http://testserver/recipes/instructions/1/',
-                step: steps[0],
-              },
-              {
-                url: 'http://testserver/recipes/instructions/2/',
-                step: steps[1],
-              },
-            ],
-          });
+          subscriber.next(instructionsMockResponse);
         });
       })
     );
@@ -89,6 +94,9 @@ describe('InstructionListComponent', () => {
     expect(recipeServiceSpy.get_instructions).toHaveBeenCalledWith(
       instructionsUrl
     );
+    expect(component.setInstructions.emit).toHaveBeenCalledWith(
+      component.paginatedInstructions.results
+    );
 
     instructionsLi = compiled.querySelectorAll('li');
 
@@ -98,6 +106,8 @@ describe('InstructionListComponent', () => {
   }));
 
   it('should fetch more instructions', fakeAsync(() => {
+    spyOn(component.setInstructions, 'emit');
+
     const nextPage = 'http://testserver/instructions/?page=2';
     const steps = ['Step 1', 'Step 2'];
     recipeServiceSpy.get_instructions.and.returnValues(
@@ -141,8 +151,28 @@ describe('InstructionListComponent', () => {
     fixture.detectChanges();
 
     const instructionsLi = compiled.querySelectorAll('li');
+    expect(recipeServiceSpy.get_instructions).toHaveBeenCalledTimes(3);
     expect(recipeServiceSpy.get_instructions).toHaveBeenCalledWith('');
     expect(recipeServiceSpy.get_instructions).toHaveBeenCalledWith(nextPage);
     expect(instructionsLi.length).toBe(4);
+    expect(component.setInstructions.emit).toHaveBeenCalledTimes(1);
+    expect(component.setInstructions.emit).toHaveBeenCalledWith([
+      {
+        url: 'http://testserver/recipes/instructions/1/',
+        step: steps[0],
+      },
+      {
+        url: 'http://testserver/recipes/instructions/2/',
+        step: steps[1],
+      },
+      {
+        url: 'http://testserver/recipes/instructions/1/',
+        step: steps[0],
+      },
+      {
+        url: 'http://testserver/recipes/instructions/2/',
+        step: steps[1],
+      },
+    ]);
   }));
 });

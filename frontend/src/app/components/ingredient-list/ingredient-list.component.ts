@@ -50,7 +50,7 @@ export class IngredientListComponent {
         if (result.next) {
           this.fetchIngredients(result.next);
         } else {
-          this.setIngredients.emit(result.results);
+          this.setIngredients.emit(this.paginatedIngredients.results);
         }
       },
     });

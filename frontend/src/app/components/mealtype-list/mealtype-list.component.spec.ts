@@ -50,6 +50,8 @@ describe('MealtypeListComponent', () => {
   });
 
   it('should fetch the mealtype and display the mealtype values if they are true', fakeAsync(() => {
+    spyOn(component.setMealType, 'emit');
+
     const mealtypeUrl = 'mealtype-url';
     component.url = mealtypeUrl;
     let breakfastTag = compiled.querySelectorAll('.tag')[0];
@@ -67,17 +69,19 @@ describe('MealtypeListComponent', () => {
     const lunch = true;
     const dinner = true;
 
+    const mealTypeMockResponse = {
+      url: 'http://testserver/recipes/mealtype/1/',
+      breakfast,
+      brunch,
+      lunch,
+      dinner,
+      recipe: 'http://testserver/recipes/1/',
+    };
+
     recipeServiceSpy.get_mealtype.and.returnValue(
       new Observable((subscriber) => {
         timer(2000).subscribe(() => {
-          subscriber.next({
-            url: 'http://testserver/recipes/mealtype/1/',
-            breakfast,
-            brunch,
-            lunch,
-            dinner,
-            recipe: 'http://testserver/recipes/1/',
-          });
+          subscriber.next(mealTypeMockResponse);
         });
       })
     );
@@ -92,6 +96,9 @@ describe('MealtypeListComponent', () => {
     fixture.detectChanges();
 
     expect(recipeServiceSpy.get_mealtype).toHaveBeenCalledWith(mealtypeUrl);
+    expect(component.setMealType.emit).toHaveBeenCalledWith(
+      mealTypeMockResponse
+    );
 
     breakfastTag = compiled.querySelectorAll('.tag')[0];
     brunchTag = compiled.querySelectorAll('.tag')[1];

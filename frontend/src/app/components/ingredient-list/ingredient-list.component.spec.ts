@@ -47,6 +47,8 @@ describe('IngredientListComponent', () => {
   });
 
   it('should fetch the ingredients and display the ingredients array', fakeAsync(() => {
+    spyOn(component.setIngredients, 'emit');
+
     const ingredientsUrl = 'ingredients-url';
     component.url = ingredientsUrl;
 
@@ -57,26 +59,28 @@ describe('IngredientListComponent', () => {
     const names = ['Ingredient 1', 'Ingredient 2'];
     const quantities = ['Quantity 1', 'Quantity 2'];
 
+    const ingredientsMockResponse = {
+      count: 0,
+      previous: null,
+      next: null,
+      results: [
+        {
+          url: 'http://testserver/recipes/ingredients/1/',
+          name: names[0],
+          quantity: quantities[0],
+        },
+        {
+          url: 'http://testserver/recipes/ingredients/2/',
+          name: names[1],
+          quantity: quantities[1],
+        },
+      ],
+    };
+
     recipeServiceSpy.get_ingredients.and.returnValue(
       new Observable((subscriber) => {
         timer(2000).subscribe(() => {
-          subscriber.next({
-            count: 0,
-            previous: null,
-            next: null,
-            results: [
-              {
-                url: 'http://testserver/recipes/ingredients/1/',
-                name: names[0],
-                quantity: quantities[0],
-              },
-              {
-                url: 'http://testserver/recipes/ingredients/2/',
-                name: names[1],
-                quantity: quantities[1],
-              },
-            ],
-          });
+          subscriber.next(ingredientsMockResponse);
         });
       })
     );
@@ -93,6 +97,9 @@ describe('IngredientListComponent', () => {
     expect(recipeServiceSpy.get_ingredients).toHaveBeenCalledWith(
       ingredientsUrl
     );
+    expect(component.setIngredients.emit).toHaveBeenCalledWith(
+      component.paginatedIngredients.results
+    );
 
     ingredientsLi = compiled.querySelectorAll('li');
 
@@ -105,6 +112,8 @@ describe('IngredientListComponent', () => {
     );
   }));
   it('should fetch more ingredients', fakeAsync(() => {
+    spyOn(component.setIngredients, 'emit');
+
     const nextPage = 'http://testserver/ingredients/?page=2';
     const names = ['Ingredient 1', 'Ingredient 2'];
     const quantities = ['Quantity 1', 'Quantity 2'];
@@ -153,8 +162,33 @@ describe('IngredientListComponent', () => {
     fixture.detectChanges();
     const ingredientsLi = compiled.querySelectorAll('li');
 
+    expect(recipeServiceSpy.get_ingredients).toHaveBeenCalledTimes(3);
     expect(recipeServiceSpy.get_ingredients).toHaveBeenCalledWith('');
     expect(recipeServiceSpy.get_ingredients).toHaveBeenCalledWith(nextPage);
     expect(ingredientsLi.length).toBe(4);
+    expect(component.setIngredients.emit).toHaveBeenCalledTimes(1);
+
+    expect(component.setIngredients.emit).toHaveBeenCalledWith([
+      {
+        url: 'http://testserver/recipes/ingredients/1/',
+        name: names[0],
+        quantity: quantities[0],
+      },
+      {
+        url: 'http://testserver/recipes/ingredients/2/',
+        name: names[1],
+        quantity: quantities[1],
+      },
+      {
+        url: 'http://testserver/recipes/ingredients/1/',
+        name: names[0],
+        quantity: quantities[0],
+      },
+      {
+        url: 'http://testserver/recipes/ingredients/2/',
+        name: names[1],
+        quantity: quantities[1],
+      },
+    ]);
   }));
 });

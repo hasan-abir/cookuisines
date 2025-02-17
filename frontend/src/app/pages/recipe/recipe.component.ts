@@ -15,6 +15,7 @@ import {
   RecipeResponse,
   RecipeService,
 } from '../../services/recipe.service';
+import { AuthService } from '../../services/auth.service';
 
 interface RecipeDetails {
   ingredients?: IngredientResponse[];
@@ -44,11 +45,13 @@ export class RecipeComponent {
   isProcessing = false;
   recipeDetails: RecipeDetails = {};
   isRecipeFullyLoaded: boolean = false;
+  user$ = this.authService.user$;
 
   constructor(
     private recipeService: RecipeService,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
