@@ -1,6 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  finalize,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  tap,
+} from 'rxjs';
 
 export interface LoginBody {
   username: string;
@@ -65,6 +74,26 @@ export class AuthService {
       {
         withCredentials: true,
       }
+    );
+  }
+
+  verifyAndSetVerifiedUser() {
+    this.setVerifyingState(true);
+
+    return firstValueFrom(
+      this.verify().pipe(
+        tap((value) => {
+          this.setUserState(value);
+        }),
+        catchError((err) => {
+          this.setUserState(null);
+          return of(null);
+        }),
+        finalize(() => {
+          this.setVerifiedState(true);
+          this.setVerifyingState(false);
+        })
+      )
     );
   }
 

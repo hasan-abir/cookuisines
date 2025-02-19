@@ -20,7 +20,7 @@ export class NavbarComponent {
     const clearUser = () => {
       this.authService.setUserState(null);
       this.authService.setVerifyingState(false);
-      this.router.navigate(['/login']);
+      this.router.navigate(['/login'], { queryParams: this.returnUrl });
     };
 
     this.authService.setVerifyingState(true);
@@ -33,5 +33,16 @@ export class NavbarComponent {
         clearUser();
       },
     });
+  }
+
+  get returnUrl() {
+    const currentUrl = this.router.url.split('?')[0];
+    const urlsToIgnore = ['/', '/login', '/signup'];
+
+    if (urlsToIgnore.includes(currentUrl)) {
+      return {};
+    } else {
+      return { returnUrl: currentUrl };
+    }
   }
 }

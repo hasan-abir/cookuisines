@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component } from '@angular/core';
 import {
   FormBuilder,
@@ -7,10 +7,15 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { AuthService, LoginBody } from '../../services/auth.service';
+import {
+  ActivatedRoute,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
 import { handleErrors } from '../../../utils/error.utils';
 import { BasepageComponent } from '../../components/basepage/basepage.component';
+import { AuthService, LoginBody } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -38,7 +43,8 @@ export class LoginComponent {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   onSubmit() {
@@ -52,9 +58,16 @@ export class LoginComponent {
           this.loginForm.reset();
           this.isProcessing = false;
         },
-        complete: () => {
-          this.authService.setVerifiedState(false);
-          this.router.navigate(['/recipemaker']);
+        complete: async () => {
+          await this.authService.verifyAndSetVerifiedUser();
+
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+
+          if (returnUrl) {
+            this.router.navigate([returnUrl]);
+          } else {
+            this.router.navigate(['/recipemaker']);
+          }
         },
       });
     }

@@ -7,7 +7,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
 import { AuthService, SignupBody } from '../../services/auth.service';
 import { handleErrors } from '../../../utils/error.utils';
 import { BasepageComponent } from '../../components/basepage/basepage.component';
@@ -39,7 +44,8 @@ export class SignupComponent {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   onSubmit() {
@@ -66,9 +72,17 @@ export class SignupComponent {
                 this.signupForm.reset();
                 this.isProcessing = false;
               },
-              complete: () => {
-                this.authService.setVerifiedState(false);
-                this.router.navigate(['/recipemaker']);
+              complete: async () => {
+                await this.authService.verifyAndSetVerifiedUser();
+
+                const returnUrl =
+                  this.route.snapshot.queryParamMap.get('returnUrl');
+
+                if (returnUrl) {
+                  this.router.navigate([returnUrl]);
+                } else {
+                  this.router.navigate(['/recipemaker']);
+                }
               },
             });
         },
