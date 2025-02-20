@@ -32,7 +32,7 @@ describe('NavbarComponent', () => {
     }).compileComponents();
 
     authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    router = TestBed.inject(Router);
+    router = TestBed.inject(Router) as Router;
 
     fixture = TestBed.createComponent(NavbarComponent);
     component = fixture.componentInstance;
@@ -45,6 +45,10 @@ describe('NavbarComponent', () => {
   });
 
   it('should render component with the correct links', () => {
+    const currentUrl = '/currenturl';
+    spyOnProperty(router, 'url', 'get').and.returnValue(currentUrl);
+    fixture.detectChanges();
+
     const homeLink = compiled.querySelectorAll('a')[0];
     const recipesLink = compiled.querySelectorAll('a')[2];
     const recipeMakerLink = compiled.querySelectorAll('a')[3];
@@ -54,8 +58,24 @@ describe('NavbarComponent', () => {
     expect(homeLink.getAttribute('routerLink')).toBe('/');
     expect(recipesLink.getAttribute('routerLink')).toBe('/recipes');
     expect(recipeMakerLink.getAttribute('routerLink')).toBe('/recipemaker');
-    expect(signupLink.getAttribute('routerLink')).toBe('/signup');
-    expect(loginLink.getAttribute('routerLink')).toBe('/login');
+    expect(signupLink.getAttribute('href')).toBe(
+      '/signup?returnUrl=' + currentUrl.replace('/', '%2F')
+    );
+    expect(loginLink.getAttribute('href')).toBe(
+      '/login?returnUrl=' + currentUrl.replace('/', '%2F')
+    );
+  });
+
+  it('should render the auth links without return URLs', () => {
+    const currentUrl = '/login';
+    spyOnProperty(router, 'url', 'get').and.returnValue(currentUrl);
+    fixture.detectChanges();
+
+    const signupLink = compiled.querySelectorAll('a')[4];
+    const loginLink = compiled.querySelectorAll('a')[5];
+
+    expect(signupLink.getAttribute('href')).toBe('/signup');
+    expect(loginLink.getAttribute('href')).toBe('/login');
   });
 
   it('should render component with the correct links when authenticated', () => {
@@ -86,6 +106,8 @@ describe('NavbarComponent', () => {
       username: 'test',
       email: 'test@test.com',
     });
+    const currentUrl = '/currenturl';
+    spyOnProperty(router, 'url', 'get').and.returnValue(currentUrl);
     authServiceSpy.logout.and.returnValue(of(null));
     spyOn(router, 'navigate');
     fixture.detectChanges();
@@ -99,7 +121,9 @@ describe('NavbarComponent', () => {
     expect(authServiceSpy.setVerifyingState).toHaveBeenCalledWith(true);
     expect(authServiceSpy.logout).toHaveBeenCalled();
     expect(authServiceSpy.setVerifyingState).toHaveBeenCalledWith(false);
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: { returnUrl: currentUrl },
+    });
 
     expect(authServiceSpy.setUserState).toHaveBeenCalled();
   });
@@ -124,7 +148,9 @@ describe('NavbarComponent', () => {
     fixture.detectChanges();
 
     expect(authServiceSpy.logout).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: {},
+    });
 
     expect(authServiceSpy.setUserState).toHaveBeenCalled();
   });

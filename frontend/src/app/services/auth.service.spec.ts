@@ -7,6 +7,7 @@ import {
 } from '@angular/common/http/testing';
 import { AuthService, LoginBody, SignupBody } from './auth.service';
 import { globalAPIInterceptor } from '../interceptors/global_api.interceptor';
+import { of, throwError } from 'rxjs';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -84,5 +85,31 @@ describe('AuthService', () => {
       'https://cookuisines.onrender.com/api-token-refresh/'
     );
     expect(req.request.method).toBe('POST');
+  });
+
+  it('verifyAndSetVerifiedUser: should do what it is supposed to', async () => {
+    const user = {
+      email: 'test@test.com',
+      username: 'test',
+    };
+
+    spyOn(service, 'setUserState');
+    spyOn(service, 'setVerifiedState');
+    spyOn(service, 'setVerifyingState');
+    spyOn(service, 'verify').and.returnValue(of(user));
+    await service.verifyAndSetVerifiedUser();
+
+    expect(service.setUserState).toHaveBeenCalledWith(user);
+    expect(service.setVerifiedState).toHaveBeenCalledWith(true);
+    expect(service.setVerifyingState).toHaveBeenCalledWith(true);
+    expect(service.setVerifyingState).toHaveBeenCalledWith(false);
+  });
+
+  it('verifyAndSetVerifiedUser: should not do what it is supposed to when error', async () => {
+    spyOn(service, 'setUserState');
+    spyOn(service, 'verify').and.returnValue(throwError(() => new Error()));
+    await service.verifyAndSetVerifiedUser();
+
+    expect(service.setUserState).toHaveBeenCalledWith(null);
   });
 });

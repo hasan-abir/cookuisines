@@ -23,6 +23,7 @@ describe('SignupComponent', () => {
       'signup',
       'login',
       'setVerifiedState',
+      'verifyAndSetVerifiedUser',
     ]);
 
     await TestBed.configureTestingModule({

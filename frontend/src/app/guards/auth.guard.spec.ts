@@ -20,6 +20,7 @@ describe('authGuard', () => {
       'user$',
       'verify',
       'refresh',
+      'verifyAndSetVerifiedUser',
     ]);
     authService.verified$ = new BehaviorSubject<boolean>(false);
     authService.user$ = new BehaviorSubject<UserResponse | null>(null);
@@ -49,26 +50,21 @@ describe('authGuard', () => {
   });
 
   it('should return false when verify() succeeds, not authenticated, and not attempting to login', async () => {
-    authService.verify.and.returnValue(
-      of({ username: 'hasan_abir', email: 'hasanabir@test.com' })
-    );
+    authService.verifyAndSetVerifiedUser.and.returnValue(Promise.resolve(null));
 
     let result = await executeGuard(
       { url: [{ path: 'recipemaker' }] } as any,
       null as any
     );
-    expect(authService.verify).toHaveBeenCalled();
+    expect(authService.verifyAndSetVerifiedUser).toHaveBeenCalled();
     expect(result).toBeFalse();
 
-    expect(authService.setVerifyingState).toHaveBeenCalledWith(true);
-    expect(authService.setVerifyingState).toHaveBeenCalledWith(false);
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });
 
   it('should return true when verify() succeeds, authenticated, not authenticated, and not attempting to login', async () => {
-    authService.verify.and.returnValue(
-      of({ username: 'hasan_abir', email: 'hasanabir@test.com' })
-    );
+    authService.verifyAndSetVerifiedUser.and.returnValue(Promise.resolve(null));
+
     (authService.user$ as BehaviorSubject<UserResponse | null>).next({
       username: 'test',
       email: 'test@test.com',
@@ -78,11 +74,8 @@ describe('authGuard', () => {
       { url: [{ path: 'recipemaker' }] } as any,
       null as any
     );
-    expect(authService.verify).toHaveBeenCalled();
+    expect(authService.verifyAndSetVerifiedUser).toHaveBeenCalled();
     expect(result).toBeTrue();
-
-    expect(authService.setVerifyingState).toHaveBeenCalledWith(true);
-    expect(authService.setVerifyingState).toHaveBeenCalledWith(false);
 
     (authService.user$ as BehaviorSubject<UserResponse | null>).next(null);
 
@@ -94,9 +87,7 @@ describe('authGuard', () => {
   });
 
   it('should return false when verify() succeeds, authenticated, and attempting to login', async () => {
-    authService.verify.and.returnValue(
-      of({ username: 'hasan_abir', email: 'hasanabir@test.com' })
-    );
+    authService.verifyAndSetVerifiedUser.and.returnValue(Promise.resolve(null));
     (authService.user$ as BehaviorSubject<UserResponse | null>).next({
       username: 'test',
       email: 'test@test.com',
@@ -106,11 +97,9 @@ describe('authGuard', () => {
       { url: [{ path: 'login' }] } as any,
       null as any
     );
-    expect(authService.verify).toHaveBeenCalled();
+    expect(authService.verifyAndSetVerifiedUser).toHaveBeenCalled();
     expect(result).toBeFalse();
 
-    expect(authService.setVerifyingState).toHaveBeenCalledWith(true);
-    expect(authService.setVerifyingState).toHaveBeenCalledWith(false);
     expect(router.navigate).toHaveBeenCalledWith(['/recipemaker']);
   });
 });
