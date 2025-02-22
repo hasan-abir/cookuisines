@@ -158,7 +158,6 @@ describe('globalAPIInterceptor', () => {
     expect(authServiceSpy.refresh).toHaveBeenCalled();
 
     httpTesting.expectNone('https://cookuisines.onrender.com/test');
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
   }));
 
   it('should navigate to login when status is 0 and refresh is unsuccessful', fakeAsync(() => {
@@ -186,6 +185,5 @@ describe('globalAPIInterceptor', () => {
     expect(authServiceSpy.refresh).toHaveBeenCalled();
 
     httpTesting.expectNone('https://cookuisines.onrender.com/test');
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
   }));
 });

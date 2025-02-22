@@ -94,6 +94,7 @@ describe('IngredientListComponent', () => {
     tick(2000);
     fixture.detectChanges();
 
+    expect(recipeServiceSpy.get_ingredients).toHaveBeenCalledTimes(2);
     expect(recipeServiceSpy.get_ingredients).toHaveBeenCalledWith(
       ingredientsUrl
     );
@@ -111,6 +112,67 @@ describe('IngredientListComponent', () => {
       names[1] + ' - ' + quantities[1]
     );
   }));
+
+  it('should not fetch the ingredients and display the ingredients array when recipe is loaded', fakeAsync(() => {
+    spyOn(component.setIngredients, 'emit');
+
+    const ingredientsUrl = 'ingredients-url';
+    component.url = ingredientsUrl;
+
+    let ingredientsLi = compiled.querySelectorAll('li');
+
+    expect(ingredientsLi.length).toBe(0);
+
+    const names = ['Ingredient 1', 'Ingredient 2'];
+    const quantities = ['Quantity 1', 'Quantity 2'];
+
+    const ingredientsMockResponse = {
+      count: 0,
+      previous: null,
+      next: null,
+      results: [
+        {
+          url: 'http://testserver/recipes/ingredients/1/',
+          name: names[0],
+          quantity: quantities[0],
+        },
+        {
+          url: 'http://testserver/recipes/ingredients/2/',
+          name: names[1],
+          quantity: quantities[1],
+        },
+      ],
+    };
+
+    component.loadedRecipe = { ingredients: ingredientsMockResponse.results };
+
+    recipeServiceSpy.get_ingredients.and.returnValue(
+      new Observable((subscriber) => {
+        timer(2000).subscribe(() => {
+          subscriber.next(ingredientsMockResponse);
+        });
+      })
+    );
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(recipeServiceSpy.get_ingredients).toHaveBeenCalledTimes(1);
+    expect(component.setIngredients.emit).not.toHaveBeenCalledWith(
+      component.paginatedIngredients.results
+    );
+
+    ingredientsLi = compiled.querySelectorAll('li');
+
+    expect(ingredientsLi.length).toBe(2);
+    expect(ingredientsLi[0].textContent?.trim()).toBe(
+      names[0] + ' - ' + quantities[0]
+    );
+    expect(ingredientsLi[1].textContent?.trim()).toBe(
+      names[1] + ' - ' + quantities[1]
+    );
+  }));
+
   it('should fetch more ingredients', fakeAsync(() => {
     spyOn(component.setIngredients, 'emit');
 

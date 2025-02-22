@@ -5,6 +5,7 @@ import {
   PaginatedIngredients,
   RecipeService,
 } from '../../services/recipe.service';
+import { RecipeDetails } from '../../pages/recipe/recipe.component';
 
 @Component({
   selector: 'app-ingredient-list',
@@ -22,12 +23,17 @@ export class IngredientListComponent {
     results: [],
   };
   @Output() setIngredients = new EventEmitter<IngredientResponse[]>();
+  @Input() loadedRecipe: RecipeDetails = {};
   @Input() url = '';
 
   constructor(private recipeService: RecipeService) {}
 
   ngOnInit() {
-    this.fetchIngredients();
+    if (this.loadedRecipe.ingredients) {
+      this.paginatedIngredients.results = this.loadedRecipe.ingredients;
+    } else {
+      this.fetchIngredients();
+    }
   }
 
   fetchIngredients(nextUrl?: string) {

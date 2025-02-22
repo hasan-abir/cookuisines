@@ -1,13 +1,9 @@
-import {
-  HttpErrorResponse,
-  HttpEventType,
-  HttpInterceptorFn,
-} from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, finalize, map, switchMap, tap, throwError } from 'rxjs';
-import { NotificationService } from '../services/notification.service';
 import { Router } from '@angular/router';
+import { catchError, finalize, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { NotificationService } from '../services/notification.service';
 
 export const globalAPIInterceptor: HttpInterceptorFn = (req, next) => {
   const domain = 'https://cookuisines.onrender.com/';
@@ -33,7 +29,6 @@ export const globalAPIInterceptor: HttpInterceptorFn = (req, next) => {
             return next(api_request);
           }),
           catchError((refreshErr) => {
-            router.navigate(['/login']);
             return throwError(() => refreshErr);
           })
         );

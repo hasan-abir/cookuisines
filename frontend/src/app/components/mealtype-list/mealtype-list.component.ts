@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MealTypeResponse, RecipeService } from '../../services/recipe.service';
 import { CommonModule } from '@angular/common';
+import { RecipeDetails } from '../../pages/recipe/recipe.component';
 
 @Component({
   selector: 'app-mealtype-list',
@@ -14,12 +15,17 @@ export class MealtypeListComponent {
   mealtype: MealTypeResponse | null = null;
   @Output() setMealType = new EventEmitter<MealTypeResponse>();
 
+  @Input() loadedRecipe: RecipeDetails = {};
   @Input() url = '';
 
   constructor(private recipeService: RecipeService) {}
 
   ngOnInit() {
-    this.fetchMealtype();
+    if (this.loadedRecipe.meal_type) {
+      this.mealtype = this.loadedRecipe.meal_type;
+    } else {
+      this.fetchMealtype();
+    }
   }
 
   fetchMealtype() {

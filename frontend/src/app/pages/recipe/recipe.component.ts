@@ -16,8 +16,9 @@ import {
   RecipeService,
 } from '../../services/recipe.service';
 import { AuthService } from '../../services/auth.service';
+import { RecipecreateoreditComponent } from '../../components/recipecreateoredit/recipecreateoredit.component';
 
-interface RecipeDetails {
+export interface RecipeDetails {
   ingredients?: IngredientResponse[];
   instructions?: InstructionResponse[];
   meal_type?: MealTypeResponse;
@@ -36,6 +37,7 @@ interface RecipeDetails {
     IngredientListComponent,
     InstructionListComponent,
     BasepageComponent,
+    RecipecreateoreditComponent,
   ],
   templateUrl: './recipe.component.html',
   styleUrl: './recipe.component.css',
@@ -43,6 +45,7 @@ interface RecipeDetails {
 export class RecipeComponent {
   recipe: RecipeResponse | null = null;
   isProcessing = false;
+  isEditing = false;
   recipeDetails: RecipeDetails = {};
   isRecipeFullyLoaded: boolean = false;
   user$ = this.authService.user$;
@@ -114,5 +117,9 @@ export class RecipeComponent {
       this.isRecipeFullyLoaded = true;
       this.cd.detectChanges();
     }
+  }
+
+  toggleIsEditing() {
+    this.isEditing = !this.isEditing;
   }
 }

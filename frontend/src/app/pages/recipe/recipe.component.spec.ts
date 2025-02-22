@@ -23,6 +23,7 @@ import { AuthService, UserResponse } from '../../services/auth.service';
   standalone: true,
 })
 class MockMealtypeListComponent {
+  @Input() loadedRecipe = {};
   @Input() url = '';
 }
 
@@ -32,6 +33,7 @@ class MockMealtypeListComponent {
   standalone: true,
 })
 class MockDietarypreferenceListComponent {
+  @Input() loadedRecipe = {};
   @Input() url = '';
 }
 
@@ -41,6 +43,7 @@ class MockDietarypreferenceListComponent {
   standalone: true,
 })
 class MockIngredientListComponent {
+  @Input() loadedRecipe = {};
   @Input() url = '';
 }
 
@@ -50,6 +53,7 @@ class MockIngredientListComponent {
   standalone: true,
 })
 class MockInstructionListComponent {
+  @Input() loadedRecipe = {};
   @Input() url = '';
 }
 

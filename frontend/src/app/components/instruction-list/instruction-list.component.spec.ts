@@ -91,10 +91,64 @@ describe('InstructionListComponent', () => {
     tick(2000);
     fixture.detectChanges();
 
+    expect(recipeServiceSpy.get_instructions).toHaveBeenCalledTimes(2);
     expect(recipeServiceSpy.get_instructions).toHaveBeenCalledWith(
       instructionsUrl
     );
     expect(component.setInstructions.emit).toHaveBeenCalledWith(
+      component.paginatedInstructions.results
+    );
+
+    instructionsLi = compiled.querySelectorAll('li');
+
+    expect(instructionsLi.length).toBe(2);
+    expect(instructionsLi[0].textContent?.trim()).toBe(steps[0]);
+    expect(instructionsLi[1].textContent?.trim()).toBe(steps[1]);
+  }));
+
+  it('should not fetch the instructions and display the instructions array when the recipe is loaded', fakeAsync(() => {
+    spyOn(component.setInstructions, 'emit');
+
+    const instructionsUrl = 'instructions-url';
+    component.url = instructionsUrl;
+
+    let instructionsLi = compiled.querySelectorAll('li');
+
+    expect(instructionsLi.length).toBe(0);
+
+    const steps = ['Step 1', 'Step 2'];
+
+    const instructionsMockResponse = {
+      count: 0,
+      previous: null,
+      next: null,
+      results: [
+        {
+          url: 'http://testserver/recipes/instructions/1/',
+          step: steps[0],
+        },
+        {
+          url: 'http://testserver/recipes/instructions/2/',
+          step: steps[1],
+        },
+      ],
+    };
+
+    component.loadedRecipe = { instructions: instructionsMockResponse.results };
+
+    recipeServiceSpy.get_instructions.and.returnValue(
+      new Observable((subscriber) => {
+        timer(2000).subscribe(() => {
+          subscriber.next(instructionsMockResponse);
+        });
+      })
+    );
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(recipeServiceSpy.get_instructions).toHaveBeenCalledTimes(1);
+    expect(component.setInstructions.emit).not.toHaveBeenCalledWith(
       component.paginatedInstructions.results
     );
 

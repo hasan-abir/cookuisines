@@ -5,6 +5,7 @@ import {
   MealTypeResponse,
   RecipeService,
 } from '../../services/recipe.service';
+import { RecipeDetails } from '../../pages/recipe/recipe.component';
 
 @Component({
   selector: 'app-dietarypreference-list',
@@ -19,12 +20,18 @@ export class DietarypreferenceListComponent {
   @Output() setDietaryPreference =
     new EventEmitter<DietaryPreferenceResponse>();
 
+  @Input() loadedRecipe: RecipeDetails = {};
+
   @Input() url = '';
 
   constructor(private recipeService: RecipeService) {}
 
   ngOnInit() {
-    this.fetchDietarypreference();
+    if (this.loadedRecipe.dietary_preference) {
+      this.dietarypreference = this.loadedRecipe.dietary_preference;
+    } else {
+      this.fetchDietarypreference();
+    }
   }
 
   fetchDietarypreference() {

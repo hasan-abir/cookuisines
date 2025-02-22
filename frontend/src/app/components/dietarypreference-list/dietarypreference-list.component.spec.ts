@@ -86,10 +86,60 @@ describe('DietarypreferenceListComponent', () => {
     tick(2000);
     fixture.detectChanges();
 
+    expect(recipeServiceSpy.get_dietarypreference).toHaveBeenCalledTimes(2);
     expect(recipeServiceSpy.get_dietarypreference).toHaveBeenCalledWith(
       dietarypreferenceUrl
     );
     expect(component.setDietaryPreference.emit).toHaveBeenCalledWith(
+      dietaryPreferenceMockResponse
+    );
+
+    veganTag = compiled.querySelectorAll('.tag')[0];
+    glutenfreeTag = compiled.querySelectorAll('.tag')[1];
+
+    expect(veganTag).toBeTruthy();
+    expect(glutenfreeTag).toBeTruthy();
+  }));
+
+  it('should not fetch the dietarypreference and display the dietarypreference values when the recipe is loaded', fakeAsync(() => {
+    spyOn(component.setDietaryPreference, 'emit');
+
+    const dietarypreferenceUrl = 'dietarypreference-url';
+    component.url = dietarypreferenceUrl;
+
+    let veganTag = compiled.querySelectorAll('.tag')[0];
+    let glutenfreeTag = compiled.querySelectorAll('.tag')[1];
+
+    expect(veganTag).toBeFalsy();
+    expect(glutenfreeTag).toBeFalsy();
+
+    const vegan = true;
+    const glutenfree = true;
+
+    const dietaryPreferenceMockResponse = {
+      url: 'http://testserver/recipes/dietarypreferences/1/',
+      vegan,
+      glutenfree,
+      recipe: 'http://testserver/recipes/1/',
+    };
+
+    component.loadedRecipe = {
+      dietary_preference: dietaryPreferenceMockResponse,
+    };
+
+    recipeServiceSpy.get_dietarypreference.and.returnValue(
+      new Observable((subscriber) => {
+        timer(2000).subscribe(() => {
+          subscriber.next(dietaryPreferenceMockResponse);
+        });
+      })
+    );
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(recipeServiceSpy.get_dietarypreference).toHaveBeenCalledTimes(1);
+    expect(component.setDietaryPreference.emit).not.toHaveBeenCalledWith(
       dietaryPreferenceMockResponse
     );
 

@@ -78,7 +78,6 @@ export const initialMakerForm: MakerForm = new FormGroup({
     CommonModule,
     DurationpickerComponent,
     FileuploadComponent,
-    BasepageComponent,
     FormgrouparrayComponent,
     FormselectfieldsComponent,
   ],

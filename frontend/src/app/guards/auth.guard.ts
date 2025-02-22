@@ -1,8 +1,13 @@
-import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
-import { catchError, finalize, firstValueFrom, map, of } from 'rxjs';
-import { AuthService } from '../services/auth.service';
 import { Location } from '@angular/common';
+import { inject } from '@angular/core';
+import {
+  CanActivateFn,
+  NavigationEnd,
+  NavigationStart,
+  Router,
+} from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
 export const authGuard: CanActivateFn = async (route, state) => {
   const authService = inject(AuthService);

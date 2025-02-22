@@ -95,8 +95,67 @@ describe('MealtypeListComponent', () => {
     tick(2000);
     fixture.detectChanges();
 
+    expect(recipeServiceSpy.get_mealtype).toHaveBeenCalledTimes(2);
     expect(recipeServiceSpy.get_mealtype).toHaveBeenCalledWith(mealtypeUrl);
     expect(component.setMealType.emit).toHaveBeenCalledWith(
+      mealTypeMockResponse
+    );
+
+    breakfastTag = compiled.querySelectorAll('.tag')[0];
+    brunchTag = compiled.querySelectorAll('.tag')[1];
+    lunchTag = compiled.querySelectorAll('.tag')[2];
+    dinnerTag = compiled.querySelectorAll('.tag')[3];
+
+    expect(breakfastTag).toBeTruthy();
+    expect(brunchTag).toBeTruthy();
+    expect(lunchTag).toBeTruthy();
+    expect(dinnerTag).toBeTruthy();
+  }));
+
+  it('should not fetch the mealtype and display the mealtype values when they are loaded', fakeAsync(() => {
+    spyOn(component.setMealType, 'emit');
+
+    const mealtypeUrl = 'mealtype-url';
+    component.url = mealtypeUrl;
+    let breakfastTag = compiled.querySelectorAll('.tag')[0];
+    let brunchTag = compiled.querySelectorAll('.tag')[1];
+    let lunchTag = compiled.querySelectorAll('.tag')[2];
+    let dinnerTag = compiled.querySelectorAll('.tag')[3];
+
+    expect(breakfastTag).toBeFalsy();
+    expect(brunchTag).toBeFalsy();
+    expect(lunchTag).toBeFalsy();
+    expect(dinnerTag).toBeFalsy();
+
+    const breakfast = true;
+    const brunch = true;
+    const lunch = true;
+    const dinner = true;
+
+    const mealTypeMockResponse = {
+      url: 'http://testserver/recipes/mealtype/1/',
+      breakfast,
+      brunch,
+      lunch,
+      dinner,
+      recipe: 'http://testserver/recipes/1/',
+    };
+
+    component.loadedRecipe = { meal_type: mealTypeMockResponse };
+
+    recipeServiceSpy.get_mealtype.and.returnValue(
+      new Observable((subscriber) => {
+        timer(2000).subscribe(() => {
+          subscriber.next(mealTypeMockResponse);
+        });
+      })
+    );
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(recipeServiceSpy.get_mealtype).toHaveBeenCalledTimes(1);
+    expect(component.setMealType.emit).not.toHaveBeenCalledWith(
       mealTypeMockResponse
     );
 

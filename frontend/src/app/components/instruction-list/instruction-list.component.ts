@@ -5,6 +5,7 @@ import {
   RecipeService,
 } from '../../services/recipe.service';
 import { CommonModule } from '@angular/common';
+import { RecipeDetails } from '../../pages/recipe/recipe.component';
 
 @Component({
   selector: 'app-instruction-list',
@@ -21,13 +22,18 @@ export class InstructionListComponent {
     previous: null,
     results: [],
   };
+  @Input() loadedRecipe: RecipeDetails = {};
   @Output() setInstructions = new EventEmitter<InstructionResponse[]>();
   @Input() url = '';
 
   constructor(private recipeService: RecipeService) {}
 
   ngOnInit() {
-    this.fetchInstructions();
+    if (this.loadedRecipe.instructions) {
+      this.paginatedInstructions.results = this.loadedRecipe.instructions;
+    } else {
+      this.fetchInstructions();
+    }
   }
 
   fetchInstructions(nextUrl?: string) {
