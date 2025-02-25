@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { MakerForm } from '../../types/MakerForm';
+import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -10,7 +10,20 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { combineLatest, Observable } from 'rxjs';
+import { handleErrors } from '../../../utils/error.utils';
+import { FormselectfieldsComponent } from '../../formselectfields/formselectfields.component';
+import { RecipeDetails } from '../../pages/recipe/recipe.component';
+import {
+  DietaryPreferenceBody,
+  IngredientBody,
+  InstructionBody,
+  MealTypeBody,
+  RecipeBody,
+  RecipeResponse,
+  RecipeService,
+} from '../../services/recipe.service';
+import { MakerForm } from '../../types/MakerForm';
 import {
   checkDurationGreaterThanZero,
   DurationpickerComponent,
@@ -19,24 +32,19 @@ import {
   FileuploadComponent,
   validateImageFile,
 } from '../fileupload/fileupload.component';
-import { BasepageComponent } from '../basepage/basepage.component';
 import { FormgrouparrayComponent } from '../formgrouparray/formgrouparray.component';
-import { FormselectfieldsComponent } from '../../formselectfields/formselectfields.component';
-import {
-  DietaryPreferenceBody,
-  IngredientBody,
-  InstructionBody,
-  MealTypeBody,
-  RecipeBody,
-  RecipeService,
-} from '../../services/recipe.service';
-import { combineLatest, Observable } from 'rxjs';
-import { handleErrors } from '../../../utils/error.utils';
+import { durationStringToObj } from '../../../utils/time.utils';
+import { HttpClient } from '@angular/common/http';
 
 export interface Duration {
   hours: number;
   minutes: number;
   seconds: number;
+}
+
+interface FullRecipe {
+  main: RecipeResponse;
+  details: RecipeDetails;
 }
 
 export const initialMakerForm: MakerForm = new FormGroup({
@@ -88,6 +96,8 @@ export class RecipecreateoreditComponent {
   difficulties = ['easy', 'medium', 'hard'];
   errMsgs: string[] = [];
   isProcessing = false;
+
+  @Input() fullRecipe: FullRecipe | null = null;
 
   makerForm = this.formBuilder.group({
     title: new FormControl<string | null>(null, Validators.required),
@@ -161,8 +171,40 @@ export class RecipecreateoreditComponent {
 
   constructor(
     private formBuilder: FormBuilder,
-    private recipeService: RecipeService
+    private recipeService: RecipeService,
+    private httpClient: HttpClient
   ) {}
+
+  ngOnInit() {
+    if (this.fullRecipe) {
+      this.httpClient
+        .get(this.fullRecipe.main.image_url, { responseType: 'blob' })
+        .subscribe({
+          next: (val: Blob) => {
+            let filename = 'image.jpeg';
+            if (val.type == 'image/png') {
+              filename = 'image.png';
+            }
+
+            this.makerForm.patchValue({
+              image: new File([val], filename, {
+                type: val.type,
+                lastModified: new Date().getTime(),
+              }),
+            });
+          },
+        });
+
+      this.makerForm.patchValue({
+        title: this.fullRecipe.main.title,
+        difficulty: this.fullRecipe.main.difficulty,
+        preparationTime: durationStringToObj(
+          this.fullRecipe.main.preparation_time
+        ),
+        cookingTime: durationStringToObj(this.fullRecipe.main.cooking_time),
+      });
+    }
+  }
 
   formatDuration(duration: Duration) {
     return `${duration.hours.toString().padStart(2, '0')}:${duration.minutes

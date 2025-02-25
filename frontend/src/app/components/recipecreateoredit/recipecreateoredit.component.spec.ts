@@ -20,12 +20,19 @@ import {
 } from '../../services/recipe.service';
 import { Observable, timer } from 'rxjs';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
+import { globalAPIInterceptor } from '../../interceptors/global_api.interceptor';
 
 describe('RecipecreateoreditComponent', () => {
   let component: RecipecreateoreditComponent;
   let fixture: ComponentFixture<RecipecreateoreditComponent>;
   let compiled: HTMLElement;
   let recipeServiceSpy: jasmine.SpyObj<RecipeService>;
+  let httpTesting: HttpTestingController;
 
   beforeEach(async () => {
     const createMethodsSpy = jasmine.createSpyObj('RecipeService', [
@@ -38,9 +45,14 @@ describe('RecipecreateoreditComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [RecipecreateoreditComponent],
-      providers: [{ provide: RecipeService, useValue: createMethodsSpy }],
+      providers: [
+        provideHttpClient(withInterceptors([globalAPIInterceptor])),
+        provideHttpClientTesting(),
+        { provide: RecipeService, useValue: createMethodsSpy },
+      ],
     }).compileComponents();
 
+    httpTesting = TestBed.inject(HttpTestingController);
     recipeServiceSpy = TestBed.inject(
       RecipeService
     ) as jasmine.SpyObj<RecipeService>;
@@ -48,6 +60,10 @@ describe('RecipecreateoreditComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
     compiled = fixture.nativeElement;
+  });
+
+  afterEach(() => {
+    TestBed.inject(HttpTestingController).verify();
   });
 
   it('should render component with the correct form elements', () => {

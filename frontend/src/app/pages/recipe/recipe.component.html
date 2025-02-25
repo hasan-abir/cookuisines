@@ -9,7 +9,12 @@
     </button>
 
     <ng-container *ngIf="isEditing">
-      <app-recipecreateoredit />
+      <app-recipecreateoredit
+        [fullRecipe]="{
+          main: recipe,
+          details: recipeDetails
+        }"
+      />
     </ng-container>
     <ng-container *ngIf="!isEditing">
       <div class="columns">

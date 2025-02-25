@@ -17,6 +17,7 @@ import {
 } from '../../services/recipe.service';
 import { AuthService } from '../../services/auth.service';
 import { RecipecreateoreditComponent } from '../../components/recipecreateoredit/recipecreateoredit.component';
+import { durationStringToObj } from '../../../utils/time.utils';
 
 export interface RecipeDetails {
   ingredients?: IngredientResponse[];
@@ -62,9 +63,7 @@ export class RecipeComponent {
   }
 
   formatDuration(duration: string) {
-    const [hours, minutes, seconds] = duration
-      .split(':')
-      .map((time) => parseInt(time, 10));
+    const { hours, minutes, seconds } = durationStringToObj(duration);
 
     const parts = [];
 

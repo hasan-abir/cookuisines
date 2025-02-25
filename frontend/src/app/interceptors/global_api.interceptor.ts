@@ -15,7 +15,7 @@ export const globalAPIInterceptor: HttpInterceptorFn = (req, next) => {
     notificationService.setWaitingState(true);
   }, 10000);
 
-  const fullUrl = req.url.includes(domain) ? req.url : domain + req.url;
+  const fullUrl = req.url.includes('https://') ? req.url : domain + req.url;
   const api_request = req.clone({ url: fullUrl });
 
   return next(api_request).pipe(

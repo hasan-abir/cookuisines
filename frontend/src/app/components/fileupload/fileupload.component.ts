@@ -49,11 +49,28 @@ export class FileuploadComponent {
 
   previewImg: string | null = null;
 
+  ngOnInit() {
+    this.image.valueChanges.subscribe({
+      next: (val) => {
+        if (val) {
+          this.readFile();
+        }
+      },
+    });
+  }
+
   onFileChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const file = target.files && target.files.item(0);
+
+    return this.readFile(file);
+  }
+
+  readFile(file?: File | null) {
     return new Promise((resolve) => {
-      const target = event.target as HTMLInputElement;
-      const file = target.files && target.files.item(0);
-      this.image?.setValue(file);
+      if (file) {
+        this.image?.setValue(file);
+      }
 
       if (this.image && this.image.value && this.image.valid) {
         const reader = new FileReader();
