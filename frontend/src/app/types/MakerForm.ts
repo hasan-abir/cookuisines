@@ -1,29 +1,29 @@
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 
 export type MakerForm = FormGroup<{
-  title: FormControl<string | null>;
+  title: FormControl<string>;
   ingredients: FormArray<FormControl<unknown>>;
   instructions: FormArray<FormControl<unknown>>;
   preparationTime: FormGroup<{
-    hours: FormControl<number | null>;
-    minutes: FormControl<number | null>;
-    seconds: FormControl<number | null>;
+    hours: FormControl<number>;
+    minutes: FormControl<number>;
+    seconds: FormControl<number>;
   }>;
   cookingTime: FormGroup<{
-    hours: FormControl<number | null>;
-    minutes: FormControl<number | null>;
-    seconds: FormControl<number | null>;
+    hours: FormControl<number>;
+    minutes: FormControl<number>;
+    seconds: FormControl<number>;
   }>;
-  difficulty: FormControl<string | null>;
+  difficulty: FormControl<string>;
   image: FormControl<File | null>;
   mealType: FormGroup<{
-    breakfast: FormControl<boolean | null>;
-    brunch: FormControl<boolean | null>;
-    lunch: FormControl<boolean | null>;
-    dinner: FormControl<boolean | null>;
+    breakfast: FormControl<boolean>;
+    brunch: FormControl<boolean>;
+    lunch: FormControl<boolean>;
+    dinner: FormControl<boolean>;
   }>;
   dietaryPreference: FormGroup<{
-    vegan: FormControl<boolean | null>;
-    glutenfree: FormControl<boolean | null>;
+    vegan: FormControl<boolean>;
+    glutenfree: FormControl<boolean>;
   }>;
 }>;

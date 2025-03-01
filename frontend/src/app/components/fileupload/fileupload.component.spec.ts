@@ -90,6 +90,43 @@ describe('FileuploadComponent', () => {
       });
   }));
 
+  it('should update previewImg when an image is passed', waitForAsync(() => {
+    const mockForm = new FormGroup({
+      image: new FormControl(null),
+    });
+
+    component.form = mockForm as any;
+    fixture.detectChanges();
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    component.image.setValue(
+      new File([''], 'test-image.png', { type: 'image/png' })
+    );
+
+    fixture
+      .whenStable()
+      .then(() => {
+        return new Promise((resolve) => setTimeout(resolve, 100));
+      })
+      .then(() => {
+        fixture.detectChanges();
+
+        const previewImg = compiled.querySelector('img') as HTMLImageElement;
+        const fileNameEl = compiled.querySelector(
+          'span.file-name'
+        ) as HTMLSpanElement;
+        const removeBtn = compiled.querySelector(
+          'button.is-danger'
+        ) as HTMLButtonElement;
+        expect(previewImg).toBeTruthy();
+        expect(fileNameEl).toBeTruthy();
+        expect(removeBtn).toBeTruthy();
+        expect(component.image.value).toBeTruthy();
+      });
+  }));
+
   it('should show the errors when wrong file type is selected', waitForAsync(() => {
     const mockForm = new FormGroup({ image: new FormControl(null) });
 

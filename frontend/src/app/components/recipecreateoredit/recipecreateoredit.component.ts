@@ -5,6 +5,7 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
+  FormRecord,
   FormsModule,
   ReactiveFormsModule,
   Validators,
@@ -16,9 +17,13 @@ import { FormselectfieldsComponent } from '../../formselectfields/formselectfiel
 import { RecipeDetails } from '../../pages/recipe/recipe.component';
 import {
   DietaryPreferenceBody,
+  DietaryPreferenceResponse,
   IngredientBody,
+  IngredientResponse,
   InstructionBody,
+  InstructionResponse,
   MealTypeBody,
+  MealTypeResponse,
   RecipeBody,
   RecipeResponse,
   RecipeService,
@@ -35,6 +40,11 @@ import {
 import { FormgrouparrayComponent } from '../formgrouparray/formgrouparray.component';
 import { durationStringToObj } from '../../../utils/time.utils';
 import { HttpClient } from '@angular/common/http';
+import {
+  createBooleanGroup,
+  createFormControl,
+  durationGroup,
+} from '../../../utils/form.utils';
 
 export interface Duration {
   hours: number;
@@ -46,34 +56,6 @@ interface FullRecipe {
   main: RecipeResponse;
   details: RecipeDetails;
 }
-
-export const initialMakerForm: MakerForm = new FormGroup({
-  title: new FormControl(''),
-  ingredients: new FormArray<FormControl<unknown>>([]),
-  instructions: new FormArray<FormControl<unknown>>([]),
-  preparationTime: new FormGroup({
-    hours: new FormControl(0),
-    minutes: new FormControl(0),
-    seconds: new FormControl(0),
-  }),
-  cookingTime: new FormGroup({
-    hours: new FormControl(0),
-    minutes: new FormControl(0),
-    seconds: new FormControl(0),
-  }),
-  difficulty: new FormControl(''),
-  image: new FormControl<File | null>(null),
-  mealType: new FormGroup({
-    breakfast: new FormControl(false),
-    brunch: new FormControl(false),
-    lunch: new FormControl(false),
-    dinner: new FormControl(false),
-  }),
-  dietaryPreference: new FormGroup({
-    vegan: new FormControl(false),
-    glutenfree: new FormControl(false),
-  }),
-});
 
 @Component({
   selector: 'app-recipecreateoredit',
@@ -96,11 +78,12 @@ export class RecipecreateoreditComponent {
   difficulties = ['easy', 'medium', 'hard'];
   errMsgs: string[] = [];
   isProcessing = false;
+  isEditing = false;
 
   @Input() fullRecipe: FullRecipe | null = null;
 
-  makerForm = this.formBuilder.group({
-    title: new FormControl<string | null>(null, Validators.required),
+  makerForm: MakerForm = this.formBuilder.group({
+    title: createFormControl('', [Validators.required]),
     ingredients: this.formBuilder.array<FormControl<unknown>>(
       [],
       Validators.required
@@ -109,64 +92,15 @@ export class RecipecreateoreditComponent {
       [],
       Validators.required
     ),
-    preparationTime: this.formBuilder.group(
-      {
-        hours: new FormControl<number | null>(0, [
-          Validators.required,
-          Validators.min(0),
-          Validators.max(23),
-        ]),
-        minutes: new FormControl<number | null>(0, [
-          Validators.required,
-          Validators.min(0),
-          Validators.max(59),
-        ]),
-        seconds: new FormControl<number | null>(0, [
-          Validators.required,
-          Validators.min(0),
-          Validators.max(59),
-        ]),
-      },
-      { validators: checkDurationGreaterThanZero() }
-    ),
-    cookingTime: this.formBuilder.group(
-      {
-        hours: new FormControl<number | null>(0, [
-          Validators.required,
-          Validators.min(0),
-          Validators.max(23),
-        ]),
-        minutes: new FormControl<number | null>(0, [
-          Validators.required,
-          Validators.min(0),
-          Validators.max(59),
-        ]),
-        seconds: new FormControl<number | null>(0, [
-          Validators.required,
-          Validators.min(0),
-          Validators.max(59),
-        ]),
-      },
-      { validators: checkDurationGreaterThanZero() }
-    ),
-    difficulty: new FormControl<string | null>(
-      this.difficulties[0],
-      Validators.required
-    ),
-    image: new FormControl<File | null>(null, [
+    preparationTime: durationGroup(this.formBuilder),
+    cookingTime: durationGroup(this.formBuilder),
+    difficulty: createFormControl(this.difficulties[0], [Validators.required]),
+    image: createFormControl<File | null>(null, [
       Validators.required,
       validateImageFile(),
     ]),
-    mealType: this.formBuilder.group({
-      breakfast: new FormControl<boolean | null>(false),
-      brunch: new FormControl<boolean | null>(false),
-      lunch: new FormControl<boolean | null>(false),
-      dinner: new FormControl<boolean | null>(false),
-    }),
-    dietaryPreference: this.formBuilder.group({
-      vegan: new FormControl<boolean | null>(false),
-      glutenfree: new FormControl<boolean | null>(false),
-    }),
+    mealType: createBooleanGroup(['breakfast', 'brunch', 'lunch', 'dinner']),
+    dietaryPreference: createBooleanGroup(['vegan', 'glutenfree']),
   });
 
   constructor(
@@ -176,34 +110,126 @@ export class RecipecreateoreditComponent {
   ) {}
 
   ngOnInit() {
-    if (this.fullRecipe) {
-      this.httpClient
-        .get(this.fullRecipe.main.image_url, { responseType: 'blob' })
-        .subscribe({
-          next: (val: Blob) => {
-            let filename = 'image.jpeg';
-            if (val.type == 'image/png') {
-              filename = 'image.png';
-            }
+    this.setExistingRecipeToForm();
+  }
 
-            this.makerForm.patchValue({
-              image: new File([val], filename, {
-                type: val.type,
-                lastModified: new Date().getTime(),
-              }),
-            });
-          },
-        });
+  setExistingRecipeToForm() {
+    if (this.fullRecipe) {
+      const main = this.fullRecipe.main;
+      const details = this.fullRecipe.details;
+
+      this.httpClient.get(main.image_url, { responseType: 'blob' }).subscribe({
+        next: (val: Blob) => {
+          let filename = 'image.jpeg';
+          if (val.type == 'image/png') {
+            filename = 'image.png';
+          }
+
+          this.makerForm.patchValue({
+            image: new File([val], filename, {
+              type: val.type,
+              lastModified: new Date().getTime(),
+            }),
+          });
+        },
+      });
 
       this.makerForm.patchValue({
-        title: this.fullRecipe.main.title,
-        difficulty: this.fullRecipe.main.difficulty,
-        preparationTime: durationStringToObj(
-          this.fullRecipe.main.preparation_time
-        ),
-        cookingTime: durationStringToObj(this.fullRecipe.main.cooking_time),
+        title: main.title,
+        difficulty: main.difficulty,
+        preparationTime: durationStringToObj(main.preparation_time),
+        cookingTime: durationStringToObj(main.cooking_time),
       });
+
+      if (
+        details.meal_type &&
+        details.dietary_preference &&
+        details.ingredients &&
+        details.instructions
+      ) {
+        this.makerForm.patchValue({
+          mealType: this.shortenObj(details.meal_type, [
+            'breakfast',
+            'brunch',
+            'lunch',
+            'dinner',
+          ]),
+          dietaryPreference: this.shortenObj(details.dietary_preference, [
+            'vegan',
+            'glutenfree',
+          ]),
+        });
+
+        this.populateFormArray<IngredientResponse>(
+          details.ingredients,
+          'ingredients',
+          ['url', 'name', 'quantity']
+        );
+
+        this.populateFormArray<InstructionResponse>(
+          details.instructions,
+          'instructions',
+          ['url', 'step']
+        );
+      }
+
+      this.isEditing = true;
     }
+  }
+
+  populateFormArray<T extends object>(
+    arr: T[],
+    arrName: string,
+    fields: (keyof T)[]
+  ) {
+    arr.forEach((val) => {
+      const control = this.shortenObj(val, fields, true);
+
+      (this.makerForm.get(arrName) as FormArray<FormGroup>).push(
+        this.formBuilder.group(control)
+      );
+    });
+  }
+
+  resetFormPartially(nestedFields?: boolean) {
+    if (nestedFields) {
+      this.makerForm.get('mealType')?.reset({
+        breakfast: false,
+        brunch: false,
+        lunch: false,
+        dinner: false,
+      });
+      this.makerForm.get('dietaryPreference')?.reset({
+        vegan: false,
+        glutenfree: false,
+      });
+      (this.makerForm.get('ingredients') as FormArray)?.clear();
+      (this.makerForm.get('instructions') as FormArray)?.clear();
+    } else {
+      this.makerForm.get('title')?.reset();
+      this.makerForm.get('image')?.reset();
+      this.makerForm
+        .get('preparationTime')
+        ?.reset({ hours: 0, minutes: 0, seconds: 0 });
+      this.makerForm
+        .get('cookingTime')
+        ?.reset({ hours: 0, minutes: 0, seconds: 0 });
+      this.makerForm.get('difficulty')?.reset(this.difficulties[0]);
+    }
+  }
+
+  shortenObj<T extends object>(
+    obj: T,
+    fields: (keyof T)[],
+    isFormControl?: boolean
+  ) {
+    return Object.fromEntries(
+      Object.entries(obj)
+        .filter(([k]) => fields.includes(k as keyof T))
+        .map(([k, v]) => {
+          return isFormControl ? [k, [v, Validators.required]] : [k, v];
+        })
+    );
   }
 
   formatDuration(duration: Duration) {
@@ -232,15 +258,7 @@ export class RecipecreateoreditComponent {
 
       this.recipeService.create_recipe(recipeBody).subscribe({
         next: (recipe) => {
-          this.makerForm.get('title')?.reset();
-          this.makerForm.get('image')?.reset();
-          this.makerForm
-            .get('preparationTime')
-            ?.reset({ hours: 0, minutes: 0, seconds: 0 });
-          this.makerForm
-            .get('cookingTime')
-            ?.reset({ hours: 0, minutes: 0, seconds: 0 });
-          this.makerForm.get('difficulty')?.reset(this.difficulties[0]);
+          this.resetFormPartially();
 
           const nestedRequests: Observable<any>[] = [];
 
@@ -280,18 +298,7 @@ export class RecipecreateoreditComponent {
             complete: () => {
               this.isProcessing = false;
 
-              this.makerForm.get('mealType')?.reset({
-                breakfast: false,
-                brunch: false,
-                lunch: false,
-                dinner: false,
-              });
-              this.makerForm.get('dietaryPreference')?.reset({
-                vegan: false,
-                glutenfree: false,
-              });
-              (this.makerForm.get('ingredients') as FormArray)?.clear();
-              (this.makerForm.get('instructions') as FormArray)?.clear();
+              this.resetFormPartially(true);
             },
             error: (err) => {
               this.errMsgs = handleErrors(err);

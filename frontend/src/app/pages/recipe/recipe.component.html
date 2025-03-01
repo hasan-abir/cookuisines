@@ -1,20 +1,20 @@
 <ng-container *ngIf="recipe">
   <app-basepage [heading]="recipe.title">
-    <button
-      *ngIf="isRecipeFullyLoaded && (user$ | async)"
-      class="button is-primary mb-4 is-uppercase has-text-weight-bold"
-      (click)="toggleIsEditing()"
-    >
-      {{ isEditing ? "Close Edit" : "Edit" }}
-    </button>
-
-    <ng-container *ngIf="isEditing">
-      <app-recipecreateoredit
-        [fullRecipe]="{
-          main: recipe,
-          details: recipeDetails
-        }"
-      />
+    <ng-container *ngIf="isRecipeFullyLoaded && (user$ | async)">
+      <button
+        class="button is-primary mb-4 is-uppercase has-text-weight-bold"
+        (click)="toggleIsEditing()"
+      >
+        {{ isEditing ? "Close Edit" : "Edit" }}
+      </button>
+      <ng-container *ngIf="isEditing">
+        <app-recipecreateoredit
+          [fullRecipe]="{
+            main: recipe,
+            details: recipeDetails
+          }"
+        />
+      </ng-container>
     </ng-container>
     <ng-container *ngIf="!isEditing">
       <div class="columns">

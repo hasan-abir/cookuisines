@@ -103,7 +103,7 @@
         [class.is-loading]="isProcessing"
         [disabled]="isProcessing"
       >
-        Make
+        {{ isEditing ? "Save" : "Create" }}
       </button>
     </div>
   </div>
