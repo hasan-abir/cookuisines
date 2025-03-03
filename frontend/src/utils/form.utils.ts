@@ -1,4 +1,5 @@
 import {
+  FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
@@ -38,4 +39,31 @@ export const durationGroup = (formBuilder: FormBuilder) => {
       validators: checkDurationGreaterThanZero(),
     }
   );
+};
+
+export const shortenObj = <T extends object>(
+  obj: T,
+  fields: (keyof T)[],
+  isFormControl?: boolean
+) => {
+  return Object.fromEntries(
+    Object.entries(obj)
+      .filter(([k]) => fields.includes(k as keyof T))
+      .map(([k, v]) => {
+        return isFormControl ? [k, [v, Validators.required]] : [k, v];
+      })
+  );
+};
+
+export const populateFormArray = <T extends object>(
+  formBuilder: FormBuilder,
+  formArr: FormArray<FormGroup>,
+  arr: T[],
+  fields: (keyof T)[]
+) => {
+  arr.forEach((val) => {
+    const control = shortenObj(val, fields, true);
+
+    formArr.push(formBuilder.group(control));
+  });
 };

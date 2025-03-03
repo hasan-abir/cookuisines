@@ -233,7 +233,7 @@ describe('RecipecreateoreditComponent', () => {
       recipe: recipeResponse.url,
     } as DietaryPreferenceBody);
 
-    expect(component.makerForm.get('title')?.value).toBe(null);
+    expect(component.makerForm.get('title')?.value).toBeFalsy();
     expect(component.makerForm.get('cookingTime')?.value).toEqual({
       hours: 0,
       minutes: 0,

@@ -28,7 +28,7 @@ import {
   RecipeResponse,
   RecipeService,
 } from '../../services/recipe.service';
-import { MakerForm } from '../../types/MakerForm';
+import { Duration, MakerForm, MakerFormVal } from '../../types/MakerForm';
 import {
   checkDurationGreaterThanZero,
   DurationpickerComponent,
@@ -44,13 +44,9 @@ import {
   createBooleanGroup,
   createFormControl,
   durationGroup,
+  populateFormArray,
+  shortenObj,
 } from '../../../utils/form.utils';
-
-export interface Duration {
-  hours: number;
-  minutes: number;
-  seconds: number;
-}
 
 interface FullRecipe {
   main: RecipeResponse;
@@ -148,47 +144,35 @@ export class RecipecreateoreditComponent {
         details.instructions
       ) {
         this.makerForm.patchValue({
-          mealType: this.shortenObj(details.meal_type, [
+          mealType: shortenObj(details.meal_type, [
             'breakfast',
             'brunch',
             'lunch',
             'dinner',
           ]),
-          dietaryPreference: this.shortenObj(details.dietary_preference, [
+          dietaryPreference: shortenObj(details.dietary_preference, [
             'vegan',
             'glutenfree',
           ]),
         });
 
-        this.populateFormArray<IngredientResponse>(
+        populateFormArray<IngredientResponse>(
+          this.formBuilder,
+          this.makerForm.get('ingredients') as FormArray<FormGroup>,
           details.ingredients,
-          'ingredients',
           ['url', 'name', 'quantity']
         );
 
-        this.populateFormArray<InstructionResponse>(
+        populateFormArray<InstructionResponse>(
+          this.formBuilder,
+          this.makerForm.get('instructions') as FormArray<FormGroup>,
           details.instructions,
-          'instructions',
           ['url', 'step']
         );
       }
 
       this.isEditing = true;
     }
-  }
-
-  populateFormArray<T extends object>(
-    arr: T[],
-    arrName: string,
-    fields: (keyof T)[]
-  ) {
-    arr.forEach((val) => {
-      const control = this.shortenObj(val, fields, true);
-
-      (this.makerForm.get(arrName) as FormArray<FormGroup>).push(
-        this.formBuilder.group(control)
-      );
-    });
   }
 
   resetFormPartially(nestedFields?: boolean) {
@@ -218,20 +202,6 @@ export class RecipecreateoreditComponent {
     }
   }
 
-  shortenObj<T extends object>(
-    obj: T,
-    fields: (keyof T)[],
-    isFormControl?: boolean
-  ) {
-    return Object.fromEntries(
-      Object.entries(obj)
-        .filter(([k]) => fields.includes(k as keyof T))
-        .map(([k, v]) => {
-          return isFormControl ? [k, [v, Validators.required]] : [k, v];
-        })
-    );
-  }
-
   formatDuration(duration: Duration) {
     return `${duration.hours.toString().padStart(2, '0')}:${duration.minutes
       .toString()
@@ -240,20 +210,16 @@ export class RecipecreateoreditComponent {
 
   onSubmit() {
     if (this.makerForm.valid) {
-      const value = this.makerForm.value;
+      const value = this.makerForm.value as MakerFormVal;
       this.errMsgs = [];
       this.isProcessing = true;
 
       const recipeBody: RecipeBody = {
-        title: value.title as string,
-        cooking_time: value.cookingTime
-          ? this.formatDuration(value.cookingTime as Duration)
-          : '',
-        preparation_time: value.preparationTime
-          ? this.formatDuration(value.preparationTime as Duration)
-          : '',
-        difficulty: value.difficulty as 'easy' | 'medium' | 'hard',
-        image: value.image as File,
+        title: value.title,
+        cooking_time: this.formatDuration(value.cookingTime),
+        preparation_time: this.formatDuration(value.preparationTime),
+        difficulty: value.difficulty,
+        image: value.image,
       };
 
       this.recipeService.create_recipe(recipeBody).subscribe({

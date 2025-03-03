@@ -27,3 +27,29 @@ export type MakerForm = FormGroup<{
     glutenfree: FormControl<boolean>;
   }>;
 }>;
+
+export interface Duration {
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+export interface MakerFormVal {
+  title: string;
+  ingredients: unknown[];
+  instructions: unknown[];
+  preparationTime: Duration;
+  cookingTime: Duration;
+  difficulty: 'easy' | 'medium' | 'hard';
+  image: File;
+  mealType: {
+    breakfast: boolean;
+    brunch: boolean;
+    lunch: boolean;
+    dinner: boolean;
+  };
+  dietaryPreference: {
+    vegan: boolean;
+    glutenfree: boolean;
+  };
+}
