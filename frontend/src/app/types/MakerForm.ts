@@ -1,4 +1,10 @@
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import {
+  IngredientBody,
+  IngredientResponse,
+  InstructionBody,
+  InstructionResponse,
+} from '../services/recipe.service';
 
 export type MakerForm = FormGroup<{
   title: FormControl<string>;
@@ -36,8 +42,8 @@ export interface Duration {
 
 export interface MakerFormVal {
   title: string;
-  ingredients: unknown[];
-  instructions: unknown[];
+  ingredients: IngredientBody[];
+  instructions: InstructionBody[];
   preparationTime: Duration;
   cookingTime: Duration;
   difficulty: 'easy' | 'medium' | 'hard';

@@ -226,39 +226,8 @@ export class RecipecreateoreditComponent {
         next: (recipe) => {
           this.resetFormPartially();
 
-          const nestedRequests: Observable<any>[] = [];
-
-          (value.ingredients as IngredientBody[]).forEach((ingredient) =>
-            nestedRequests.push(
-              this.recipeService.create_ingredient(
-                recipe.ingredients,
-                ingredient
-              )
-            )
-          );
-
-          (value.instructions as InstructionBody[]).forEach((instruction) =>
-            nestedRequests.push(
-              this.recipeService.create_instruction(
-                recipe.instructions,
-                instruction
-              )
-            )
-          );
-
-          nestedRequests.push(
-            this.recipeService.create_mealtype({
-              recipe: recipe.url,
-              ...value.mealType,
-            } as MealTypeBody)
-          );
-
-          nestedRequests.push(
-            this.recipeService.create_dietarypreference({
-              recipe: recipe.url,
-              ...value.dietaryPreference,
-            } as DietaryPreferenceBody)
-          );
+          const nestedRequests: Observable<any>[] =
+            this.recipeService.createNestedRecipeRequests(recipe, value);
 
           combineLatest(nestedRequests).subscribe({
             complete: () => {

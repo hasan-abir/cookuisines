@@ -10,9 +10,12 @@ import {
   InstructionBody,
   MealTypeBody,
   RecipeBody,
+  RecipeResponse,
   RecipeService,
 } from './recipe.service';
 import { globalAPIInterceptor } from '../interceptors/global_api.interceptor';
+import { MakerFormVal } from '../types/MakerForm';
+import { combineLatest } from 'rxjs';
 
 describe('RecipesService', () => {
   let service: RecipeService;
@@ -187,5 +190,84 @@ describe('RecipesService', () => {
     );
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBe(body);
+  });
+
+  it('createNestedRecipeRequests: should call API', () => {
+    const recipe = {
+      url: 'recipes/123',
+      ingredients: 'recipes/123/ingredients',
+      instructions: 'recipes/123/instructions',
+      meal_type: 'recipes/mealtypes/123',
+      dietary_preference: 'recipes/dietarypreferences/123',
+    } as RecipeResponse;
+
+    const value = {
+      ingredients: [
+        {
+          name: 'Ingredient 1',
+          quantity: '3',
+        },
+        {
+          name: 'Ingredient 2',
+          quantity: '2',
+        },
+      ],
+      instructions: [
+        {
+          step: 'Instruction 1',
+        },
+        {
+          step: 'Instruction 2',
+        },
+      ],
+      mealType: {
+        breakfast: false,
+        brunch: true,
+        lunch: false,
+        dinner: false,
+      },
+      dietaryPreference: {
+        vegan: false,
+        glutenfree: true,
+      },
+    } as MakerFormVal;
+
+    combineLatest(
+      service.createNestedRecipeRequests(recipe, value)
+    ).subscribe();
+
+    const ingredientReq = httpTesting.match({
+      url: `https://cookuisines.onrender.com/${recipe.ingredients}`,
+      method: 'POST',
+    });
+    expect(ingredientReq.length).toBe(2);
+    expect(ingredientReq[0].request.body).toBe(value.ingredients[0]);
+    expect(ingredientReq[1].request.body).toBe(value.ingredients[1]);
+
+    const instructionReq = httpTesting.match({
+      url: `https://cookuisines.onrender.com/${recipe.instructions}`,
+      method: 'POST',
+    });
+    expect(instructionReq.length).toBe(2);
+    expect(instructionReq[0].request.body).toBe(value.instructions[0]);
+    expect(instructionReq[1].request.body).toBe(value.instructions[1]);
+
+    const mealTypeReq = httpTesting.expectOne({
+      url: `https://cookuisines.onrender.com/recipes/mealtypes/`,
+      method: 'POST',
+    });
+    expect(mealTypeReq.request.body).toEqual({
+      recipe: recipe.url,
+      ...value.mealType,
+    });
+
+    const dietaryPreferenceReq = httpTesting.expectOne({
+      url: `https://cookuisines.onrender.com/recipes/dietarypreferences/`,
+      method: 'POST',
+    });
+    expect(dietaryPreferenceReq.request.body).toEqual({
+      recipe: recipe.url,
+      ...value.dietaryPreference,
+    });
   });
 });

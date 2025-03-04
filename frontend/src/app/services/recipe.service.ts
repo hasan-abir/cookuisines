@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { MakerFormVal } from '../types/MakerForm';
 
 interface BaseRecipe {
   title: string;
@@ -162,5 +163,27 @@ export class RecipeService {
         withCredentials: true,
       }
     );
+  }
+
+  createNestedRecipeRequests(
+    recipe: RecipeResponse,
+    value: MakerFormVal
+  ): Observable<any>[] {
+    return [
+      ...value.ingredients.map((ingredient) =>
+        this.create_ingredient(recipe.ingredients, ingredient)
+      ),
+      ...value.instructions.map((instruction) =>
+        this.create_instruction(recipe.instructions, instruction)
+      ),
+      this.create_mealtype({
+        recipe: recipe.url,
+        ...value.mealType,
+      }),
+      this.create_dietarypreference({
+        recipe: recipe.url,
+        ...value.dietaryPreference,
+      }),
+    ];
   }
 }

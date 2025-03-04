@@ -5,10 +5,7 @@ import {
   tick,
 } from '@angular/core/testing';
 
-import {
-  Duration,
-  RecipecreateoreditComponent,
-} from './recipecreateoredit.component';
+import { RecipecreateoreditComponent } from './recipecreateoredit.component';
 import { RecipemakerComponent } from '../../pages/recipemaker/recipemaker.component';
 import {
   DietaryPreferenceBody,
@@ -26,6 +23,7 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { globalAPIInterceptor } from '../../interceptors/global_api.interceptor';
+import { Duration, MakerForm, MakerFormVal } from '../../types/MakerForm';
 
 describe('RecipecreateoreditComponent', () => {
   let component: RecipecreateoreditComponent;
@@ -41,6 +39,7 @@ describe('RecipecreateoreditComponent', () => {
       'create_instruction',
       'create_mealtype',
       'create_dietarypreference',
+      'createNestedRecipeRequests',
     ]);
 
     await TestBed.configureTestingModule({
@@ -131,31 +130,13 @@ describe('RecipecreateoreditComponent', () => {
       })
     );
 
-    recipeServiceSpy.create_ingredient.and.returnValue(
-      new Observable((subscriber) => {
-        subscriber.complete();
-      })
-    );
-
-    recipeServiceSpy.create_instruction.and.returnValue(
-      new Observable((subscriber) => {
-        subscriber.complete();
-      })
-    );
-
-    recipeServiceSpy.create_mealtype.and.returnValue(
-      new Observable((subscriber) => {
-        subscriber.complete();
-      })
-    );
-
-    recipeServiceSpy.create_dietarypreference.and.returnValue(
+    recipeServiceSpy.createNestedRecipeRequests.and.returnValue([
       new Observable((subscriber) => {
         timer(2000).subscribe(() => {
           subscriber.complete();
         });
-      })
-    );
+      }),
+    ]);
 
     component.makerForm.setValue({
       title: 'Yo dot',
@@ -186,7 +167,7 @@ describe('RecipecreateoreditComponent', () => {
     );
     fixture.detectChanges();
 
-    const value = component.makerForm.value;
+    const value = component.makerForm.value as MakerFormVal;
 
     const submitBtn = compiled.querySelector(
       "button[type='submit']"
@@ -205,33 +186,17 @@ describe('RecipecreateoreditComponent', () => {
     expect(submitBtn.classList).not.toContain('is-loading');
 
     expect(recipeServiceSpy.create_recipe).toHaveBeenCalledWith({
-      title: value.title as string,
-      preparation_time: value.preparationTime
-        ? component.formatDuration(value.preparationTime as Duration)
-        : '',
-      cooking_time: value.preparationTime
-        ? component.formatDuration(value.cookingTime as Duration)
-        : '',
-      difficulty: value.difficulty as 'easy' | 'medium' | 'hard',
-      image: value.image as File,
+      title: value.title,
+      preparation_time: component.formatDuration(value.preparationTime),
+      cooking_time: component.formatDuration(value.cookingTime),
+      difficulty: value.difficulty,
+      image: value.image,
     });
 
-    expect(recipeServiceSpy.create_ingredient).toHaveBeenCalledWith(
-      recipeResponse.ingredients,
-      (value.ingredients as IngredientBody[])[0]
+    expect(recipeServiceSpy.createNestedRecipeRequests).toHaveBeenCalledWith(
+      recipeResponse,
+      value
     );
-    expect(recipeServiceSpy.create_instruction).toHaveBeenCalledWith(
-      recipeResponse.instructions,
-      (value.instructions as InstructionBody[])[0]
-    );
-    expect(recipeServiceSpy.create_mealtype).toHaveBeenCalledWith({
-      ...value.mealType,
-      recipe: recipeResponse.url,
-    } as MealTypeBody);
-    expect(recipeServiceSpy.create_dietarypreference).toHaveBeenCalledWith({
-      ...value.dietaryPreference,
-      recipe: recipeResponse.url,
-    } as DietaryPreferenceBody);
 
     expect(component.makerForm.get('title')?.value).toBeFalsy();
     expect(component.makerForm.get('cookingTime')?.value).toEqual({
@@ -375,33 +340,15 @@ describe('RecipecreateoreditComponent', () => {
       })
     );
 
-    recipeServiceSpy.create_ingredient.and.returnValue(
+    recipeServiceSpy.createNestedRecipeRequests.and.returnValue([
       new Observable((subscriber) => {
         timer(2000).subscribe(() => {
           subscriber.error({
             error: ingredientError,
           });
         });
-      })
-    );
-
-    recipeServiceSpy.create_instruction.and.returnValue(
-      new Observable((subscriber) => {
-        subscriber.complete();
-      })
-    );
-
-    recipeServiceSpy.create_mealtype.and.returnValue(
-      new Observable((subscriber) => {
-        subscriber.complete();
-      })
-    );
-
-    recipeServiceSpy.create_dietarypreference.and.returnValue(
-      new Observable((subscriber) => {
-        subscriber.complete();
-      })
-    );
+      }),
+    ]);
 
     component.makerForm.setValue({
       title: 'Yo dot',
@@ -450,10 +397,7 @@ describe('RecipecreateoreditComponent', () => {
 
     expect(recipeServiceSpy.create_recipe).toHaveBeenCalled();
 
-    expect(recipeServiceSpy.create_ingredient).toHaveBeenCalled();
-    expect(recipeServiceSpy.create_instruction).toHaveBeenCalled();
-    expect(recipeServiceSpy.create_mealtype).toHaveBeenCalled();
-    expect(recipeServiceSpy.create_dietarypreference).toHaveBeenCalled();
+    expect(recipeServiceSpy.createNestedRecipeRequests).toHaveBeenCalled();
 
     const msgs = compiled.querySelectorAll('.message-body');
 
