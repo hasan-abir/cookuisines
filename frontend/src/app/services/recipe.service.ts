@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { MakerFormVal } from '../types/MakerForm';
 
 interface BaseRecipe {
@@ -33,6 +33,7 @@ export interface PaginatedRecipes {
 }
 
 export interface IngredientBody {
+  url?: string;
   name: string;
   quantity: string;
 }
@@ -49,6 +50,7 @@ export interface PaginatedIngredients {
 }
 
 export interface InstructionBody {
+  url?: string;
   step: string;
 }
 
@@ -113,15 +115,38 @@ export class RecipeService {
     });
   }
 
+  edit_recipe(url: string, body: RecipeBody): Observable<RecipeResponse> {
+    const formData = new FormData();
+
+    Object.keys(body).forEach((val) => {
+      const key = val as keyof RecipeBody;
+
+      formData.append(key, body[key]);
+    });
+
+    return this.http.put<RecipeResponse>(url, formData, {
+      withCredentials: true,
+    });
+  }
+
   get_ingredients(url: string): Observable<PaginatedIngredients> {
     return this.http.get<PaginatedIngredients>(url);
   }
 
   create_ingredient(
-    url: string,
+    ingredientUrl: string,
     body: IngredientBody
   ): Observable<IngredientResponse> {
-    return this.http.post<IngredientResponse>(url, body, {
+    const { url, ...rest } = body;
+    return this.http.post<IngredientResponse>(ingredientUrl, rest, {
+      withCredentials: true,
+    });
+  }
+
+  edit_ingredient(body: IngredientBody): Observable<IngredientResponse> {
+    const { url, ...rest } = body;
+
+    return this.http.put<IngredientResponse>(url as string, rest, {
       withCredentials: true,
     });
   }
@@ -131,10 +156,19 @@ export class RecipeService {
   }
 
   create_instruction(
-    url: string,
+    instructionUrl: string,
     body: InstructionBody
   ): Observable<InstructionResponse> {
-    return this.http.post<InstructionResponse>(url, body, {
+    const { url, ...rest } = body;
+
+    return this.http.post<InstructionResponse>(instructionUrl, rest, {
+      withCredentials: true,
+    });
+  }
+
+  edit_instruction(body: InstructionBody): Observable<InstructionResponse> {
+    const { url, ...rest } = body;
+    return this.http.put<InstructionResponse>(url as string, rest, {
       withCredentials: true,
     });
   }
@@ -145,6 +179,12 @@ export class RecipeService {
 
   create_mealtype(body: MealTypeBody): Observable<MealTypeResponse> {
     return this.http.post<MealTypeResponse>('recipes/mealtypes/', body, {
+      withCredentials: true,
+    });
+  }
+
+  edit_mealtype(url: string, body: MealTypeBody): Observable<MealTypeResponse> {
+    return this.http.put<MealTypeResponse>(url, body, {
       withCredentials: true,
     });
   }
@@ -165,6 +205,16 @@ export class RecipeService {
     );
   }
 
+  edit_dietarypreference(
+    body: DietaryPreferenceResponse
+  ): Observable<DietaryPreferenceResponse> {
+    const { url, ...rest } = body;
+
+    return this.http.put<DietaryPreferenceResponse>(url, rest, {
+      withCredentials: true,
+    });
+  }
+
   createNestedRecipeRequests(
     recipe: RecipeResponse,
     value: MakerFormVal
@@ -181,6 +231,28 @@ export class RecipeService {
         ...value.mealType,
       }),
       this.create_dietarypreference({
+        recipe: recipe.url,
+        ...value.dietaryPreference,
+      }),
+    ];
+  }
+
+  editNestedRecipeRequests(
+    recipe: RecipeResponse,
+    value: MakerFormVal
+  ): Observable<any>[] {
+    return [
+      ...value.ingredients.map((ingredient) =>
+        ingredient.url ? this.edit_ingredient(ingredient) : of(undefined)
+      ),
+      ...value.instructions.map((instruction) =>
+        instruction.url ? this.edit_instruction(instruction) : of(undefined)
+      ),
+      this.edit_mealtype(recipe.meal_type, {
+        recipe: recipe.url,
+        ...value.mealType,
+      }),
+      this.edit_mealtype(recipe.dietary_preference, {
         recipe: recipe.url,
         ...value.dietaryPreference,
       }),

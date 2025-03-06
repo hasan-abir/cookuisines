@@ -208,46 +208,57 @@ export class RecipecreateoreditComponent {
       .padStart(2, '0')}:${duration.seconds.toString().padStart(2, '0')}`;
   }
 
+  createFullRecipe() {
+    const value = this.makerForm.value as MakerFormVal;
+
+    const recipeBody: RecipeBody = {
+      title: value.title,
+      cooking_time: this.formatDuration(value.cookingTime),
+      preparation_time: this.formatDuration(value.preparationTime),
+      difficulty: value.difficulty,
+      image: value.image,
+    };
+
+    this.recipeService.create_recipe(recipeBody).subscribe({
+      next: (recipe) => {
+        this.resetFormPartially();
+
+        const nestedRequests: Observable<any>[] =
+          this.recipeService.createNestedRecipeRequests(recipe, value);
+
+        combineLatest(nestedRequests).subscribe({
+          complete: () => {
+            this.isProcessing = false;
+
+            this.resetFormPartially(true);
+          },
+          error: (err) => {
+            this.errMsgs = handleErrors(err);
+
+            this.isProcessing = false;
+          },
+        });
+      },
+      error: (err) => {
+        this.errMsgs = handleErrors(err);
+
+        this.isProcessing = false;
+      },
+    });
+  }
+
+  editFullRecipe() {}
+
   onSubmit() {
     if (this.makerForm.valid) {
-      const value = this.makerForm.value as MakerFormVal;
       this.errMsgs = [];
       this.isProcessing = true;
 
-      const recipeBody: RecipeBody = {
-        title: value.title,
-        cooking_time: this.formatDuration(value.cookingTime),
-        preparation_time: this.formatDuration(value.preparationTime),
-        difficulty: value.difficulty,
-        image: value.image,
-      };
-
-      this.recipeService.create_recipe(recipeBody).subscribe({
-        next: (recipe) => {
-          this.resetFormPartially();
-
-          const nestedRequests: Observable<any>[] =
-            this.recipeService.createNestedRecipeRequests(recipe, value);
-
-          combineLatest(nestedRequests).subscribe({
-            complete: () => {
-              this.isProcessing = false;
-
-              this.resetFormPartially(true);
-            },
-            error: (err) => {
-              this.errMsgs = handleErrors(err);
-
-              this.isProcessing = false;
-            },
-          });
-        },
-        error: (err) => {
-          this.errMsgs = handleErrors(err);
-
-          this.isProcessing = false;
-        },
-      });
+      if (this.isEditing) {
+        this.editFullRecipe();
+      } else {
+        this.createFullRecipe();
+      }
     }
   }
 
