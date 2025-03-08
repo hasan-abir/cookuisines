@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
-  FormRecord,
   FormsModule,
   ReactiveFormsModule,
   Validators,
@@ -13,33 +13,6 @@ import {
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { combineLatest, Observable } from 'rxjs';
 import { handleErrors } from '../../../utils/error.utils';
-import { FormselectfieldsComponent } from '../../formselectfields/formselectfields.component';
-import { RecipeDetails } from '../../pages/recipe/recipe.component';
-import {
-  DietaryPreferenceBody,
-  DietaryPreferenceResponse,
-  IngredientBody,
-  IngredientResponse,
-  InstructionBody,
-  InstructionResponse,
-  MealTypeBody,
-  MealTypeResponse,
-  RecipeBody,
-  RecipeResponse,
-  RecipeService,
-} from '../../services/recipe.service';
-import { Duration, MakerForm, MakerFormVal } from '../../types/MakerForm';
-import {
-  checkDurationGreaterThanZero,
-  DurationpickerComponent,
-} from '../durationpicker/durationpicker.component';
-import {
-  FileuploadComponent,
-  validateImageFile,
-} from '../fileupload/fileupload.component';
-import { FormgrouparrayComponent } from '../formgrouparray/formgrouparray.component';
-import { durationStringToObj } from '../../../utils/time.utils';
-import { HttpClient } from '@angular/common/http';
 import {
   createBooleanGroup,
   createFormControl,
@@ -47,8 +20,25 @@ import {
   populateFormArray,
   shortenObj,
 } from '../../../utils/form.utils';
+import { durationStringToObj } from '../../../utils/time.utils';
+import { FormselectfieldsComponent } from '../../formselectfields/formselectfields.component';
+import { RecipeDetails } from '../../pages/recipe/recipe.component';
+import {
+  IngredientResponse,
+  InstructionResponse,
+  RecipeBody,
+  RecipeResponse,
+  RecipeService,
+} from '../../services/recipe.service';
+import { Duration, MakerForm, MakerFormVal } from '../../types/MakerForm';
+import { DurationpickerComponent } from '../durationpicker/durationpicker.component';
+import {
+  FileuploadComponent,
+  validateImageFile,
+} from '../fileupload/fileupload.component';
+import { FormgrouparrayComponent } from '../formgrouparray/formgrouparray.component';
 
-interface FullRecipe {
+export interface FullRecipe {
   main: RecipeResponse;
   details: RecipeDetails;
 }
@@ -116,6 +106,8 @@ export class RecipecreateoreditComponent {
 
       this.httpClient.get(main.image_url, { responseType: 'blob' }).subscribe({
         next: (val: Blob) => {
+          console.log(123);
+
           let filename = 'image.jpeg';
           if (val.type == 'image/png') {
             filename = 'image.png';
@@ -208,7 +200,7 @@ export class RecipecreateoreditComponent {
       .padStart(2, '0')}:${duration.seconds.toString().padStart(2, '0')}`;
   }
 
-  createFullRecipe() {
+  createOrEditFullRecipe() {
     const value = this.makerForm.value as MakerFormVal;
 
     const recipeBody: RecipeBody = {
@@ -219,14 +211,30 @@ export class RecipecreateoreditComponent {
       image: value.image,
     };
 
-    this.recipeService.create_recipe(recipeBody).subscribe({
+    let parentRequest = this.recipeService.create_recipe(recipeBody);
+
+    if (this.isEditing && this.fullRecipe) {
+      parentRequest = this.recipeService.edit_recipe(
+        this.fullRecipe.main.url,
+        recipeBody
+      );
+    }
+
+    parentRequest.subscribe({
       next: (recipe) => {
         this.resetFormPartially();
 
-        const nestedRequests: Observable<any>[] =
+        let childRequests: Observable<any>[] =
           this.recipeService.createNestedRecipeRequests(recipe, value);
 
-        combineLatest(nestedRequests).subscribe({
+        if (this.isEditing) {
+          childRequests = this.recipeService.editNestedRecipeRequests(
+            recipe,
+            value
+          );
+        }
+
+        combineLatest(childRequests).subscribe({
           complete: () => {
             this.isProcessing = false;
 
@@ -247,18 +255,12 @@ export class RecipecreateoreditComponent {
     });
   }
 
-  editFullRecipe() {}
-
   onSubmit() {
     if (this.makerForm.valid) {
       this.errMsgs = [];
       this.isProcessing = true;
 
-      if (this.isEditing) {
-        this.editFullRecipe();
-      } else {
-        this.createFullRecipe();
-      }
+      this.createOrEditFullRecipe();
     }
   }
 
