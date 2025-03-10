@@ -7,7 +7,7 @@ import {
   withInterceptors,
 } from '@angular/common/http';
 
-import { globalAPIInterceptor } from './global_api.interceptor';
+import { domain, globalAPIInterceptor } from './global_api.interceptor';
 import { NotificationService } from '../services/notification.service';
 import {
   HttpTestingController,
@@ -62,7 +62,7 @@ describe('globalAPIInterceptor', () => {
 
     expect(notificationServiceSpy.setWaitingState).toHaveBeenCalledWith(true);
 
-    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
+    const req = httpTesting.expectOne(`${domain}test`);
     req.flush({});
   }));
 
@@ -75,7 +75,7 @@ describe('globalAPIInterceptor', () => {
 
     expect(notificationServiceSpy.setWaitingState).not.toHaveBeenCalled();
 
-    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
+    const req = httpTesting.expectOne(`${domain}test`);
     req.flush({});
   }));
 
@@ -88,7 +88,7 @@ describe('globalAPIInterceptor', () => {
       },
     });
 
-    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
+    const req = httpTesting.expectOne(`${domain}test`);
 
     req.error(new ProgressEvent('Unauth'), {
       status: 401,
@@ -97,7 +97,7 @@ describe('globalAPIInterceptor', () => {
 
     expect(authServiceSpy.refresh).toHaveBeenCalled();
 
-    httpTesting.expectOne('https://cookuisines.onrender.com/test');
+    httpTesting.expectOne(`${domain}test`);
   }));
 
   it('should navigate to not-found when status is 404', fakeAsync(() => {
@@ -107,14 +107,14 @@ describe('globalAPIInterceptor', () => {
       },
     });
 
-    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
+    const req = httpTesting.expectOne(`${domain}test`);
 
     req.error(new ProgressEvent('Unauth'), {
       status: 404,
       statusText: 'Not found',
     });
 
-    httpTesting.expectNone('https://cookuisines.onrender.com/test');
+    httpTesting.expectNone(`${domain}test`);
     expect(router.navigate).toHaveBeenCalledWith(['/not-found']);
   }));
 
@@ -127,7 +127,7 @@ describe('globalAPIInterceptor', () => {
       },
     });
 
-    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
+    const req = httpTesting.expectOne(`${domain}test`);
 
     req.error(new ProgressEvent('Unauth'), {
       status: 0,
@@ -136,7 +136,7 @@ describe('globalAPIInterceptor', () => {
 
     expect(authServiceSpy.refresh).toHaveBeenCalled();
 
-    httpTesting.expectOne('https://cookuisines.onrender.com/test');
+    httpTesting.expectOne(`${domain}test`);
   }));
 
   it('should navigate to login when status is 401 and refresh is unsuccessful', fakeAsync(() => {
@@ -148,7 +148,7 @@ describe('globalAPIInterceptor', () => {
       },
     });
 
-    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
+    const req = httpTesting.expectOne(`${domain}test`);
 
     req.error(new ProgressEvent('Unauth'), {
       status: 401,
@@ -157,7 +157,7 @@ describe('globalAPIInterceptor', () => {
 
     expect(authServiceSpy.refresh).toHaveBeenCalled();
 
-    httpTesting.expectNone('https://cookuisines.onrender.com/test');
+    httpTesting.expectNone(`${domain}test`);
   }));
 
   it('should navigate to login when status is 0 and refresh is unsuccessful', fakeAsync(() => {
@@ -175,7 +175,7 @@ describe('globalAPIInterceptor', () => {
       },
     });
 
-    const req = httpTesting.expectOne('https://cookuisines.onrender.com/test');
+    const req = httpTesting.expectOne(`${domain}test`);
 
     req.error(new ProgressEvent('Unauth'), {
       status: 0,
@@ -184,6 +184,6 @@ describe('globalAPIInterceptor', () => {
 
     expect(authServiceSpy.refresh).toHaveBeenCalled();
 
-    httpTesting.expectNone('https://cookuisines.onrender.com/test');
+    httpTesting.expectNone(`${domain}test`);
   }));
 });

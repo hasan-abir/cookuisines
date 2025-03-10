@@ -5,8 +5,9 @@ import { catchError, finalize, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
 
+export const domain = 'https://cookuisines-5g2v.onrender.com/';
+
 export const globalAPIInterceptor: HttpInterceptorFn = (req, next) => {
-  const domain = 'https://cookuisines.onrender.com/';
   const notificationService = inject(NotificationService);
   const authService = inject(AuthService);
   const router = inject(Router);

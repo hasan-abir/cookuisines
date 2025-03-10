@@ -6,7 +6,10 @@ import {
   HttpTestingController,
 } from '@angular/common/http/testing';
 import { AuthService, LoginBody, SignupBody } from './auth.service';
-import { globalAPIInterceptor } from '../interceptors/global_api.interceptor';
+import {
+  domain,
+  globalAPIInterceptor,
+} from '../interceptors/global_api.interceptor';
 import { of, throwError } from 'rxjs';
 
 describe('AuthService', () => {
@@ -38,9 +41,7 @@ describe('AuthService', () => {
     };
     service.login(body).subscribe();
 
-    const req = httpTesting.expectOne(
-      'https://cookuisines.onrender.com/api-token-obtain/'
-    );
+    const req = httpTesting.expectOne(domain + 'api-token-obtain/');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBe(body);
   });
@@ -48,18 +49,14 @@ describe('AuthService', () => {
   it('verify: should call API', () => {
     service.verify().subscribe();
 
-    const req = httpTesting.expectOne(
-      'https://cookuisines.onrender.com/api-user-verify/'
-    );
+    const req = httpTesting.expectOne(domain + 'api-user-verify/');
     expect(req.request.method).toBe('POST');
   });
 
   it('logout: should call API', () => {
     service.logout().subscribe();
 
-    const req = httpTesting.expectOne(
-      'https://cookuisines.onrender.com/api-token-delete/'
-    );
+    const req = httpTesting.expectOne(domain + 'api-token-delete/');
     expect(req.request.method).toBe('DELETE');
   });
 
@@ -71,9 +68,7 @@ describe('AuthService', () => {
     };
     service.signup(body).subscribe();
 
-    const req = httpTesting.expectOne(
-      'https://cookuisines.onrender.com/api-user-register/'
-    );
+    const req = httpTesting.expectOne(domain + 'api-user-register/');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBe(body);
   });
@@ -81,9 +76,7 @@ describe('AuthService', () => {
   it('refresh: should call API', () => {
     service.refresh().subscribe();
 
-    const req = httpTesting.expectOne(
-      'https://cookuisines.onrender.com/api-token-refresh/'
-    );
+    const req = httpTesting.expectOne(domain + 'api-token-refresh/');
     expect(req.request.method).toBe('POST');
   });
 

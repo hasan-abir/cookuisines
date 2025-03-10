@@ -5,7 +5,10 @@ import {
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { combineLatest } from 'rxjs';
-import { globalAPIInterceptor } from '../interceptors/global_api.interceptor';
+import {
+  domain,
+  globalAPIInterceptor,
+} from '../interceptors/global_api.interceptor';
 import { MakerFormVal } from '../types/MakerForm';
 import {
   DietaryPreferenceBody,
@@ -40,25 +43,21 @@ describe('RecipesService', () => {
 
     service.get_recipe(id).subscribe();
 
-    const req = httpTesting.expectOne(
-      'https://cookuisines.onrender.com/recipes/' + id + '/'
-    );
+    const req = httpTesting.expectOne(domain + 'recipes/' + id + '/');
     expect(req.request.method).toBe('GET');
   });
 
   it('get_recipes: should call API', () => {
     service.get_recipes().subscribe();
 
-    let req = httpTesting.expectOne(
-      'https://cookuisines.onrender.com/recipes/'
-    );
+    let req = httpTesting.expectOne(domain + 'recipes/');
     expect(req.request.method).toBe('GET');
 
     const url = 'abc/';
 
     service.get_recipes(url).subscribe();
 
-    req = httpTesting.expectOne('https://cookuisines.onrender.com/' + url);
+    req = httpTesting.expectOne(domain + '' + url);
     expect(req.request.method).toBe('GET');
   });
 
@@ -81,9 +80,7 @@ describe('RecipesService', () => {
 
     service.create_recipe(body).subscribe();
 
-    const req = httpTesting.expectOne(
-      'https://cookuisines.onrender.com/recipes/'
-    );
+    const req = httpTesting.expectOne(domain + 'recipes/');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(formData);
   });
@@ -107,9 +104,7 @@ describe('RecipesService', () => {
 
     service.edit_recipe(url, body).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(formData);
   });
@@ -119,9 +114,7 @@ describe('RecipesService', () => {
 
     service.get_ingredients(url).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('GET');
   });
 
@@ -133,9 +126,7 @@ describe('RecipesService', () => {
     };
     service.create_ingredient(url, body).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(body);
   });
@@ -149,9 +140,7 @@ describe('RecipesService', () => {
     };
     service.edit_ingredient(body).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('PUT');
     delete body.url;
     expect(req.request.body).toEqual(body);
@@ -162,9 +151,7 @@ describe('RecipesService', () => {
 
     service.get_instructions(url).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('GET');
   });
 
@@ -175,9 +162,7 @@ describe('RecipesService', () => {
     };
     service.create_instruction(url, body).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(body);
   });
@@ -190,9 +175,7 @@ describe('RecipesService', () => {
     };
     service.edit_instruction(body).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('PUT');
     delete body.url;
     expect(req.request.body).toEqual(body);
@@ -203,9 +186,7 @@ describe('RecipesService', () => {
 
     service.get_mealtype(url).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('GET');
   });
 
@@ -218,9 +199,7 @@ describe('RecipesService', () => {
     };
     service.create_mealtype(body).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBe(body);
   });
@@ -234,9 +213,7 @@ describe('RecipesService', () => {
     };
     service.edit_mealtype(url, body).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toBe(body);
   });
@@ -246,9 +223,7 @@ describe('RecipesService', () => {
 
     service.get_dietarypreference(url).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('GET');
   });
 
@@ -260,9 +235,7 @@ describe('RecipesService', () => {
     };
     service.create_dietarypreference(body).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBe(body);
   });
@@ -275,9 +248,7 @@ describe('RecipesService', () => {
     };
     service.create_dietarypreference(body).subscribe();
 
-    const req = httpTesting.expectOne(
-      `https://cookuisines.onrender.com/${url}`
-    );
+    const req = httpTesting.expectOne(`${domain}${url}`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBe(body);
   });
@@ -327,7 +298,7 @@ describe('RecipesService', () => {
     ).subscribe();
 
     const ingredientReq = httpTesting.match({
-      url: `https://cookuisines.onrender.com/${recipe.ingredients}`,
+      url: `${domain}${recipe.ingredients}`,
       method: 'POST',
     });
     expect(ingredientReq.length).toBe(2);
@@ -335,7 +306,7 @@ describe('RecipesService', () => {
     expect(ingredientReq[1].request.body).toEqual(value.ingredients[1]);
 
     const instructionReq = httpTesting.match({
-      url: `https://cookuisines.onrender.com/${recipe.instructions}`,
+      url: `${domain}${recipe.instructions}`,
       method: 'POST',
     });
     expect(instructionReq.length).toBe(2);
@@ -343,7 +314,7 @@ describe('RecipesService', () => {
     expect(instructionReq[1].request.body).toEqual(value.instructions[1]);
 
     const mealTypeReq = httpTesting.expectOne({
-      url: `https://cookuisines.onrender.com/recipes/mealtypes/`,
+      url: `${domain}recipes/mealtypes/`,
       method: 'POST',
     });
     expect(mealTypeReq.request.body).toEqual({
@@ -352,7 +323,7 @@ describe('RecipesService', () => {
     });
 
     const dietaryPreferenceReq = httpTesting.expectOne({
-      url: `https://cookuisines.onrender.com/recipes/dietarypreferences/`,
+      url: `${domain}recipes/dietarypreferences/`,
       method: 'POST',
     });
     expect(dietaryPreferenceReq.request.body).toEqual({
@@ -407,33 +378,33 @@ describe('RecipesService', () => {
     combineLatest(service.editNestedRecipeRequests(recipe, value)).subscribe();
 
     const ingredient1Req = httpTesting.expectOne({
-      url: `https://cookuisines.onrender.com/${value.ingredients[0].url}`,
+      url: `${domain}${value.ingredients[0].url}`,
       method: 'PUT',
     });
     delete value.ingredients[0].url;
     expect(ingredient1Req.request.body).toEqual(value.ingredients[0]);
     const ingredient2Req = httpTesting.expectOne({
-      url: `https://cookuisines.onrender.com/${value.ingredients[1].url}`,
+      url: `${domain}${value.ingredients[1].url}`,
       method: 'PUT',
     });
     delete value.ingredients[1].url;
     expect(ingredient2Req.request.body).toEqual(value.ingredients[1]);
 
     const instruction1Req = httpTesting.expectOne({
-      url: `https://cookuisines.onrender.com/${value.instructions[0].url}`,
+      url: `${domain}${value.instructions[0].url}`,
       method: 'PUT',
     });
     delete value.instructions[0].url;
     expect(instruction1Req.request.body).toEqual(value.instructions[0]);
     const instruction2Req = httpTesting.expectOne({
-      url: `https://cookuisines.onrender.com/${value.instructions[1].url}`,
+      url: `${domain}${value.instructions[1].url}`,
       method: 'PUT',
     });
     delete value.instructions[1].url;
     expect(instruction2Req.request.body).toEqual(value.instructions[1]);
 
     const mealTypeReq = httpTesting.expectOne({
-      url: `https://cookuisines.onrender.com/${recipe.meal_type}`,
+      url: `${domain}${recipe.meal_type}`,
       method: 'PUT',
     });
     expect(mealTypeReq.request.body).toEqual({
@@ -442,7 +413,7 @@ describe('RecipesService', () => {
     });
 
     const dietaryPreferenceReq = httpTesting.expectOne({
-      url: `https://cookuisines.onrender.com/${recipe.dietary_preference}`,
+      url: `${domain}${recipe.dietary_preference}`,
       method: 'PUT',
     });
     expect(dietaryPreferenceReq.request.body).toEqual({
