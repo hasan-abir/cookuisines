@@ -124,7 +124,7 @@ export class RecipeService {
       formData.append(key, body[key]);
     });
 
-    return this.http.put<RecipeResponse>(url, formData, {
+    return this.http.patch<RecipeResponse>(url, formData, {
       withCredentials: true,
     });
   }
@@ -146,7 +146,7 @@ export class RecipeService {
   edit_ingredient(body: IngredientBody): Observable<IngredientResponse> {
     const { url, ...rest } = body;
 
-    return this.http.put<IngredientResponse>(url as string, rest, {
+    return this.http.patch<IngredientResponse>(url as string, rest, {
       withCredentials: true,
     });
   }
@@ -168,7 +168,7 @@ export class RecipeService {
 
   edit_instruction(body: InstructionBody): Observable<InstructionResponse> {
     const { url, ...rest } = body;
-    return this.http.put<InstructionResponse>(url as string, rest, {
+    return this.http.patch<InstructionResponse>(url as string, rest, {
       withCredentials: true,
     });
   }
@@ -184,7 +184,7 @@ export class RecipeService {
   }
 
   edit_mealtype(url: string, body: MealTypeBody): Observable<MealTypeResponse> {
-    return this.http.put<MealTypeResponse>(url, body, {
+    return this.http.patch<MealTypeResponse>(url, body, {
       withCredentials: true,
     });
   }
@@ -210,7 +210,7 @@ export class RecipeService {
   ): Observable<DietaryPreferenceResponse> {
     const { url, ...rest } = body;
 
-    return this.http.put<DietaryPreferenceResponse>(url, rest, {
+    return this.http.patch<DietaryPreferenceResponse>(url, rest, {
       withCredentials: true,
     });
   }

@@ -105,7 +105,7 @@ describe('RecipesService', () => {
     service.edit_recipe(url, body).subscribe();
 
     const req = httpTesting.expectOne(`${domain}${url}`);
-    expect(req.request.method).toBe('PUT');
+    expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual(formData);
   });
 
@@ -141,7 +141,7 @@ describe('RecipesService', () => {
     service.edit_ingredient(body).subscribe();
 
     const req = httpTesting.expectOne(`${domain}${url}`);
-    expect(req.request.method).toBe('PUT');
+    expect(req.request.method).toBe('PATCH');
     delete body.url;
     expect(req.request.body).toEqual(body);
   });
@@ -176,7 +176,7 @@ describe('RecipesService', () => {
     service.edit_instruction(body).subscribe();
 
     const req = httpTesting.expectOne(`${domain}${url}`);
-    expect(req.request.method).toBe('PUT');
+    expect(req.request.method).toBe('PATCH');
     delete body.url;
     expect(req.request.body).toEqual(body);
   });
@@ -214,7 +214,7 @@ describe('RecipesService', () => {
     service.edit_mealtype(url, body).subscribe();
 
     const req = httpTesting.expectOne(`${domain}${url}`);
-    expect(req.request.method).toBe('PUT');
+    expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toBe(body);
   });
 
@@ -379,33 +379,33 @@ describe('RecipesService', () => {
 
     const ingredient1Req = httpTesting.expectOne({
       url: `${domain}${value.ingredients[0].url}`,
-      method: 'PUT',
+      method: 'PATCH',
     });
     delete value.ingredients[0].url;
     expect(ingredient1Req.request.body).toEqual(value.ingredients[0]);
     const ingredient2Req = httpTesting.expectOne({
       url: `${domain}${value.ingredients[1].url}`,
-      method: 'PUT',
+      method: 'PATCH',
     });
     delete value.ingredients[1].url;
     expect(ingredient2Req.request.body).toEqual(value.ingredients[1]);
 
     const instruction1Req = httpTesting.expectOne({
       url: `${domain}${value.instructions[0].url}`,
-      method: 'PUT',
+      method: 'PATCH',
     });
     delete value.instructions[0].url;
     expect(instruction1Req.request.body).toEqual(value.instructions[0]);
     const instruction2Req = httpTesting.expectOne({
       url: `${domain}${value.instructions[1].url}`,
-      method: 'PUT',
+      method: 'PATCH',
     });
     delete value.instructions[1].url;
     expect(instruction2Req.request.body).toEqual(value.instructions[1]);
 
     const mealTypeReq = httpTesting.expectOne({
       url: `${domain}${recipe.meal_type}`,
-      method: 'PUT',
+      method: 'PATCH',
     });
     expect(mealTypeReq.request.body).toEqual({
       recipe: recipe.url,
@@ -414,7 +414,7 @@ describe('RecipesService', () => {
 
     const dietaryPreferenceReq = httpTesting.expectOne({
       url: `${domain}${recipe.dietary_preference}`,
-      method: 'PUT',
+      method: 'PATCH',
     });
     expect(dietaryPreferenceReq.request.body).toEqual({
       recipe: recipe.url,

@@ -546,26 +546,26 @@ describe('RecipecreateoreditComponent', () => {
       value
     );
 
-    expect(component.makerForm.get('title')?.value).toBeFalsy();
-    expect(component.makerForm.get('cookingTime')?.value).toEqual({
+    expect(component.makerForm.get('title')?.value).toBeTruthy();
+    expect(component.makerForm.get('cookingTime')?.value).not.toEqual({
       hours: 0,
       minutes: 0,
       seconds: 0,
     });
-    expect(component.makerForm.get('preparationTime')?.value).toEqual({
+    expect(component.makerForm.get('preparationTime')?.value).not.toEqual({
       hours: 0,
       minutes: 0,
       seconds: 0,
     });
-    expect(component.makerForm.get('dietaryPreference')?.value).toEqual({
+    expect(component.makerForm.get('dietaryPreference')?.value).not.toEqual({
       glutenfree: false,
       vegan: false,
     });
-    expect(component.makerForm.get('difficulty')?.value).toBe('easy');
-    expect(component.makerForm.get('image')?.value).toBe(null);
-    expect(component.makerForm.get('ingredients')?.value).toEqual([]);
-    expect(component.makerForm.get('instructions')?.value).toEqual([]);
-    expect(component.makerForm.get('mealType')?.value).toEqual({
+    expect(component.makerForm.get('difficulty')?.value).not.toBe('easy');
+    expect(component.makerForm.get('image')?.value).not.toBe(null);
+    expect(component.makerForm.get('ingredients')?.value).not.toEqual([]);
+    expect(component.makerForm.get('instructions')?.value).not.toEqual([]);
+    expect(component.makerForm.get('mealType')?.value).not.toEqual({
       breakfast: false,
       brunch: false,
       lunch: false,

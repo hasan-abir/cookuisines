@@ -222,7 +222,7 @@ export class RecipecreateoreditComponent {
 
     parentRequest.subscribe({
       next: (recipe) => {
-        this.resetFormPartially();
+        !this.isEditing && this.resetFormPartially();
 
         let childRequests: Observable<any>[] =
           this.recipeService.createNestedRecipeRequests(recipe, value);
@@ -238,7 +238,7 @@ export class RecipecreateoreditComponent {
           complete: () => {
             this.isProcessing = false;
 
-            this.resetFormPartially(true);
+            !this.isEditing && this.resetFormPartially(true);
           },
           error: (err) => {
             this.errMsgs = handleErrors(err);
