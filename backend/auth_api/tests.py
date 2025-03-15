@@ -137,7 +137,6 @@ class TokenViewTestCase(TestCase):
 
     def test_token_refresh_without_cookie(self):
         self.api_client.cookies.clear()
-        print(self.api_client.cookies)
         response = self.api_client.post('/api-token-refresh/')
 
         self.assertEqual(response.status_code, 400)

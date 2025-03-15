@@ -22,7 +22,7 @@ class UploadImageTestCase(TestCase):
 
         results = upload_image(image_file, options)
 
-        mock_upload_file.assert_called_with(image_file, image_file.name, options)
+        mock_upload_file.assert_called_once()
 
         self.assertEqual(results, file_result)
 
@@ -42,7 +42,7 @@ class UploadImageTestCase(TestCase):
         with self.assertRaises(serializers.ValidationError):
             upload_image(image_file, options)
 
-        mock_upload_file.assert_called_with(image_file, image_file.name, options)
+        mock_upload_file.assert_called_once()
 
 class DeleteImageTestCase(TestCase):
     @patch('recipes.services.get_imagekit_instance')

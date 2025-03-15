@@ -1,14 +1,10 @@
-from django.shortcuts import render
-from rest_framework.viewsets import ModelViewSet, mixins, GenericViewSet
+from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions
-from rest_framework.reverse import reverse
-from rest_framework import status
 from recipes.permissions import IsRecipeOwnerOrReadOnly
-from recipes.models import Recipe, Ingredient, Instruction, MealType, DietaryPreference
-from recipes.serializers import RecipeSerializer, IngredientSerializer, InstructionSerializer, MealtypeSerializer, DietarypreferenceSerializer, BasicErrorSerializer, RecipeErrorsSerializer, IngredientErrorsSerializer, InstructionErrorsSerializer, MealtypeErrorsSerializer, MealtypeCreateErrorsSerializer, DietarypreferenceCreateErrorsSerializer, DietarypreferenceErrorsSerializer
+from recipes.models import Recipe 
+from recipes.serializers import RecipeSerializer, BasicErrorSerializer, RecipeErrorsSerializer
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
 from recipes.services import delete_image
-from django.http.request import QueryDict
 
 # Create your views here.
 class RecipeViewSet(ModelViewSet):
@@ -35,21 +31,21 @@ class RecipeViewSet(ModelViewSet):
             filter_params['difficulty__iexact'] = difficulty.casefold()
 
         if ingredient is not None:
-            filter_params['ingredients__name__icontains'] = ingredient.casefold()
+            filter_params['ingredient_list__icontains'] = ingredient.casefold()
 
         if breakfast is not None:
-            filter_params['meal_type__breakfast'] = True
+            filter_params['meal_types__icontains'] = 'breakfast'
         if brunch is not None:
-            filter_params['meal_type__brunch'] = True
+            filter_params['meal_types__icontains'] = 'brunch'
         if lunch is not None:
-            filter_params['meal_type__lunch'] = True
+            filter_params['meal_types__icontains'] = 'lunch'
         if dinner is not None:
-            filter_params['meal_type__dinner'] = True
+            filter_params['meal_types__icontains'] = 'dinner'
 
         if vegan is not None:
-            filter_params['dietary_preference__vegan'] = True
+            filter_params['dietary_preferences__icontains'] = 'vegan'
         if glutenfree is not None:
-            filter_params['dietary_preference__glutenfree'] = True
+            filter_params['dietary_preferences__icontains'] = 'glutenfree'
 
         if len(filter_params) > 0:
             return self.queryset.filter(**filter_params)
@@ -109,191 +105,3 @@ class RecipeViewSet(ModelViewSet):
         delete_image(file_id=instance.image_id)
 
         return super().perform_destroy(instance)
-    
-class IngredientViewSet(ModelViewSet):
-    queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
-
-    @extend_schema(
-        responses = {200: IngredientSerializer, 404: BasicErrorSerializer}
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-    @extend_schema(
-        responses = {201: IngredientSerializer, 400: IngredientErrorsSerializer, 401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def create(self, request, *args, **kwargs):
-        recipe_pk = self.kwargs['recipe_pk']
-
-        recipe_url = reverse('recipe-detail', args=[recipe_pk], request=request)
-
-        if isinstance(request.data, QueryDict):
-            request.data._mutable = True
-            
-        request.data.update({'recipe': recipe_url})
-
-        return super().create(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {200: IngredientSerializer, 400: IngredientErrorsSerializer, 404: BasicErrorSerializer, 
-        401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {200: IngredientSerializer, 400: IngredientErrorsSerializer, 404: BasicErrorSerializer, 
-        401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {204: OpenApiResponse(description='No response body.'), 404: BasicErrorSerializer, 
-        401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
-
-    def get_queryset(self):
-        recipe_pk = self.kwargs['recipe_pk']
-
-        return self.queryset.filter(recipe=recipe_pk)
-
-class InstructionViewSet(ModelViewSet):
-    queryset = Instruction.objects.all()
-    serializer_class = InstructionSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
-
-    @extend_schema(
-        responses = {200: InstructionSerializer, 404: BasicErrorSerializer}
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-    @extend_schema(
-        responses = {201: InstructionSerializer, 400: InstructionErrorsSerializer, 401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def create(self, request, *args, **kwargs):
-        recipe_pk = self.kwargs['recipe_pk']
-
-        recipe_url = reverse('recipe-detail', args=[recipe_pk], request=request)
-
-        if isinstance(request.data, QueryDict):
-            request.data._mutable = True
-        request.data.update({'recipe': recipe_url})
-
-        return super().create(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {200: InstructionSerializer, 400: InstructionErrorsSerializer, 404: BasicErrorSerializer, 
-        401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {200: InstructionSerializer, 400: InstructionErrorsSerializer, 404: BasicErrorSerializer, 
-        401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {204: OpenApiResponse(description='No response body.'), 404: BasicErrorSerializer, 
-        401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
-
-    def get_queryset(self):
-        recipe_pk = self.kwargs['recipe_pk']
-
-        return self.queryset.filter(recipe=recipe_pk)
-
-class MealtypeViewSet(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
-                   mixins.UpdateModelMixin,
-                   mixins.DestroyModelMixin,
-                   GenericViewSet):
-    queryset = MealType.objects.all()
-    serializer_class = MealtypeSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
-
-    @extend_schema(
-        responses = {200: MealtypeSerializer, 404: BasicErrorSerializer}
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {201: MealtypeSerializer, 400: MealtypeCreateErrorsSerializer, 401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {200: MealtypeSerializer, 400: MealtypeErrorsSerializer, 404: BasicErrorSerializer, 
-        401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {200: MealtypeSerializer, 400: MealtypeErrorsSerializer, 404: BasicErrorSerializer, 
-        401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {204: OpenApiResponse(description='No response body.'), 404: BasicErrorSerializer, 
-        401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
-
-class DietarypreferenceViewSet(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
-                   mixins.UpdateModelMixin,
-                   mixins.DestroyModelMixin,
-                   GenericViewSet):
-    queryset = DietaryPreference.objects.all()
-    serializer_class = DietarypreferenceSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
-
-    @extend_schema(
-        responses = {200: DietarypreferenceSerializer, 404: BasicErrorSerializer}
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {201: DietarypreferenceSerializer, 400: DietarypreferenceCreateErrorsSerializer, 401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {200: DietarypreferenceSerializer, 400: DietarypreferenceErrorsSerializer, 404: BasicErrorSerializer, 
-        401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {200: DietarypreferenceSerializer, 400: DietarypreferenceErrorsSerializer, 404: BasicErrorSerializer, 
-        401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-    
-    @extend_schema(
-        responses = {204: OpenApiResponse(description='No response body.'), 404: BasicErrorSerializer, 
-        401: BasicErrorSerializer, 403: BasicErrorSerializer}
-    )
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
-

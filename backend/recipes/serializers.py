@@ -1,31 +1,23 @@
 from rest_framework import serializers
-from recipes.models import Recipe, Ingredient, Instruction, DietaryPreference, MealType
-from django.contrib.auth.models import User
-from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+from recipes.models import Recipe, mealtype_choices, dietarypreference_choices
 from recipes.services import upload_image, delete_image
-from drf_spectacular.utils import extend_schema_serializer
 
 class RecipeSerializer(serializers.HyperlinkedModelSerializer):
+    title = serializers.CharField(trim_whitespace=True)
     preparation_time = serializers.DurationField(help_text='In hh:mm:ss format')
     cooking_time = serializers.DurationField(help_text='In hh:mm:ss format')
-    ingredients = serializers.HyperlinkedIdentityField(
-        view_name='recipeingredient-list',
-        lookup_url_kwarg='recipe_pk'
-    )
-    instructions = serializers.HyperlinkedIdentityField(
-        view_name='recipeinstruction-list',
-        lookup_url_kwarg='recipe_pk'
-    )
     image = serializers.ImageField(write_only=True, help_text='Upload a file')
-    image_id = serializers.CharField(read_only=True)
-    image_url = serializers.CharField(read_only=True)
-    meal_type = serializers.HyperlinkedIdentityField(view_name='recipemealtype-detail')
-    dietary_preference = serializers.HyperlinkedIdentityField(view_name='recipedietarypreference-detail')
+    meal_types = serializers.MultipleChoiceField(choices=mealtype_choices)
+    dietary_preferences = serializers.MultipleChoiceField(choices=dietarypreference_choices)
+    instruction_steps = serializers.CharField(trim_whitespace=True)
+    ingredient_list = serializers.CharField(trim_whitespace=True)
+    image_id = serializers.CharField(read_only=True, trim_whitespace=True)
+    image_url = serializers.CharField(read_only=True, trim_whitespace=True)
     created_by_username = serializers.ReadOnlyField(source='created_by.username')
 
     class Meta:
         model = Recipe
-        fields = ['url', 'title', 'preparation_time', 'cooking_time', 'difficulty', 'ingredients', 'instructions', 'meal_type', 'dietary_preference', 'created_by_username', 'image', 'image_id', 'image_url']
+        fields = ['url', 'title', 'preparation_time', 'meal_types', 'dietary_preferences', 'instruction_steps', 'ingredient_list', 'cooking_time', 'difficulty', 'created_by_username', 'image', 'image_id', 'image_url']
 
     def validate_image(self, value):
         max_mb = 2
@@ -47,6 +39,17 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
         else:
             raise serializers.ValidationError('Duration cannot be zero.')
         
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        
+        ret['meal_types'] = [dict(mealtype_choices).get(meal, meal) for meal in ret['meal_types']]
+        ret['dietary_preferences'] = [dict(dietarypreference_choices).get(preference, preference) for preference in ret['dietary_preferences']]
+
+        ret['ingredient_list'] = ret['ingredient_list'].split('\n')
+        ret['instruction_steps'] = ret['instruction_steps'].split('\n')
+
+        return ret
+        
     def save(self, **kwargs):
         # Upload the image to cloud
         if 'image' in self.validated_data or hasattr(self.validated_data, 'image'):
@@ -61,6 +64,7 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
                 self.validated_data['image_url'] = result.url
         
         return super().save(**kwargs)
+
     
 class RecipeErrorsSerializer(serializers.Serializer):
     title = serializers.ListField()
@@ -68,81 +72,8 @@ class RecipeErrorsSerializer(serializers.Serializer):
     cooking_time = serializers.ListField()
     difficulty = serializers.ListField()
     image = serializers.ListField()
-    
-@extend_schema_serializer(exclude_fields=['recipe'])
-class IngredientSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {
-		'recipe_pk': 'recipe__pk',
-	}
-
-    recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
-
-    class Meta:
-        model = Ingredient
-        fields = ['url', 'name', 'quantity', 'recipe']
-        extra_kwargs = {
-            'url': {'view_name': 'recipeingredient-detail'},
-        }
-
-class IngredientErrorsSerializer(serializers.Serializer):
-    name = serializers.ListField()
-    quantity = serializers.ListField()
-    recipe = serializers.ListField()
-
-@extend_schema_serializer(exclude_fields=['recipe'])
-class InstructionSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {
-		'recipe_pk': 'recipe__pk',
-	}
-
-    recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
-
-    class Meta:
-        model = Instruction
-        fields = ['url', 'step', 'recipe']
-        extra_kwargs = {
-            'url': {'view_name': 'recipeinstruction-detail'},
-        }
-
-class InstructionErrorsSerializer(serializers.Serializer):
-    step = serializers.ListField()
-    recipe = serializers.ListField()
-
-class MealtypeSerializer(serializers.HyperlinkedModelSerializer):
-    recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
-
-    class Meta:
-            model = MealType
-            fields = ['url', 'breakfast', 'brunch', 'lunch', 'dinner', 'recipe']
-            extra_kwargs = {
-                'url': {'view_name': 'recipemealtype-detail'},
-            }
-
-class MealtypeCreateErrorsSerializer(serializers.Serializer):
-    recipe = serializers.ListField() 
-
-class MealtypeErrorsSerializer(serializers.Serializer):
-    breakfast = serializers.ListField() 
-    brunch = serializers.ListField() 
-    lunch = serializers.ListField() 
-    dinner = serializers.ListField() 
-
-class DietarypreferenceSerializer(serializers.HyperlinkedModelSerializer):
-    recipe = serializers.HyperlinkedRelatedField(view_name='recipe-detail', queryset=Recipe.objects.all())
-
-    class Meta:
-            model = DietaryPreference
-            fields = ['url', 'vegan', 'glutenfree', 'recipe']
-            extra_kwargs = {
-                'url': {'view_name': 'recipedietarypreference-detail'},
-            }
-
-class DietarypreferenceCreateErrorsSerializer(serializers.Serializer):
-    recipe = serializers.ListField() 
-
-class DietarypreferenceErrorsSerializer(serializers.Serializer):
-    vegan = serializers.ListField() 
-    glutenfree = serializers.ListField() 
+    ingredient_list = serializers.ListField()
+    instruction_steps = serializers.ListField()
 
 class BasicErrorSerializer(serializers.Serializer):
     detail = serializers.CharField()

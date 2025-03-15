@@ -1,4 +1,4 @@
-from recipes.models import Recipe, MealType, DietaryPreference, Ingredient, Instruction
+from recipes.models import Recipe
 from unittest.mock import patch, MagicMock
 from rest_framework.serializers import ValidationError
 from django.contrib.auth.models import User
@@ -18,26 +18,19 @@ def generate_image(filename):
         return SimpleUploadedFile(image_io.name, image_io.read(), 
             content_type='image/jpeg')
 
-def get_demo_mealtype(recipe):
-    return MealType.objects.create(breakfast=True, brunch=True, recipe=recipe)
-def get_demo_dietarypreference(recipe):
-    return DietaryPreference.objects.create(vegan=True, recipe=recipe)
-
-def get_demo_ingredient(recipe):
-    return Ingredient.objects.create(recipe=recipe, name='Example Ingredient', quantity='2 spoons')
-
-def get_demo_instruction(recipe):
-    return Instruction.objects.create(recipe=recipe, step='Example Instruction')
-
 def get_demo_user(username = 'hasan_abir', password = 'testtest'):
     return User.objects.create_user(username=username, email='hasan_abir@test.com', password=password)
 
-def get_demo_recipe(user, title = 'Example Recipe', difficulty = 'Easy'):
+def get_demo_recipe(user, title = 'Example Recipe', difficulty = 'Easy', ingredient_list='Sugar 1tsp\nMilk 1tsp\nFlour 1tsp', meal_types=['breakfast', 'lunch'], dietary_preferences = ['vegan']):
     data = {
             'title': title,
             'preparation_time': timedelta(hours=0, minutes=1, seconds=30),
             'cooking_time': timedelta(hours=0, minutes=1, seconds=30),
             'difficulty': difficulty,
+            'meal_types': meal_types,
+            'dietary_preferences': dietary_preferences,
+            'instruction_steps': 'Bop it\nTwist it\nAnd I forgot the rest',
+            'ingredient_list': ingredient_list,
             'image_id': '123',
             'image_url': 'http://test.com/images/123',
             'created_by': user
