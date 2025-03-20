@@ -30,14 +30,14 @@
       <div class="columns mb-5">
         <div class="column is-half">
           <label class="label"
-            >For preparing<span class="has-text-danger">*</span></label
+            >To prepare<span class="has-text-danger">*</span></label
           >
 
           <app-durationpicker [form]="makerForm" [fgName]="'preparationTime'" />
         </div>
         <div class="column is-half">
           <label class="label"
-            >For cooking<span class="has-text-danger">*</span></label
+            >To cook<span class="has-text-danger">*</span></label
           >
           <app-durationpicker [form]="makerForm" [fgName]="'cookingTime'" />
         </div>
@@ -62,8 +62,7 @@
         [form]="makerForm"
         formArrName="ingredients"
         [fields]="[
-          { label: 'Name', name: 'name', type: 'text' },
-          { label: 'Quantity', name: 'quantity', type: 'text' }
+          { label: 'Name & Quantity', name: 'nameQuantity', type: 'text' }
         ]"
         requiredMsg="Ingredients are what makes the meal; you have to provide them"
       />

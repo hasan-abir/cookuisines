@@ -45,8 +45,8 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
         ret['meal_types'] = [dict(mealtype_choices).get(meal, meal) for meal in ret['meal_types']]
         ret['dietary_preferences'] = [dict(dietarypreference_choices).get(preference, preference) for preference in ret['dietary_preferences']]
 
-        ret['ingredient_list'] = ret['ingredient_list'].split('\n')
-        ret['instruction_steps'] = ret['instruction_steps'].split('\n')
+        ret['ingredient_list'] = ret['ingredient_list'].split('\r\n')
+        ret['instruction_steps'] = ret['instruction_steps'].split('\r\n')
 
         return ret
         

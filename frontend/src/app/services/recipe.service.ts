@@ -3,23 +3,29 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { MakerFormVal } from '../types/MakerForm';
 
+export type MealTypes = 'breakfast' | 'brunch' | 'lunch' | 'dinner';
+export type DietaryPreferences = 'vegan' | 'glutenfree';
+
 interface BaseRecipe {
   title: string;
   preparation_time: string;
   cooking_time: string;
   difficulty: 'easy' | 'medium' | 'hard';
+  meal_types: MealTypes[];
+  dietary_preferences: DietaryPreferences[];
+  ingredient_list: string;
+  instruction_steps: string;
 }
 
 export interface RecipeBody extends BaseRecipe {
   image: File;
 }
 
-export interface RecipeResponse extends BaseRecipe {
+export interface RecipeResponse
+  extends Omit<BaseRecipe, 'ingredient_list' | 'instruction_steps'> {
   url: string;
-  ingredients: string;
-  instructions: string;
-  meal_type: string;
-  dietary_preference: string;
+  ingredient_list: string[];
+  instruction_steps: string[];
   created_by_username: string;
   image_id: string;
   image_url: string;
@@ -34,8 +40,7 @@ export interface PaginatedRecipes {
 
 export interface IngredientBody {
   url?: string;
-  name: string;
-  quantity: string;
+  nameQuantity: string;
 }
 
 export interface IngredientResponse extends IngredientBody {
@@ -106,8 +111,15 @@ export class RecipeService {
 
     Object.keys(body).forEach((val) => {
       const key = val as keyof RecipeBody;
+      const value = body[key];
 
-      formData.append(key, body[key]);
+      if (Array.isArray(value)) {
+        value.forEach((item) => {
+          formData.append(key, item);
+        });
+      } else {
+        formData.append(key, value);
+      }
     });
 
     return this.http.post<RecipeResponse>('recipes/', formData, {
@@ -115,13 +127,23 @@ export class RecipeService {
     });
   }
 
-  edit_recipe(url: string, body: RecipeBody): Observable<RecipeResponse> {
+  edit_recipe(
+    url: string,
+    body: Partial<RecipeBody>
+  ): Observable<RecipeResponse> {
     const formData = new FormData();
 
     Object.keys(body).forEach((val) => {
       const key = val as keyof RecipeBody;
+      const value = body[key];
 
-      formData.append(key, body[key]);
+      if (Array.isArray(value)) {
+        value.forEach((item, i) => {
+          formData.append(key, item);
+        });
+      } else {
+        formData.append(key, value as string | File);
+      }
     });
 
     return this.http.patch<RecipeResponse>(url, formData, {
@@ -213,49 +235,5 @@ export class RecipeService {
     return this.http.patch<DietaryPreferenceResponse>(url, rest, {
       withCredentials: true,
     });
-  }
-
-  createNestedRecipeRequests(
-    recipe: RecipeResponse,
-    value: MakerFormVal
-  ): Observable<any>[] {
-    return [
-      ...value.ingredients.map((ingredient) =>
-        this.create_ingredient(recipe.ingredients, ingredient)
-      ),
-      ...value.instructions.map((instruction) =>
-        this.create_instruction(recipe.instructions, instruction)
-      ),
-      this.create_mealtype({
-        recipe: recipe.url,
-        ...value.mealType,
-      }),
-      this.create_dietarypreference({
-        recipe: recipe.url,
-        ...value.dietaryPreference,
-      }),
-    ];
-  }
-
-  editNestedRecipeRequests(
-    recipe: RecipeResponse,
-    value: MakerFormVal
-  ): Observable<any>[] {
-    return [
-      ...value.ingredients.map((ingredient) =>
-        ingredient.url ? this.edit_ingredient(ingredient) : of(undefined)
-      ),
-      ...value.instructions.map((instruction) =>
-        instruction.url ? this.edit_instruction(instruction) : of(undefined)
-      ),
-      this.edit_mealtype(recipe.meal_type, {
-        recipe: recipe.url,
-        ...value.mealType,
-      }),
-      this.edit_mealtype(recipe.dietary_preference, {
-        recipe: recipe.url,
-        ...value.dietaryPreference,
-      }),
-    ];
   }
 }

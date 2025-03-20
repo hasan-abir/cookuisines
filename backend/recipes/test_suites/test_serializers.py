@@ -57,8 +57,8 @@ class RecipeSerializerTestCase(TestCase):
             'cooking_time': timedelta(hours=0, minutes=3, seconds=2),
             'meal_types': ['dinner'],
             'dietary_preferences': ['glutenfree'],
-            'ingredient_list': 'Sugar 1tsp\nMilk 1tsp\nFlour 1tsp',
-            'instruction_steps': 'Bop it\nTwist it\nAnd I forgot the rest',
+            'ingredient_list': 'Sugar 1tsp\r\nMilk 1tsp\r\nFlour 1tsp',
+            'instruction_steps': 'Bop it\r\nTwist it\r\nAnd I forgot the rest',
             'difficulty': 'medium',
             'image': generate_image('cat_small.jpg')
         }
@@ -80,8 +80,8 @@ class RecipeSerializerTestCase(TestCase):
         self.assertEqual(serializer.data['image_url'], 'http://testserver/image/123')
         self.assertEqual(serializer.data['meal_types'], ['Dinner'])
         self.assertEqual(serializer.data['dietary_preferences'], ['Gluten free'])
-        self.assertEqual(serializer.data['ingredient_list'], data['ingredient_list'].split('\n'))
-        self.assertEqual(serializer.data['instruction_steps'], data['instruction_steps'].split('\n'))
+        self.assertEqual(serializer.data['ingredient_list'], data['ingredient_list'].split('\r\n'))
+        self.assertEqual(serializer.data['instruction_steps'], data['instruction_steps'].split('\r\n'))
         self.assertEqual(serializer.data['created_by_username'], self.user.username)
 
     @patch('recipes.serializers.upload_image')

@@ -67,3 +67,37 @@ export const populateFormArray = <T extends object>(
     formArr.push(formBuilder.group(control));
   });
 };
+
+export const compareTwoObjsExistingKeys = <T extends object, U extends object>(
+  obj1: T,
+  obj2: U
+): Partial<U> => {
+  const commonKeys = Object.keys(obj1).filter((key) => key in obj2) as Array<
+    keyof T & keyof U
+  >;
+
+  const extraKeysInObj2 = Object.keys(obj2).filter(
+    (key) => !(key in obj1)
+  ) as Array<keyof U>;
+
+  const result: Partial<U> = commonKeys.reduce((acc, key) => {
+    const equalVal = (obj1[key] as unknown) === (obj2[key] as unknown);
+
+    const equalArrays =
+      Array.isArray(obj1[key]) &&
+      Array.isArray(obj2[key]) &&
+      (obj1[key] as Array<string>).join() ===
+        (obj2[key] as Array<string>).join();
+
+    if (!equalVal && !equalArrays) {
+      acc[key] = obj2[key];
+    }
+    return acc;
+  }, {} as Partial<U>);
+
+  extraKeysInObj2.forEach((key) => {
+    result[key] = obj2[key];
+  });
+
+  return result;
+};

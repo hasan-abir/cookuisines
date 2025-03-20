@@ -1,12 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { durationStringToObj } from '../../../utils/time.utils';
 import { BasepageComponent } from '../../components/basepage/basepage.component';
 import { DietarypreferenceListComponent } from '../../components/dietarypreference-list/dietarypreference-list.component';
 import { IngredientListComponent } from '../../components/ingredient-list/ingredient-list.component';
 import { InstructionListComponent } from '../../components/instruction-list/instruction-list.component';
 import { MealtypeListComponent } from '../../components/mealtype-list/mealtype-list.component';
+import { RecipecreateoreditComponent } from '../../components/recipecreateoredit/recipecreateoredit.component';
+import { AuthService } from '../../services/auth.service';
 import {
   DietaryPreferenceResponse,
   IngredientResponse,
@@ -15,9 +17,6 @@ import {
   RecipeResponse,
   RecipeService,
 } from '../../services/recipe.service';
-import { AuthService } from '../../services/auth.service';
-import { RecipecreateoreditComponent } from '../../components/recipecreateoredit/recipecreateoredit.component';
-import { durationStringToObj } from '../../../utils/time.utils';
 
 export interface RecipeDetails {
   ingredients?: IngredientResponse[];
@@ -47,14 +46,11 @@ export class RecipeComponent {
   recipe: RecipeResponse | null = null;
   isProcessing = false;
   isEditing = false;
-  recipeDetails: RecipeDetails = {};
-  isRecipeFullyLoaded: boolean = false;
   user$ = this.authService.user$;
 
   constructor(
     private recipeService: RecipeService,
     private route: ActivatedRoute,
-    private cd: ChangeDetectorRef,
     private authService: AuthService
   ) {}
 
@@ -97,25 +93,6 @@ export class RecipeComponent {
         this.isProcessing = false;
       },
     });
-  }
-
-  setRecipeDetails<K extends keyof RecipeDetails>(
-    key: K,
-    val: RecipeDetails[K]
-  ) {
-    this.recipeDetails[key] = val;
-
-    const isFullyLoaded =
-      this.recipe !== null &&
-      this.recipeDetails.hasOwnProperty('ingredients') &&
-      this.recipeDetails.hasOwnProperty('instructions') &&
-      this.recipeDetails.hasOwnProperty('meal_type') &&
-      this.recipeDetails.hasOwnProperty('dietary_preference');
-
-    if (isFullyLoaded) {
-      this.isRecipeFullyLoaded = true;
-      this.cd.detectChanges();
-    }
   }
 
   toggleIsEditing() {

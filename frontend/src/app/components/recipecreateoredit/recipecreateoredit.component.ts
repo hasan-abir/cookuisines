@@ -11,21 +11,20 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { combineLatest, Observable } from 'rxjs';
 import { handleErrors } from '../../../utils/error.utils';
 import {
+  compareTwoObjsExistingKeys,
   createBooleanGroup,
   createFormControl,
   durationGroup,
-  populateFormArray,
   shortenObj,
 } from '../../../utils/form.utils';
 import { durationStringToObj } from '../../../utils/time.utils';
 import { FormselectfieldsComponent } from '../../formselectfields/formselectfields.component';
 import { RecipeDetails } from '../../pages/recipe/recipe.component';
 import {
-  IngredientResponse,
-  InstructionResponse,
+  DietaryPreferences,
+  MealTypes,
   RecipeBody,
   RecipeResponse,
   RecipeService,
@@ -65,8 +64,9 @@ export class RecipecreateoreditComponent {
   errMsgs: string[] = [];
   isProcessing = false;
   isEditing = false;
+  imageLastModified = 0;
 
-  @Input() fullRecipe: FullRecipe | null = null;
+  @Input() existingRecipe: RecipeResponse | null = null;
 
   makerForm: MakerForm = this.formBuilder.group({
     title: createFormControl('', [Validators.required]),
@@ -100,98 +100,115 @@ export class RecipecreateoreditComponent {
   }
 
   setExistingRecipeToForm() {
-    if (this.fullRecipe) {
-      const main = this.fullRecipe.main;
-      const details = this.fullRecipe.details;
+    if (this.existingRecipe) {
+      this.httpClient
+        .get(this.existingRecipe.image_url, { responseType: 'blob' })
+        .subscribe({
+          next: (val: Blob) => {
+            let filename = 'image.jpeg';
+            if (val.type == 'image/png') {
+              filename = 'image.png';
+            }
 
-      this.httpClient.get(main.image_url, { responseType: 'blob' }).subscribe({
-        next: (val: Blob) => {
-          console.log(123);
+            const lastModified = new Date().getTime();
+            this.makerForm.patchValue({
+              image: new File([val], filename, {
+                type: val.type,
+                lastModified,
+              }),
+            });
 
-          let filename = 'image.jpeg';
-          if (val.type == 'image/png') {
-            filename = 'image.png';
-          }
-
-          this.makerForm.patchValue({
-            image: new File([val], filename, {
-              type: val.type,
-              lastModified: new Date().getTime(),
-            }),
-          });
-        },
-      });
-
-      this.makerForm.patchValue({
-        title: main.title,
-        difficulty: main.difficulty,
-        preparationTime: durationStringToObj(main.preparation_time),
-        cookingTime: durationStringToObj(main.cooking_time),
-      });
-
-      if (
-        details.meal_type &&
-        details.dietary_preference &&
-        details.ingredients &&
-        details.instructions
-      ) {
-        this.makerForm.patchValue({
-          mealType: shortenObj(details.meal_type, [
-            'breakfast',
-            'brunch',
-            'lunch',
-            'dinner',
-          ]),
-          dietaryPreference: shortenObj(details.dietary_preference, [
-            'vegan',
-            'glutenfree',
-          ]),
+            this.imageLastModified = lastModified;
+          },
         });
 
-        populateFormArray<IngredientResponse>(
-          this.formBuilder,
-          this.makerForm.get('ingredients') as FormArray<FormGroup>,
-          details.ingredients,
-          ['url', 'name', 'quantity']
-        );
+      this.makerForm.patchValue({
+        title: this.existingRecipe.title,
+        difficulty: this.existingRecipe.difficulty,
+        preparationTime: durationStringToObj(
+          this.existingRecipe.preparation_time
+        ),
+        cookingTime: durationStringToObj(this.existingRecipe.cooking_time),
+      });
 
-        populateFormArray<InstructionResponse>(
-          this.formBuilder,
-          this.makerForm.get('instructions') as FormArray<FormGroup>,
-          details.instructions,
-          ['url', 'step']
+      const mealType = {
+        breakfast: false,
+        brunch: false,
+        lunch: false,
+        dinner: false,
+      };
+
+      this.existingRecipe.meal_types.forEach((meal_type) => {
+        if (this.makerForm.value.mealType) {
+          const key = meal_type.toLowerCase().replaceAll(' ', '') as MealTypes;
+
+          mealType[key] = true;
+        }
+      });
+
+      this.makerForm.get('mealType')?.patchValue(mealType);
+
+      const dietaryPreference = {
+        vegan: false,
+        glutenfree: false,
+      };
+
+      this.existingRecipe.dietary_preferences.forEach((dietary_preference) => {
+        if (this.makerForm.value.dietaryPreference) {
+          const key = dietary_preference
+            .toLowerCase()
+            .replaceAll(' ', '') as DietaryPreferences;
+
+          dietaryPreference[key] = true;
+        }
+      });
+
+      this.makerForm.get('dietaryPreference')?.patchValue(dietaryPreference);
+
+      this.existingRecipe.ingredient_list.forEach((ingredient) => {
+        (this.makerForm.get('ingredients') as FormArray<FormGroup>).push(
+          this.formBuilder.group({
+            nameQuantity: [ingredient, Validators.required],
+          })
         );
-      }
+      });
+
+      this.existingRecipe.instruction_steps.forEach((instruction) => {
+        (this.makerForm.get('instructions') as FormArray<FormGroup>).push(
+          this.formBuilder.group({
+            step: [instruction, Validators.required],
+          })
+        );
+      });
 
       this.isEditing = true;
     }
   }
 
-  resetFormPartially(nestedFields?: boolean) {
-    if (nestedFields) {
-      this.makerForm.get('mealType')?.reset({
-        breakfast: false,
-        brunch: false,
-        lunch: false,
-        dinner: false,
-      });
-      this.makerForm.get('dietaryPreference')?.reset({
-        vegan: false,
-        glutenfree: false,
-      });
-      (this.makerForm.get('ingredients') as FormArray)?.clear();
-      (this.makerForm.get('instructions') as FormArray)?.clear();
-    } else {
-      this.makerForm.get('title')?.reset();
-      this.makerForm.get('image')?.reset();
-      this.makerForm
-        .get('preparationTime')
-        ?.reset({ hours: 0, minutes: 0, seconds: 0 });
-      this.makerForm
-        .get('cookingTime')
-        ?.reset({ hours: 0, minutes: 0, seconds: 0 });
-      this.makerForm.get('difficulty')?.reset(this.difficulties[0]);
-    }
+  setFormToExistingRecipe() {}
+
+  resetForm() {
+    this.makerForm.get('mealType')?.reset({
+      breakfast: false,
+      brunch: false,
+      lunch: false,
+      dinner: false,
+    });
+    this.makerForm.get('dietaryPreference')?.reset({
+      vegan: false,
+      glutenfree: false,
+    });
+    (this.makerForm.get('ingredients') as FormArray)?.clear();
+    (this.makerForm.get('instructions') as FormArray)?.clear();
+    this.makerForm.get('title')?.reset();
+    this.makerForm.get('image')?.reset();
+    this.makerForm
+      .get('preparationTime')
+      ?.reset({ hours: 0, minutes: 0, seconds: 0 });
+    this.makerForm
+      .get('cookingTime')
+      ?.reset({ hours: 0, minutes: 0, seconds: 0 });
+    this.makerForm.get('difficulty')?.reset(this.difficulties[0]);
   }
 
   formatDuration(duration: Duration) {
@@ -203,49 +220,71 @@ export class RecipecreateoreditComponent {
   createOrEditFullRecipe() {
     const value = this.makerForm.value as MakerFormVal;
 
-    const recipeBody: RecipeBody = {
+    let recipeBody: Partial<RecipeBody> = {
       title: value.title,
       cooking_time: this.formatDuration(value.cookingTime),
       preparation_time: this.formatDuration(value.preparationTime),
       difficulty: value.difficulty,
       image: value.image,
+      meal_types: Object.entries(value.mealType)
+        .filter(([k, v]) => v)
+        .map(([k, v]) => k) as MealTypes[],
+      dietary_preferences: Object.entries(value.dietaryPreference)
+        .filter(([k, v]) => v)
+        .map(([k, v]) => k) as DietaryPreferences[],
+      ingredient_list: value.ingredients
+        .map((ingredient) => ingredient.nameQuantity.trim())
+        .join('\r\n'),
+      instruction_steps: value.instructions
+        .map((instruction) => instruction.step.trim())
+        .join('\n'),
     };
 
-    let parentRequest = this.recipeService.create_recipe(recipeBody);
+    console.log(recipeBody.instruction_steps);
 
-    if (this.isEditing && this.fullRecipe) {
-      parentRequest = this.recipeService.edit_recipe(
-        this.fullRecipe.main.url,
+    let recipeRequest = this.recipeService.create_recipe(
+      recipeBody as RecipeBody
+    );
+
+    if (this.isEditing && this.existingRecipe) {
+      const recipeSaved: Partial<RecipeBody> = {
+        ...shortenObj(this.existingRecipe, [
+          'title',
+          'cooking_time',
+          'preparation_time',
+          'difficulty',
+        ]),
+        ingredient_list: this.existingRecipe.ingredient_list.join('\n'),
+        instruction_steps: this.existingRecipe.instruction_steps.join('\n'),
+        meal_types: this.existingRecipe.meal_types.map((mealtype) =>
+          mealtype.toLowerCase().replaceAll(' ', '')
+        ) as MealTypes[],
+        dietary_preferences: this.existingRecipe.dietary_preferences.map(
+          (dietarypreference) =>
+            dietarypreference.toLowerCase().replaceAll(' ', '')
+        ) as DietaryPreferences[],
+      };
+
+      if (
+        recipeBody.image &&
+        recipeBody.image.lastModified === this.imageLastModified
+      ) {
+        delete recipeBody.image;
+      }
+
+      recipeBody = compareTwoObjsExistingKeys(recipeSaved, recipeBody);
+
+      recipeRequest = this.recipeService.edit_recipe(
+        this.existingRecipe.url,
         recipeBody
       );
     }
 
-    parentRequest.subscribe({
+    recipeRequest.subscribe({
       next: (recipe) => {
-        !this.isEditing && this.resetFormPartially();
+        this.isProcessing = false;
 
-        let childRequests: Observable<any>[] =
-          this.recipeService.createNestedRecipeRequests(recipe, value);
-
-        if (this.isEditing) {
-          childRequests = this.recipeService.editNestedRecipeRequests(
-            recipe,
-            value
-          );
-        }
-
-        combineLatest(childRequests).subscribe({
-          complete: () => {
-            this.isProcessing = false;
-
-            !this.isEditing && this.resetFormPartially(true);
-          },
-          error: (err) => {
-            this.errMsgs = handleErrors(err);
-
-            this.isProcessing = false;
-          },
-        });
+        !this.isEditing && this.resetForm();
       },
       error: (err) => {
         this.errMsgs = handleErrors(err);
