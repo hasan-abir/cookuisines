@@ -181,9 +181,9 @@ describe('SignupComponent', () => {
 
     const msgs = compiled.querySelectorAll('.message-body');
 
-    expect(msgs[0]?.textContent?.trim()).toBe(usernameErr);
-    expect(msgs[1]?.textContent?.trim()).toBe(emailErr);
-    expect(msgs[2]?.textContent?.trim()).toBe(passwordErr);
+    expect(msgs[0]?.textContent?.trim()).toBe(usernameErr + ' - USERNAME');
+    expect(msgs[1]?.textContent?.trim()).toBe(emailErr + ' - EMAIL');
+    expect(msgs[2]?.textContent?.trim()).toBe(passwordErr + ' - PASSWORD');
   }));
 
   it('should signup and show login error', fakeAsync(() => {
@@ -245,6 +245,6 @@ describe('SignupComponent', () => {
 
     const msgs = compiled.querySelectorAll('.message-body');
 
-    expect(msgs[0]?.textContent?.trim()).toBe(errMsg);
+    expect(msgs[0]?.textContent?.trim()).toBe(errMsg + ' - DETAIL');
   }));
 });

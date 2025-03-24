@@ -1,12 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 import { durationStringToObj } from '../../../utils/time.utils';
 import { BasepageComponent } from '../../components/basepage/basepage.component';
-import { DietarypreferenceListComponent } from '../../components/dietarypreference-list/dietarypreference-list.component';
-import { IngredientListComponent } from '../../components/ingredient-list/ingredient-list.component';
-import { InstructionListComponent } from '../../components/instruction-list/instruction-list.component';
-import { MealtypeListComponent } from '../../components/mealtype-list/mealtype-list.component';
 import { RecipecreateoreditComponent } from '../../components/recipecreateoredit/recipecreateoredit.component';
 import { AuthService } from '../../services/auth.service';
 import {
@@ -32,10 +28,6 @@ export interface RecipeDetails {
     RouterLink,
     RouterLinkActive,
     CommonModule,
-    MealtypeListComponent,
-    DietarypreferenceListComponent,
-    IngredientListComponent,
-    InstructionListComponent,
     BasepageComponent,
     RecipecreateoreditComponent,
   ],

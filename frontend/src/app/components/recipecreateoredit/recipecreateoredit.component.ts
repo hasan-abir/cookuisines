@@ -237,10 +237,8 @@ export class RecipecreateoreditComponent {
         .join('\r\n'),
       instruction_steps: value.instructions
         .map((instruction) => instruction.step.trim())
-        .join('\n'),
+        .join('\r\n'),
     };
-
-    console.log(recipeBody.instruction_steps);
 
     let recipeRequest = this.recipeService.create_recipe(
       recipeBody as RecipeBody

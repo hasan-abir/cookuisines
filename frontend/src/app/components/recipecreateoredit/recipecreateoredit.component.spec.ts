@@ -10,14 +10,22 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { Observable, timer } from 'rxjs';
+import { createFormControl, shortenObj } from '../../../utils/form.utils';
+import { durationStringToObj } from '../../../utils/time.utils';
 import { globalAPIInterceptor } from '../../interceptors/global_api.interceptor';
 import {
   DietaryPreferenceResponse,
-  IngredientResponse,
-  InstructionResponse,
+  DietaryPreferences,
   MealTypeResponse,
+  MealTypes,
   RecipeResponse,
   RecipeService,
 } from '../../services/recipe.service';
@@ -26,62 +34,33 @@ import {
   FullRecipe,
   RecipecreateoreditComponent,
 } from './recipecreateoredit.component';
-import { durationStringToObj } from '../../../utils/time.utils';
-import { shortenObj } from '../../../utils/form.utils';
 
-const getDemoRecipe = (id = 123): RecipeResponse => {
+const getDemoRecipe = (id = 123, title = 'New recipe'): RecipeResponse => {
   return {
     url: `https://testserver/recipes/${id}/`,
-    title: 'New recipe',
+    title,
     preparation_time: '00:01:40',
     cooking_time: '01:30:00',
     difficulty: 'easy',
-    ingredients: 'https://testserver/recipes/123/ingredients/',
-    instructions: 'https://testserver/recipes/123/instructions/',
-    meal_type: 'https://testserver/recipes/mealtypes/123/',
-    dietary_preference: 'https://testserver/recipes/dietarypreferences/123/',
+    ingredient_list: [
+      'First ingredient',
+      'Second ingredient',
+      'Third ingredient',
+    ],
+    instruction_steps: ['First step', 'Second step', 'Third step'],
+    meal_types: ['Breakfast'],
+    dietary_preferences: ['Gluten free'],
     created_by_username: 'hasan_abir',
     image_id: '456',
     image_url: 'https://testserver/images/123',
   };
 };
 
-const getDemoIngredient = (id = 123): IngredientResponse => {
-  return {
-    url: `https://testserver/recipes/123/ingredients/${id}/`,
-    name: 'Yo dot',
-    quantity: 'I got you',
-  };
-};
+const getDemoMakerForm = () => {
+  const formBuilder = new FormBuilder();
+  const ingredients = ['Yo dot', 'I got you'];
+  const instructions = ['Ima do my shtuff', 'Say what drake?'];
 
-const getDemoInstruction = (id = 123): InstructionResponse => {
-  return {
-    url: `https://testserver/recipes/123/instructions/${id}/`,
-    step: 'Yo dot',
-  };
-};
-
-const getDemoMealtype = (id = 123): MealTypeResponse => {
-  return {
-    url: `https://testserver/recipes/mealtypes/${id}/`,
-    recipe: `https://testserver/recipes/${id}/`,
-    breakfast: true,
-    brunch: false,
-    lunch: false,
-    dinner: false,
-  };
-};
-
-const getDemoDietaryPreference = (id = 123): DietaryPreferenceResponse => {
-  return {
-    url: `https://testserver/recipes/mealtypes/${id}/`,
-    recipe: `https://testserver/recipes/${id}/`,
-    vegan: true,
-    glutenfree: false,
-  };
-};
-
-const getDemoMakerForm = (): MakerFormVal => {
   return {
     title: 'Yo dot',
     cookingTime: { hours: 0, minutes: 1, seconds: 0 },
@@ -89,8 +68,12 @@ const getDemoMakerForm = (): MakerFormVal => {
     dietaryPreference: { glutenfree: false, vegan: true },
     difficulty: 'hard',
     image: new File([''], 'test-image.png', { type: 'image/png' }),
-    ingredients: [],
-    instructions: [],
+    ingredients: ingredients.map((item) =>
+      formBuilder.group({ nameQuantity: createFormControl(item) })
+    ),
+    instructions: instructions.map((item) =>
+      formBuilder.group({ step: createFormControl(item) })
+    ),
     mealType: {
       breakfast: true,
       brunch: false,
@@ -186,31 +169,22 @@ describe('RecipecreateoreditComponent', () => {
 
     recipeServiceSpy.create_recipe.and.returnValue(
       new Observable((subscriber) => {
-        subscriber.next(recipeResponse);
-      })
-    );
-
-    recipeServiceSpy.createNestedRecipeRequests.and.returnValue([
-      new Observable((subscriber) => {
         timer(2000).subscribe(() => {
-          subscriber.complete();
+          subscriber.next(recipeResponse);
         });
-      }),
-    ]);
+      })
+    );
 
-    component.makerForm.setValue(getDemoMakerForm());
-    (component.makerForm.get('ingredients') as FormArray).push(
-      new FormGroup({
-        name: new FormControl('Yo dot'),
-        quantity: new FormControl('I got you'),
-      })
-    );
-    (component.makerForm.get('instructions') as FormArray).push(
-      new FormGroup({
-        step: new FormControl('Imma do my shtuff'),
-      })
-    );
-    fixture.detectChanges();
+    const { ingredients, instructions, ...demoMakerForm } = getDemoMakerForm();
+
+    component.makerForm.patchValue(demoMakerForm);
+
+    ingredients.forEach((ingredient) => {
+      (component.makerForm.get('ingredients') as FormArray)?.push(ingredient);
+    });
+    instructions.forEach((instruction) => {
+      (component.makerForm.get('instructions') as FormArray)?.push(instruction);
+    });
 
     const value = component.makerForm.value as MakerFormVal;
 
@@ -230,17 +204,28 @@ describe('RecipecreateoreditComponent', () => {
     expect(submitBtn.disabled).toBe(false);
     expect(submitBtn.classList).not.toContain('is-loading');
 
-    expect(recipeServiceSpy.create_recipe).toHaveBeenCalledWith({
+    const expectedRecipeBody = {
       title: value.title,
-      preparation_time: component.formatDuration(value.preparationTime),
-      cooking_time: component.formatDuration(value.cookingTime),
       difficulty: value.difficulty,
       image: value.image,
-    });
+      preparation_time: component.formatDuration(value.preparationTime),
+      cooking_time: component.formatDuration(value.cookingTime),
+      ingredient_list: value.ingredients
+        .map((ingredient) => ingredient.nameQuantity.trim())
+        .join('\r\n'),
+      instruction_steps: value.instructions
+        .map((instruction) => instruction.step.trim())
+        .join('\r\n'),
+      meal_types: Object.entries(value.mealType)
+        .filter(([k, v]) => v)
+        .map(([k, v]) => k) as MealTypes[],
+      dietary_preferences: Object.entries(value.dietaryPreference)
+        .filter(([k, v]) => v)
+        .map(([k, v]) => k) as DietaryPreferences[],
+    };
 
-    expect(recipeServiceSpy.createNestedRecipeRequests).toHaveBeenCalledWith(
-      recipeResponse,
-      value
+    expect(recipeServiceSpy.create_recipe).toHaveBeenCalledWith(
+      expectedRecipeBody
     );
 
     expect(component.makerForm.get('title')?.value).toBeFalsy();
@@ -281,25 +266,16 @@ describe('RecipecreateoreditComponent', () => {
       })
     );
 
-    recipeServiceSpy.createNestedRecipeRequests.and.returnValue([
-      new Observable((subscriber) => {
-        subscriber.complete();
-      }),
-    ]);
+    const { ingredients, instructions, ...demoMakerForm } = getDemoMakerForm();
 
-    component.makerForm.setValue(getDemoMakerForm());
-    (component.makerForm.get('ingredients') as FormArray).push(
-      new FormGroup({
-        name: new FormControl('Yo dot'),
-        quantity: new FormControl('I got you'),
-      })
-    );
-    (component.makerForm.get('instructions') as FormArray).push(
-      new FormGroup({
-        step: new FormControl('Imma do my shtuff'),
-      })
-    );
-    fixture.detectChanges();
+    component.makerForm.patchValue(demoMakerForm);
+
+    ingredients.forEach((ingredient) => {
+      (component.makerForm.get('ingredients') as FormArray)?.push(ingredient);
+    });
+    instructions.forEach((instruction) => {
+      (component.makerForm.get('instructions') as FormArray)?.push(instruction);
+    });
 
     const submitBtn = compiled.querySelector(
       "button[type='submit']"
@@ -319,71 +295,11 @@ describe('RecipecreateoreditComponent', () => {
 
     expect(recipeServiceSpy.create_recipe).toHaveBeenCalled();
 
-    expect(recipeServiceSpy.createNestedRecipeRequests).not.toHaveBeenCalled();
-
     const msgs = compiled.querySelectorAll('.message-body');
 
-    expect(msgs[0]?.textContent?.trim()).toBe(recipeError.detail);
+    expect(msgs[0]?.textContent?.trim()).toBe(recipeError.detail + ' - DETAIL');
   }));
 
-  it('should display the recipe nested error', fakeAsync(() => {
-    const recipeResponse: RecipeResponse = getDemoRecipe();
-    const ingredientError = { detail: 'Ingredient error' };
-
-    recipeServiceSpy.create_recipe.and.returnValue(
-      new Observable((subscriber) => {
-        subscriber.next(recipeResponse);
-      })
-    );
-
-    recipeServiceSpy.createNestedRecipeRequests.and.returnValue([
-      new Observable((subscriber) => {
-        timer(2000).subscribe(() => {
-          subscriber.error({
-            error: ingredientError,
-          });
-        });
-      }),
-    ]);
-
-    component.makerForm.setValue(getDemoMakerForm());
-    (component.makerForm.get('ingredients') as FormArray).push(
-      new FormGroup({
-        name: new FormControl('Yo dot'),
-        quantity: new FormControl('I got you'),
-      })
-    );
-    (component.makerForm.get('instructions') as FormArray).push(
-      new FormGroup({
-        step: new FormControl('Imma do my shtuff'),
-      })
-    );
-    fixture.detectChanges();
-
-    const submitBtn = compiled.querySelector(
-      "button[type='submit']"
-    ) as HTMLButtonElement;
-    submitBtn.click();
-    fixture.detectChanges();
-
-    expect(submitBtn.disabled).toBe(true);
-    expect(submitBtn.classList).toContain('is-loading');
-
-    tick(2000);
-
-    fixture.detectChanges();
-
-    expect(submitBtn.disabled).toBe(false);
-    expect(submitBtn.classList).not.toContain('is-loading');
-
-    expect(recipeServiceSpy.create_recipe).toHaveBeenCalled();
-
-    expect(recipeServiceSpy.createNestedRecipeRequests).toHaveBeenCalled();
-
-    const msgs = compiled.querySelectorAll('.message-body');
-
-    expect(msgs[0]?.textContent?.trim()).toBe(ingredientError.detail);
-  }));
   it('should display title err', () => {
     const errEl = compiled.querySelector('.help');
 
@@ -414,103 +330,100 @@ describe('RecipecreateoreditComponent', () => {
       },
     });
 
-    const fullRecipe: FullRecipe = {
-      main: getDemoRecipe(),
-      details: {
-        ingredients: [getDemoIngredient()],
-        instructions: [getDemoInstruction()],
-        meal_type: getDemoMealtype(),
-        dietary_preference: getDemoDietaryPreference(),
-      },
-    };
+    const existingRecipe = getDemoRecipe();
 
-    component.fullRecipe = fullRecipe;
+    component.existingRecipe = existingRecipe;
     fixture.detectChanges();
 
     component.setExistingRecipeToForm();
     fixture.detectChanges();
 
-    const imageReq = httpTesting.expectOne(fullRecipe.main.image_url);
+    const imageReq = httpTesting.expectOne(existingRecipe.image_url);
     imageReq.flush(new Blob());
 
-    expect(component.makerForm.value['title']).toBe(fullRecipe.main.title);
+    expect(component.makerForm.value['title']).toBe(existingRecipe.title);
     expect(component.makerForm.value['difficulty']).toBe(
-      fullRecipe.main.difficulty
+      existingRecipe.difficulty
     );
     expect(component.makerForm.value['image'] instanceof File).toBeTrue();
     expect(component.makerForm.value['preparationTime']).toEqual(
-      durationStringToObj(fullRecipe.main.preparation_time)
+      durationStringToObj(existingRecipe.preparation_time)
     );
     expect(component.makerForm.value['cookingTime']).toEqual(
-      durationStringToObj(fullRecipe.main.cooking_time)
+      durationStringToObj(existingRecipe.cooking_time)
     );
     expect(component.makerForm.value['ingredients']).toEqual(
-      fullRecipe.details.ingredients
+      existingRecipe.ingredient_list.map((ingredient) => ({
+        nameQuantity: ingredient,
+      }))
     );
     expect(component.makerForm.value['instructions']).toEqual(
-      fullRecipe.details.instructions
+      existingRecipe.instruction_steps.map((instruction) => ({
+        step: instruction,
+      }))
     );
-    expect(component.makerForm.value['mealType']).toEqual(
-      shortenObj(fullRecipe.details.meal_type as MealTypeResponse, [
-        'breakfast',
-        'brunch',
-        'lunch',
-        'dinner',
-      ])
-    );
-    expect(component.makerForm.value['dietaryPreference']).toEqual(
-      shortenObj(
-        fullRecipe.details.dietary_preference as DietaryPreferenceResponse,
-        ['vegan', 'glutenfree']
+    const expectedMealTypes = {
+      breakfast: false,
+      brunch: false,
+      lunch: false,
+      dinner: false,
+    };
+
+    existingRecipe.meal_types
+      .map((mealtype) => mealtype.toLowerCase() as MealTypes)
+      .forEach((mealtype) => {
+        expectedMealTypes[mealtype] = true;
+      });
+
+    expect(component.makerForm.value['mealType']).toEqual(expectedMealTypes);
+    const expectedDietaryPreferences = {
+      vegan: false,
+      glutenfree: false,
+    };
+
+    existingRecipe.dietary_preferences
+      .map(
+        (dietaryPreference) =>
+          dietaryPreference
+            .toLowerCase()
+            .replaceAll(' ', '') as DietaryPreferences
       )
+      .forEach((dietaryPreference) => {
+        expectedDietaryPreferences[dietaryPreference] = true;
+      });
+    expect(component.makerForm.value['dietaryPreference']).toEqual(
+      expectedDietaryPreferences
     );
 
     expect(component.isEditing).toBe(true);
   });
   it('should call edit on form submission', fakeAsync(() => {
-    const fullRecipe: FullRecipe = {
-      main: getDemoRecipe(),
-      details: {
-        ingredients: [getDemoIngredient()],
-        instructions: [getDemoInstruction()],
-        meal_type: getDemoMealtype(),
-        dietary_preference: getDemoDietaryPreference(),
-      },
-    };
+    const existingRecipe = getDemoRecipe();
 
-    component.fullRecipe = fullRecipe;
+    component.existingRecipe = existingRecipe;
     component.isEditing = true;
     fixture.detectChanges();
 
-    const recipeResponse: RecipeResponse = getDemoRecipe();
+    const recipeResponse: RecipeResponse = getDemoRecipe(123, 'Edited recipe');
 
     recipeServiceSpy.edit_recipe.and.returnValue(
       new Observable((subscriber) => {
-        subscriber.next(recipeResponse);
-      })
-    );
-
-    recipeServiceSpy.editNestedRecipeRequests.and.returnValue([
-      new Observable((subscriber) => {
         timer(2000).subscribe(() => {
-          subscriber.complete();
+          subscriber.next(recipeResponse);
         });
-      }),
-    ]);
+      })
+    );
 
-    component.makerForm.setValue(getDemoMakerForm());
-    (component.makerForm.get('ingredients') as FormArray).push(
-      new FormGroup({
-        name: new FormControl('Yo dot'),
-        quantity: new FormControl('I got you'),
-      })
-    );
-    (component.makerForm.get('instructions') as FormArray).push(
-      new FormGroup({
-        step: new FormControl('Imma do my shtuff'),
-      })
-    );
-    fixture.detectChanges();
+    const { ingredients, instructions, ...demoMakerForm } = getDemoMakerForm();
+
+    component.makerForm.patchValue(demoMakerForm);
+
+    ingredients.forEach((ingredient) => {
+      (component.makerForm.get('ingredients') as FormArray)?.push(ingredient);
+    });
+    instructions.forEach((instruction) => {
+      (component.makerForm.get('instructions') as FormArray)?.push(instruction);
+    });
 
     const value = component.makerForm.value as MakerFormVal;
 
@@ -530,20 +443,25 @@ describe('RecipecreateoreditComponent', () => {
     expect(submitBtn.disabled).toBe(false);
     expect(submitBtn.classList).not.toContain('is-loading');
 
+    const expectedRecipeBody = {
+      title: value.title,
+      difficulty: value.difficulty,
+      image: value.image,
+      preparation_time: component.formatDuration(value.preparationTime),
+      cooking_time: component.formatDuration(value.cookingTime),
+      ingredient_list: value.ingredients
+        .map((ingredient) => ingredient.nameQuantity.trim())
+        .join('\r\n'),
+      instruction_steps: value.instructions
+        .map((instruction) => instruction.step.trim())
+        .join('\r\n'),
+      dietary_preferences: Object.entries(value.dietaryPreference)
+        .filter(([k, v]) => v)
+        .map(([k, v]) => k) as DietaryPreferences[],
+    };
     expect(recipeServiceSpy.edit_recipe).toHaveBeenCalledWith(
       recipeResponse.url,
-      {
-        title: value.title,
-        preparation_time: component.formatDuration(value.preparationTime),
-        cooking_time: component.formatDuration(value.cookingTime),
-        difficulty: value.difficulty,
-        image: value.image,
-      }
-    );
-
-    expect(recipeServiceSpy.editNestedRecipeRequests).toHaveBeenCalledWith(
-      recipeResponse,
-      value
+      expectedRecipeBody
     );
 
     expect(component.makerForm.get('title')?.value).toBeTruthy();

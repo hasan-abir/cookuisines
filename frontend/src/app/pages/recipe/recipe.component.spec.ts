@@ -9,12 +9,8 @@ import { Component, Input } from '@angular/core';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { routes } from '../../app.routes';
-import { MealtypeListComponent } from '../../components/mealtype-list/mealtype-list.component';
 import { RecipeResponse, RecipeService } from '../../services/recipe.service';
 import { RecipeComponent } from './recipe.component';
-import { DietarypreferenceListComponent } from '../../components/dietarypreference-list/dietarypreference-list.component';
-import { IngredientListComponent } from '../../components/ingredient-list/ingredient-list.component';
-import { InstructionListComponent } from '../../components/instruction-list/instruction-list.component';
 import { AuthService, UserResponse } from '../../services/auth.service';
 
 @Component({
@@ -23,36 +19,6 @@ import { AuthService, UserResponse } from '../../services/auth.service';
   standalone: true,
 })
 class MockMealtypeListComponent {
-  @Input() loadedRecipe = {};
-  @Input() url = '';
-}
-
-@Component({
-  selector: 'app-dietarypreference-list',
-  template: '',
-  standalone: true,
-})
-class MockDietarypreferenceListComponent {
-  @Input() loadedRecipe = {};
-  @Input() url = '';
-}
-
-@Component({
-  selector: 'app-ingredient-list',
-  template: '',
-  standalone: true,
-})
-class MockIngredientListComponent {
-  @Input() loadedRecipe = {};
-  @Input() url = '';
-}
-
-@Component({
-  selector: 'app-instruction-list',
-  template: '',
-  standalone: true,
-})
-class MockInstructionListComponent {
   @Input() loadedRecipe = {};
   @Input() url = '';
 }
@@ -78,26 +44,7 @@ describe('RecipeComponent', () => {
         { provide: RecipeService, useValue: recipeSpy },
         { provide: AuthService, useValue: authenticatedSpy },
       ],
-    })
-      .overrideComponent(RecipeComponent, {
-        remove: {
-          imports: [
-            MealtypeListComponent,
-            DietarypreferenceListComponent,
-            IngredientListComponent,
-            InstructionListComponent,
-          ],
-        },
-        add: {
-          imports: [
-            MockMealtypeListComponent,
-            MockDietarypreferenceListComponent,
-            MockIngredientListComponent,
-            MockInstructionListComponent,
-          ],
-        },
-      })
-      .compileComponents();
+    }).compileComponents();
 
     route = TestBed.inject(ActivatedRoute);
     route.snapshot.params = { id: '1' };
@@ -116,12 +63,16 @@ describe('RecipeComponent', () => {
             title: 'Recipe 1',
             created_by_username: 'hasan_abir',
             difficulty: 'hard',
-            dietary_preference: 'dietarypreference_url',
-            meal_type: 'mealtype_url',
+            dietary_preferences: ['Gluten free'],
+            meal_types: ['Breakfast', 'Brunch'],
             image_id: 'image_id',
             image_url: 'image_url',
-            ingredients: 'ingredients_url',
-            instructions: 'instructions_url',
+            ingredient_list: [
+              'First ingredient',
+              'Second ingredient',
+              'Third ingredient',
+            ],
+            instruction_steps: ['First step', 'Second step', 'Third step'],
           });
         });
       })
@@ -145,12 +96,16 @@ describe('RecipeComponent', () => {
       title: 'Recipe 1',
       created_by_username: 'hasan_abir',
       difficulty: 'hard',
-      dietary_preference: 'dietarypreference_url',
-      meal_type: 'mealtype_url',
+      dietary_preferences: ['Gluten free'],
+      meal_types: ['Breakfast', 'Brunch'],
       image_id: 'image_id',
       image_url: 'image_url',
-      ingredients: 'ingredients_url',
-      instructions: 'instructions_url',
+      ingredient_list: [
+        'First ingredient',
+        'Second ingredient',
+        'Third ingredient',
+      ],
+      instruction_steps: ['First step', 'Second step', 'Third step'],
     };
 
     recipeServiceSpy.get_recipe.and.returnValue(
@@ -198,29 +153,17 @@ describe('RecipeComponent', () => {
       title: 'Recipe 1',
       created_by_username: 'hasan_abir',
       difficulty: 'hard',
-      dietary_preference: 'dietarypreference_url',
-      meal_type: 'mealtype_url',
+      dietary_preferences: ['Gluten free'],
+      meal_types: ['Breakfast', 'Brunch'],
       image_id: 'image_id',
       image_url: 'image_url',
-      ingredients: 'ingredients_url',
-      instructions: 'instructions_url',
+      ingredient_list: [
+        'First ingredient',
+        'Second ingredient',
+        'Third ingredient',
+      ],
+      instruction_steps: ['First step', 'Second step', 'Third step'],
     };
-    component.setRecipeDetails('ingredients', []);
-    component.setRecipeDetails('instructions', []);
-    component.setRecipeDetails('meal_type', {
-      url: 'http://testserver/meal_type/1/',
-      recipe: 'http://testserver/recipes/1/',
-      breakfast: false,
-      brunch: false,
-      lunch: false,
-      dinner: false,
-    });
-    component.setRecipeDetails('dietary_preference', {
-      url: 'http://testserver/dietary_preference/1/',
-      recipe: 'http://testserver/recipes/1/',
-      vegan: false,
-      glutenfree: false,
-    });
 
     fixture.detectChanges();
 

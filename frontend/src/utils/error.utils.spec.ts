@@ -17,14 +17,17 @@ describe('Error utils', () => {
       error: {
         detail: 'Some error msg',
         title: ['Some title msg', 'Some other title msg'],
-        quantity: ['Some quality msg'],
+        quantity_field: ['Some quality msg'],
       },
     };
     const messages = handleErrors(err);
+
     expect(messages.length).toEqual(4);
-    expect(messages[0]).toEqual(err.error.detail);
-    expect(messages[1]).toEqual(err.error.title[0]);
-    expect(messages[2]).toEqual(err.error.title[1]);
-    expect(messages[3]).toEqual(err.error.quantity[0]);
+    expect(messages[0]).toEqual(err.error.detail + ' - DETAIL');
+    expect(messages[1]).toEqual(err.error.title[0] + ' - TITLE');
+    expect(messages[2]).toEqual(err.error.title[1] + ' - TITLE');
+    expect(messages[3]).toEqual(
+      err.error.quantity_field[0] + ' - QUANTITY FIELD'
+    );
   });
 });

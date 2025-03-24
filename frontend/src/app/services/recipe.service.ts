@@ -1,10 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { MakerFormVal } from '../types/MakerForm';
+import { Observable } from 'rxjs';
 
 export type MealTypes = 'breakfast' | 'brunch' | 'lunch' | 'dinner';
+
+export type ReadableMealTypes = 'Breakfast' | 'Brunch' | 'Lunch' | 'Dinner';
+
 export type DietaryPreferences = 'vegan' | 'glutenfree';
+
+export type ReadableDietaryPreferences = 'Vegan' | 'Gluten free';
 
 interface BaseRecipe {
   title: string;
@@ -22,10 +26,18 @@ export interface RecipeBody extends BaseRecipe {
 }
 
 export interface RecipeResponse
-  extends Omit<BaseRecipe, 'ingredient_list' | 'instruction_steps'> {
+  extends Omit<
+    BaseRecipe,
+    | 'ingredient_list'
+    | 'instruction_steps'
+    | 'meal_types'
+    | 'dietary_preferences'
+  > {
   url: string;
   ingredient_list: string[];
   instruction_steps: string[];
+  meal_types: ReadableMealTypes[];
+  dietary_preferences: ReadableDietaryPreferences[];
   created_by_username: string;
   image_id: string;
   image_url: string;
@@ -39,7 +51,6 @@ export interface PaginatedRecipes {
 }
 
 export interface IngredientBody {
-  url?: string;
   nameQuantity: string;
 }
 
@@ -55,7 +66,6 @@ export interface PaginatedIngredients {
 }
 
 export interface InstructionBody {
-  url?: string;
   step: string;
 }
 
@@ -147,92 +157,6 @@ export class RecipeService {
     });
 
     return this.http.patch<RecipeResponse>(url, formData, {
-      withCredentials: true,
-    });
-  }
-
-  get_ingredients(url: string): Observable<PaginatedIngredients> {
-    return this.http.get<PaginatedIngredients>(url);
-  }
-
-  create_ingredient(
-    ingredientUrl: string,
-    body: IngredientBody
-  ): Observable<IngredientResponse> {
-    const { url, ...rest } = body;
-    return this.http.post<IngredientResponse>(ingredientUrl, rest, {
-      withCredentials: true,
-    });
-  }
-
-  edit_ingredient(body: IngredientBody): Observable<IngredientResponse> {
-    const { url, ...rest } = body;
-
-    return this.http.patch<IngredientResponse>(url as string, rest, {
-      withCredentials: true,
-    });
-  }
-
-  get_instructions(url: string): Observable<PaginatedInstructions> {
-    return this.http.get<PaginatedInstructions>(url);
-  }
-
-  create_instruction(
-    instructionUrl: string,
-    body: InstructionBody
-  ): Observable<InstructionResponse> {
-    const { url, ...rest } = body;
-
-    return this.http.post<InstructionResponse>(instructionUrl, rest, {
-      withCredentials: true,
-    });
-  }
-
-  edit_instruction(body: InstructionBody): Observable<InstructionResponse> {
-    const { url, ...rest } = body;
-    return this.http.patch<InstructionResponse>(url as string, rest, {
-      withCredentials: true,
-    });
-  }
-
-  get_mealtype(url: string): Observable<MealTypeResponse> {
-    return this.http.get<MealTypeResponse>(url);
-  }
-
-  create_mealtype(body: MealTypeBody): Observable<MealTypeResponse> {
-    return this.http.post<MealTypeResponse>('recipes/mealtypes/', body, {
-      withCredentials: true,
-    });
-  }
-
-  edit_mealtype(url: string, body: MealTypeBody): Observable<MealTypeResponse> {
-    return this.http.patch<MealTypeResponse>(url, body, {
-      withCredentials: true,
-    });
-  }
-
-  get_dietarypreference(url: string): Observable<DietaryPreferenceResponse> {
-    return this.http.get<DietaryPreferenceResponse>(url);
-  }
-
-  create_dietarypreference(
-    body: DietaryPreferenceBody
-  ): Observable<DietaryPreferenceResponse> {
-    return this.http.post<DietaryPreferenceResponse>(
-      'recipes/dietarypreferences/',
-      body,
-      {
-        withCredentials: true,
-      }
-    );
-  }
-
-  edit_dietarypreference(
-    body: DietaryPreferenceResponse
-  ): Observable<DietaryPreferenceResponse> {
-    const { url, ...rest } = body;
-
-    return this.http.patch<DietaryPreferenceResponse>(url, rest, {
       withCredentials: true,
     });
   }

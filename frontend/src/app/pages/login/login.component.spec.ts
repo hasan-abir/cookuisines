@@ -152,6 +152,6 @@ describe('LoginComponent', () => {
 
     const msg = compiled.querySelector('.message-body');
 
-    expect(msg?.textContent?.trim()).toBe(errMsg);
+    expect(msg?.textContent?.trim()).toBe(errMsg + ' - DETAIL');
   }));
 });
