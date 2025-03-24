@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -67,6 +67,8 @@ export class RecipecreateoreditComponent {
   imageLastModified = 0;
 
   @Input() existingRecipe: RecipeResponse | null = null;
+  @Output() recipeEdited: EventEmitter<RecipeResponse> =
+    new EventEmitter<RecipeResponse>();
 
   makerForm: MakerForm = this.formBuilder.group({
     title: createFormControl('', [Validators.required]),
@@ -281,6 +283,8 @@ export class RecipecreateoreditComponent {
     recipeRequest.subscribe({
       next: (recipe) => {
         this.isProcessing = false;
+
+        this.isEditing && this.recipeEdited.emit(recipe);
 
         !this.isEditing && this.resetForm();
       },

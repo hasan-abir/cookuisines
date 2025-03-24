@@ -165,6 +165,8 @@ describe('RecipecreateoreditComponent', () => {
   });
 
   it('should reset the form after successful submit', fakeAsync(() => {
+    spyOn(component.recipeEdited, 'emit');
+
     const recipeResponse: RecipeResponse = getDemoRecipe();
 
     recipeServiceSpy.create_recipe.and.returnValue(
@@ -226,6 +228,10 @@ describe('RecipecreateoreditComponent', () => {
 
     expect(recipeServiceSpy.create_recipe).toHaveBeenCalledWith(
       expectedRecipeBody
+    );
+
+    expect(component.recipeEdited.emit).not.toHaveBeenCalledWith(
+      recipeResponse
     );
 
     expect(component.makerForm.get('title')?.value).toBeFalsy();
@@ -398,6 +404,8 @@ describe('RecipecreateoreditComponent', () => {
     expect(component.isEditing).toBe(true);
   });
   it('should call edit on form submission', fakeAsync(() => {
+    spyOn(component.recipeEdited, 'emit');
+
     const existingRecipe = getDemoRecipe();
 
     component.existingRecipe = existingRecipe;

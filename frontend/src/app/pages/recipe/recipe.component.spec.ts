@@ -171,4 +171,30 @@ describe('RecipeComponent', () => {
 
     expect(editButton).toBeTruthy();
   }));
+
+  it('should setExistingRecipe and close isEditing', () => {
+    const recipe: RecipeResponse = {
+      url: 'http://testserver/recipes/1/',
+      cooking_time: '50:00:00',
+      preparation_time: '00:05:06',
+      title: 'Recipe 1',
+      created_by_username: 'hasan_abir',
+      difficulty: 'hard',
+      dietary_preferences: ['Gluten free'],
+      meal_types: ['Breakfast', 'Brunch'],
+      image_id: 'image_id',
+      image_url: 'image_url',
+      ingredient_list: [
+        'First ingredient',
+        'Second ingredient',
+        'Third ingredient',
+      ],
+      instruction_steps: ['First step', 'Second step', 'Third step'],
+    };
+
+    component.setEditedRecipe(recipe);
+
+    expect(component.recipe).toEqual(recipe);
+    expect(component.isEditing).toBeFalse();
+  });
 });

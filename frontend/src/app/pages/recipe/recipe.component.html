@@ -8,7 +8,10 @@
         {{ isEditing ? "Close Edit" : "Edit" }}
       </button>
       <ng-container *ngIf="isEditing">
-        <app-recipecreateoredit [existingRecipe]="recipe" />
+        <app-recipecreateoredit
+          [existingRecipe]="recipe"
+          (recipeEdited)="setEditedRecipe($event)"
+        />
       </ng-container>
     </ng-container>
     <ng-container *ngIf="!isEditing">

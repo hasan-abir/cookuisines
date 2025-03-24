@@ -90,4 +90,10 @@ export class RecipeComponent {
   toggleIsEditing() {
     this.isEditing = !this.isEditing;
   }
+
+  setEditedRecipe(recipe: RecipeResponse) {
+    this.isEditing = false;
+
+    this.recipe = recipe;
+  }
 }
