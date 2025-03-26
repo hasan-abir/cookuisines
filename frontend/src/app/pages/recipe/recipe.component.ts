@@ -1,6 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
 import { durationStringToObj } from '../../../utils/time.utils';
 import { BasepageComponent } from '../../components/basepage/basepage.component';
 import { RecipecreateoreditComponent } from '../../components/recipecreateoredit/recipecreateoredit.component';
@@ -38,11 +43,13 @@ export class RecipeComponent {
   recipe: RecipeResponse | null = null;
   isProcessing = false;
   isEditing = false;
+  isDeleting = false;
   user$ = this.authService.user$;
 
   constructor(
     private recipeService: RecipeService,
     private route: ActivatedRoute,
+    private router: Router,
     private authService: AuthService
   ) {}
 
@@ -89,6 +96,27 @@ export class RecipeComponent {
 
   toggleIsEditing() {
     this.isEditing = !this.isEditing;
+  }
+
+  toggleIsDeleting() {
+    this.isDeleting = !this.isDeleting;
+  }
+
+  confirmDelete() {
+    if (this.recipe) {
+      const url = this.recipe.url;
+
+      this.isProcessing = true;
+      this.recipe = null;
+
+      this.recipeService.delete_recipe(url).subscribe({
+        next: () => {
+          this.isProcessing = false;
+
+          this.router.navigate(['/recipes']);
+        },
+      });
+    }
   }
 
   setEditedRecipe(recipe: RecipeResponse) {

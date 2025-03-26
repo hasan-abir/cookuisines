@@ -10,7 +10,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { handleErrors } from '../../../utils/error.utils';
 import {
   compareTwoObjsExistingKeys,
@@ -94,7 +94,8 @@ export class RecipecreateoreditComponent {
   constructor(
     private formBuilder: FormBuilder,
     private recipeService: RecipeService,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -286,7 +287,8 @@ export class RecipecreateoreditComponent {
 
         this.isEditing && this.recipeEdited.emit(recipe);
 
-        !this.isEditing && this.resetForm();
+        !this.isEditing &&
+          this.router.navigate(['/recipes' + recipe.url.split('/recipes')[1]]);
       },
       error: (err) => {
         this.errMsgs = handleErrors(err);

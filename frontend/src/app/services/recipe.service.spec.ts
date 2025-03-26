@@ -132,4 +132,13 @@ describe('RecipesService', () => {
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual(formData);
   });
+
+  it('delete_recipe: should call API', () => {
+    const url = '/recipes/123';
+
+    service.delete_recipe(url).subscribe();
+
+    const req = httpTesting.expectOne(domain + url);
+    expect(req.request.method).toBe('DELETE');
+  });
 });

@@ -34,6 +34,7 @@ import {
   FullRecipe,
   RecipecreateoreditComponent,
 } from './recipecreateoredit.component';
+import { Router } from '@angular/router';
 
 const getDemoRecipe = (id = 123, title = 'New recipe'): RecipeResponse => {
   return {
@@ -89,6 +90,7 @@ describe('RecipecreateoreditComponent', () => {
   let compiled: HTMLElement;
   let recipeServiceSpy: jasmine.SpyObj<RecipeService>;
   let httpTesting: HttpTestingController;
+  let router: Router;
 
   beforeEach(async () => {
     const createMethodsSpy = jasmine.createSpyObj('RecipeService', [
@@ -108,6 +110,7 @@ describe('RecipecreateoreditComponent', () => {
     }).compileComponents();
 
     httpTesting = TestBed.inject(HttpTestingController);
+    router = TestBed.inject(Router);
     recipeServiceSpy = TestBed.inject(
       RecipeService
     ) as jasmine.SpyObj<RecipeService>;
@@ -165,6 +168,7 @@ describe('RecipecreateoreditComponent', () => {
   });
 
   it('should reset the form after successful submit', fakeAsync(() => {
+    spyOn(router, 'navigate');
     spyOn(component.recipeEdited, 'emit');
 
     const recipeResponse: RecipeResponse = getDemoRecipe();
@@ -233,32 +237,9 @@ describe('RecipecreateoreditComponent', () => {
     expect(component.recipeEdited.emit).not.toHaveBeenCalledWith(
       recipeResponse
     );
-
-    expect(component.makerForm.get('title')?.value).toBeFalsy();
-    expect(component.makerForm.get('cookingTime')?.value).toEqual({
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-    });
-    expect(component.makerForm.get('preparationTime')?.value).toEqual({
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-    });
-    expect(component.makerForm.get('dietaryPreference')?.value).toEqual({
-      glutenfree: false,
-      vegan: false,
-    });
-    expect(component.makerForm.get('difficulty')?.value).toBe('easy');
-    expect(component.makerForm.get('image')?.value).toBe(null);
-    expect(component.makerForm.get('ingredients')?.value).toEqual([]);
-    expect(component.makerForm.get('instructions')?.value).toEqual([]);
-    expect(component.makerForm.get('mealType')?.value).toEqual({
-      breakfast: false,
-      brunch: false,
-      lunch: false,
-      dinner: false,
-    });
+    expect(router.navigate).toHaveBeenCalledWith([
+      '/recipes' + recipeResponse.url.split('/recipes')[1],
+    ]);
   }));
 
   it('should display the recipe error', fakeAsync(() => {

@@ -6,12 +6,12 @@ import {
 } from '@angular/core/testing';
 
 import { Component, Input } from '@angular/core';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { routes } from '../../app.routes';
+import { AuthService, UserResponse } from '../../services/auth.service';
 import { RecipeResponse, RecipeService } from '../../services/recipe.service';
 import { RecipeComponent } from './recipe.component';
-import { AuthService, UserResponse } from '../../services/auth.service';
 
 @Component({
   selector: 'app-mealtype-list',
@@ -30,9 +30,13 @@ describe('RecipeComponent', () => {
   let recipeServiceSpy: jasmine.SpyObj<RecipeService>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let route: ActivatedRoute;
+  let router: Router;
 
   beforeEach(async () => {
-    const recipeSpy = jasmine.createSpyObj('RecipeService', ['get_recipe']);
+    const recipeSpy = jasmine.createSpyObj('RecipeService', [
+      'get_recipe',
+      'delete_recipe',
+    ]);
     const authenticatedSpy = jasmine.createSpyObj('AuthService', ['user$']);
 
     authenticatedSpy.user$ = new BehaviorSubject<UserResponse | null>(null);
@@ -47,6 +51,7 @@ describe('RecipeComponent', () => {
     }).compileComponents();
 
     route = TestBed.inject(ActivatedRoute);
+    router = TestBed.inject(Router);
     route.snapshot.params = { id: '1' };
     authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
 
@@ -125,6 +130,8 @@ describe('RecipeComponent', () => {
     tick(2000);
     fixture.detectChanges();
 
+    loader = compiled.querySelector('.loader');
+    expect(loader).toBeFalsy();
     expect(recipeServiceSpy.get_recipe).toHaveBeenCalledWith('1');
 
     titleHeading = compiled.querySelectorAll('h1')[0];
@@ -137,8 +144,10 @@ describe('RecipeComponent', () => {
 
   it('should display the edit button when recipe fully loads', fakeAsync(() => {
     let editButton = compiled.querySelectorAll('button')[0];
+    let deleteButton = compiled.querySelectorAll('button')[1];
 
     expect(editButton).toBeFalsy();
+    expect(deleteButton).toBeFalsy();
 
     const user = {
       username: 'test',
@@ -168,8 +177,22 @@ describe('RecipeComponent', () => {
     fixture.detectChanges();
 
     editButton = compiled.querySelectorAll('button')[0];
+    deleteButton = compiled.querySelectorAll('button')[1];
+
+    expect(editButton).toBeFalsy();
+    expect(deleteButton).toBeFalsy();
+
+    component.recipe.created_by_username = 'test';
+
+    fixture.detectChanges();
+
+    editButton = compiled.querySelectorAll('button')[0];
+    deleteButton = compiled.querySelectorAll('button')[1];
 
     expect(editButton).toBeTruthy();
+    expect(editButton.textContent?.trim()).toBe('Edit');
+    expect(deleteButton).toBeTruthy();
+    expect(deleteButton.textContent?.trim()).toBe('Delete');
   }));
 
   it('should setExistingRecipe and close isEditing', () => {
@@ -197,4 +220,120 @@ describe('RecipeComponent', () => {
     expect(component.recipe).toEqual(recipe);
     expect(component.isEditing).toBeFalse();
   });
+
+  it('should open and close delete modal ', () => {
+    const user = {
+      username: 'test',
+      email: 'test@test.com',
+    };
+    (authServiceSpy.user$ as BehaviorSubject<UserResponse | null>).next(user);
+
+    const recipe: RecipeResponse = {
+      url: 'http://testserver/recipes/1/',
+      cooking_time: '50:00:00',
+      preparation_time: '00:05:06',
+      title: 'Recipe 1',
+      created_by_username: 'test',
+      difficulty: 'hard',
+      dietary_preferences: ['Gluten free'],
+      meal_types: ['Breakfast', 'Brunch'],
+      image_id: 'image_id',
+      image_url: 'image_url',
+      ingredient_list: [
+        'First ingredient',
+        'Second ingredient',
+        'Third ingredient',
+      ],
+      instruction_steps: ['First step', 'Second step', 'Third step'],
+    };
+
+    component.setEditedRecipe(recipe);
+
+    fixture.detectChanges();
+
+    const deleteButton = compiled.querySelectorAll('button')[1];
+
+    deleteButton.click();
+
+    fixture.detectChanges();
+
+    let modal = compiled.querySelector('.modal');
+
+    expect(modal?.classList.contains('is-active')).toBeTrue();
+
+    const closeButton = compiled.querySelectorAll('button')[3];
+    closeButton.click();
+    fixture.detectChanges();
+
+    modal = compiled.querySelector('.modal');
+    expect(modal?.classList.contains('is-active')).toBeFalse();
+  });
+
+  it('should delete recipe ', fakeAsync(() => {
+    spyOn(router, 'navigate');
+    recipeServiceSpy.delete_recipe.and.returnValue(
+      new Observable((subscriber) => {
+        timer(2000).subscribe(() => {
+          subscriber.next();
+        });
+      })
+    );
+
+    const user = {
+      username: 'test',
+      email: 'test@test.com',
+    };
+    (authServiceSpy.user$ as BehaviorSubject<UserResponse | null>).next(user);
+
+    const recipe: RecipeResponse = {
+      url: 'http://testserver/recipes/1/',
+      cooking_time: '50:00:00',
+      preparation_time: '00:05:06',
+      title: 'Recipe 1',
+      created_by_username: 'test',
+      difficulty: 'hard',
+      dietary_preferences: ['Gluten free'],
+      meal_types: ['Breakfast', 'Brunch'],
+      image_id: 'image_id',
+      image_url: 'image_url',
+      ingredient_list: [
+        'First ingredient',
+        'Second ingredient',
+        'Third ingredient',
+      ],
+      instruction_steps: ['First step', 'Second step', 'Third step'],
+    };
+
+    component.setEditedRecipe(recipe);
+
+    fixture.detectChanges();
+
+    const deleteButton = compiled.querySelectorAll('button')[1];
+
+    deleteButton.click();
+
+    fixture.detectChanges();
+
+    let modal = compiled.querySelector('.modal');
+
+    expect(modal?.classList.contains('is-active')).toBeTrue();
+
+    const confirmDeleteBtn = compiled.querySelectorAll('button')[2];
+    confirmDeleteBtn.click();
+    fixture.detectChanges();
+
+    let loader = compiled.querySelector('.loader');
+    expect(loader).toBeTruthy();
+
+    tick(2000);
+    fixture.detectChanges();
+
+    loader = compiled.querySelector('.loader');
+    expect(loader).toBeFalsy();
+
+    expect(recipeServiceSpy.delete_recipe).toHaveBeenCalledOnceWith(recipe.url);
+
+    expect(component.recipe).toBeFalsy();
+    expect(router.navigate).toHaveBeenCalledWith(['/recipes']);
+  }));
 });

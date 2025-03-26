@@ -160,4 +160,10 @@ export class RecipeService {
       withCredentials: true,
     });
   }
+
+  delete_recipe(url: string): Observable<void> {
+    return this.http.delete<void>(url, {
+      withCredentials: true,
+    });
+  }
 }
