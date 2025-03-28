@@ -8,7 +8,7 @@ from recipes.services import delete_image
 
 # Create your views here.
 class RecipeViewSet(ModelViewSet):
-    queryset = Recipe.objects.all()
+    queryset = Recipe.objects.all().order_by('-created_at')
     serializer_class = RecipeSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRecipeOwnerOrReadOnly]
 

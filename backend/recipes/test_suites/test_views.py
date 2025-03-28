@@ -4,6 +4,7 @@ from recipes.models import Recipe
 from .utils import get_demo_recipe, get_demo_user, mock_imagekit_upload, mock_imagekit_delete
 from datetime import timedelta
 from rest_framework.test import APIClient
+import time
 
 # Create your tests here.
 class RecipeViewsTestCase(TestCase):
@@ -16,10 +17,12 @@ class RecipeViewsTestCase(TestCase):
         self.user_replica = get_demo_user('hasan_abir_replica')
 
         for x in range(0, self.total_recipes):
+            time.sleep(0.01)
+
             if x % 2 == 0:
-                recipe = get_demo_recipe(self.user, 'Example Recipe Yummy', 'Hard', 'Example', ['breakfast', 'brunch'])
+                recipe = get_demo_recipe(self.user, str(x) + ' Example Recipe Yummy', 'Hard', 'Example', ['breakfast', 'brunch'])
             else:
-                recipe = get_demo_recipe(self.user)
+                recipe = get_demo_recipe(self.user, str(x) + ' Example Recipe')
 
             if x == 0:
                 self.first_recipe = recipe
@@ -37,7 +40,9 @@ class RecipeViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['results']), 10)
         self.assertEqual(response.json()['count'], self.total_recipes)
-        self.assertEqual(response.json()['results'][1]['title'], "Example Recipe")
+        self.assertEqual(response.json()['results'][0]['title'], "14 Example Recipe Yummy")
+        self.assertEqual(response.json()['results'][1]['title'], "13 Example Recipe")
+        self.assertEqual(response.json()['results'][len(response.json()['results']) - 1]['title'], "5 Example Recipe")
 
         response = self.api_client.get('/recipes/?page=2')
         self.assertEqual(response.status_code, 200)

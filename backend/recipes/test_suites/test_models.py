@@ -23,4 +23,5 @@ class RecipeTestCase(TestCase):
         self.assertEqual(saved_recipe.image_id, recipe.image_id)
         self.assertEqual(saved_recipe.image_url, recipe.image_url)
         self.assertEqual(saved_recipe.created_by.pk, recipe.created_by.pk)
+        self.assertTrue(saved_recipe.created_at)
 
