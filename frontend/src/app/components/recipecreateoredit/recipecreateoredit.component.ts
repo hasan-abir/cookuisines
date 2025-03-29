@@ -81,7 +81,7 @@ export class RecipecreateoreditComponent {
       Validators.required
     ),
     preparationTime: durationGroup(this.formBuilder),
-    cookingTime: durationGroup(this.formBuilder),
+    cookingTime: durationGroup(this.formBuilder, false),
     difficulty: createFormControl(this.difficulties[0], [Validators.required]),
     image: createFormControl<File | null>(null, [
       Validators.required,

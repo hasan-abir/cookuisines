@@ -42,7 +42,7 @@ class RecipeSerializerTestCase(TestCase):
         self.assertEqual(is_valid, False)
         self.assertEqual(str(serializer.errors['title'][0]), 'This field may not be blank.')
         self.assertEqual(str(serializer.errors['preparation_time'][0]), 'Duration cannot be zero.')
-        self.assertEqual(str(serializer.errors['cooking_time'][0]), 'Duration cannot be zero.')
+        self.assertFalse('cooking_time' in serializer.errors)
         self.assertEqual(str(serializer.errors['image'][0]), 'Image size has to be 2mb or less')
         self.assertEqual(str(serializer.errors['ingredient_list'][0]), 'This field may not be blank.')
         self.assertEqual(str(serializer.errors['instruction_steps'][0]), 'This field may not be blank.')

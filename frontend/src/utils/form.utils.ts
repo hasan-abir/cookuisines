@@ -28,7 +28,11 @@ export const numberValidator = (min: number, max: number) => {
   return [Validators.required, Validators.min(min), Validators.max(max)];
 };
 
-export const durationGroup = (formBuilder: FormBuilder) => {
+export const durationGroup = (formBuilder: FormBuilder, validate = true) => {
+  const validators = [];
+
+  if (validate) validators.push(checkDurationGreaterThanZero());
+
   return formBuilder.group(
     {
       hours: createFormControl<number>(0, numberValidator(0, 23)),
@@ -36,7 +40,7 @@ export const durationGroup = (formBuilder: FormBuilder) => {
       seconds: createFormControl<number>(0, numberValidator(0, 59)),
     },
     {
-      validators: checkDurationGreaterThanZero(),
+      validators,
     }
   );
 };

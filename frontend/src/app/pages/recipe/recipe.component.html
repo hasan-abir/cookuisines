@@ -90,7 +90,12 @@
               <p class="mb-4 has-text-weight-bold">
                 {{ formatDuration(recipe.preparation_time) }}
               </p>
-              <h2 class="subtitle mb-2">Cooking Time</h2>
+              <h2
+                class="subtitle mb-2"
+                *ngIf="formatDuration(recipe.cooking_time).length > 0"
+              >
+                Cooking Time
+              </h2>
               <p class="has-text-weight-bold">
                 {{ formatDuration(recipe.cooking_time) }}
               </p>

@@ -33,12 +33,6 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
         else:
             raise serializers.ValidationError('Duration cannot be zero.')
         
-    def validate_cooking_time(self, value):
-        if value.total_seconds() > 0:
-            return value
-        else:
-            raise serializers.ValidationError('Duration cannot be zero.')
-        
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         

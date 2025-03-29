@@ -46,7 +46,7 @@ describe('Form utils', () => {
   });
 
   it('should create duration group', () => {
-    const formGroup = durationGroup(new FormBuilder());
+    let formGroup = durationGroup(new FormBuilder());
 
     expect(formGroup).toBeInstanceOf(FormGroup);
     expect(formGroup.value).toEqual({ hours: 0, minutes: 0, seconds: 0 });
@@ -54,8 +54,17 @@ describe('Form utils', () => {
     ['hours', 'minutes', 'seconds'].forEach((field) => {
       const control = formGroup.get(field);
       expect(control).toBeDefined();
-      expect(control?.validator).toBeDefined();
     });
+    expect(formGroup.validator?.length).toBe(1);
+
+    formGroup = durationGroup(new FormBuilder(), false);
+
+    ['hours', 'minutes', 'seconds'].forEach((field) => {
+      const control = formGroup.get(field);
+      expect(control).toBeDefined();
+    });
+
+    expect(formGroup.validator).toBeFalsy();
   });
   it('should shorten obj', () => {
     const obj = {
