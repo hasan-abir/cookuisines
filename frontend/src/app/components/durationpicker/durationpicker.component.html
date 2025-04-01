@@ -1,0 +1,46 @@
+<div [formGroup]="form">
+  <div class="columns is-1" [formGroupName]="fgName">
+    <div class="control column">
+      <label [attr.for]="fgName + '-hours'" class="label is-size-7"
+        >Hours</label
+      >
+      <input
+        [id]="fgName + '-hours'"
+        type="number"
+        class="input is-small"
+        min="0"
+        max="23"
+        formControlName="hours"
+      />
+    </div>
+    <div class="control column">
+      <label [attr.for]="fgName + '-minutes'" class="label is-size-7"
+        >Minutes</label
+      >
+      <input
+        [id]="fgName + '-minutes'"
+        type="number"
+        class="input is-small"
+        min="0"
+        max="59"
+        formControlName="minutes"
+      />
+    </div>
+    <div class="control column">
+      <label [attr.for]="fgName + '-seconds'" class="label is-size-7"
+        >Seconds</label
+      >
+      <input
+        [id]="fgName + '-seconds'"
+        type="number"
+        class="input is-small"
+        min="0"
+        max="59"
+        formControlName="seconds"
+      />
+    </div>
+  </div>
+  <p class="help" *ngIf="timeErrs().durationGreaterThanZero">
+    It couldn't literally take no time at all
+  </p>
+</div>

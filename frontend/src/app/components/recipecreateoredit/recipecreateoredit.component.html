@@ -1,0 +1,109 @@
+<form [formGroup]="makerForm" (ngSubmit)="onSubmit()">
+  <article *ngFor="let msg of errMsgs" class="message is-danger is-small mb-2">
+    <div class="message-body">
+      {{ msg }}
+    </div>
+  </article>
+  <div class="columns">
+    <div class="field column is-half">
+      <label for="title" class="label title is-4"
+        >Title<span class="has-text-danger">*</span></label
+      >
+      <div class="control mb-5">
+        <input
+          id="title"
+          class="input"
+          type="text"
+          formControlName="title"
+          placeholder="Text..."
+          value=""
+        />
+        <p *ngIf="titleErrs().required" class="help">
+          You might not bother with it, but a proper title is a must
+        </p>
+      </div>
+
+      <app-fileupload [form]="makerForm" />
+      <label class="label mt-4 title is-4"
+        >Time<span class="has-text-danger">*</span></label
+      >
+      <div class="columns mb-5">
+        <div class="column is-half">
+          <label class="label"
+            >To prepare<span class="has-text-danger">*</span></label
+          >
+
+          <app-durationpicker [form]="makerForm" [fgName]="'preparationTime'" />
+        </div>
+        <div class="column is-half">
+          <label class="label"
+            >To cook<span class="has-text-danger">*</span></label
+          >
+          <app-durationpicker [form]="makerForm" [fgName]="'cookingTime'" />
+        </div>
+      </div>
+      <div class="control mb-5">
+        <label for="difficulty" class="label title is-4">Difficulty</label>
+        <div class="select is-primary">
+          <select
+            id="difficulty"
+            formControlName="difficulty"
+            class="is-capitalized"
+          >
+            <option *ngFor="let option of difficulties" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="field column is-half">
+      <app-formgrouparray
+        [form]="makerForm"
+        formArrName="ingredients"
+        [fields]="[
+          { label: 'Name & Quantity', name: 'nameQuantity', type: 'text' }
+        ]"
+        requiredMsg="Ingredients are what makes the meal; you have to provide them"
+      />
+      <app-formgrouparray
+        [form]="makerForm"
+        formArrName="instructions"
+        [fields]="[{ label: 'Step', name: 'step', type: 'textarea' }]"
+        requiredMsg="How do you actually make it? Please tell us the steps"
+      />
+      <app-formselectfields
+        [form]="makerForm"
+        fgName="mealType"
+        label="Meal type"
+        [fields]="[
+          { name: 'breakfast' },
+          { name: 'brunch' },
+          { name: 'lunch' },
+          { name: 'dinner' }
+        ]"
+      />
+      <app-formselectfields
+        [form]="makerForm"
+        fgName="dietaryPreference"
+        label="Dietary preference"
+        [fields]="[
+          { name: 'vegan' },
+          { label: 'gluten free', name: 'glutenfree' }
+        ]"
+      />
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column is-one-third">
+      <button
+        class="button is-primary is-uppercase has-text-weight-bold is-fullwidth"
+        type="submit"
+        [class.is-loading]="isProcessing"
+        [disabled]="isProcessing"
+      >
+        {{ isEditing ? "Save" : "Create" }}
+      </button>
+    </div>
+  </div>
+</form>

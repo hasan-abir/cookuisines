@@ -1,0 +1,9 @@
+<div class="control mb-4" [formGroup]="form">
+  <label class="label title is-4">{{ label }}</label>
+  <div class="checkboxes" [formGroupName]="fgName">
+    <label class="checkbox is-capitalized" *ngFor="let field of fields">
+      <input type="checkbox" [formControlName]="field.name" />
+      {{ field.label || field.name }}
+    </label>
+  </div>
+</div>

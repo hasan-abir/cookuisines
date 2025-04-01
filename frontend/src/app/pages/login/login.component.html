@@ -1,0 +1,66 @@
+<app-basepage heading="Login" [isCentered]="true">
+  <form
+    [formGroup]="loginForm"
+    (ngSubmit)="onSubmit()"
+    style="max-width: 400px"
+    class="mx-auto"
+  >
+    <article
+      *ngFor="let msg of errMsgs"
+      class="message is-danger is-small mb-2"
+    >
+      <div class="message-body">
+        {{ msg }}
+      </div>
+    </article>
+    <div class="field">
+      <label for="username" class="label username is-4"
+        >Username<span class="has-text-danger">*</span></label
+      >
+      <div class="control">
+        <input
+          id="username"
+          class="input"
+          placeholder="Username"
+          formControlName="username"
+        />
+      </div>
+    </div>
+    <div class="field">
+      <label for="password" class="label password is-4"
+        >Password<span class="has-text-danger">*</span></label
+      >
+      <div class="control">
+        <input
+          id="password"
+          class="input"
+          type="password"
+          placeholder="Password"
+          formControlName="password"
+        />
+      </div>
+    </div>
+    <div class="field">
+      <div class="control">
+        <button
+          class="button is-primary is-fullwidth"
+          [class.is-loading]="isProcessing"
+          [disabled]="isProcessing"
+          type="submit"
+        >
+          Login
+        </button>
+      </div>
+    </div>
+    <p>
+      Don't have an account?
+      <a
+        class="is-ghost"
+        routerLink="/signup"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        >Sign up</a
+      >
+    </p>
+  </form>
+</app-basepage>

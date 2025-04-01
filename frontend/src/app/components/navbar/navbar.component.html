@@ -1,0 +1,79 @@
+<nav class="navbar py-4" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a
+      class="navbar-item is-size-4 has-text-primary is-uppercase"
+      routerLink="/"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+    >
+      <strong>Cookuisines</strong>
+    </a>
+
+    <a
+      role="button"
+      class="navbar-burger"
+      [class.is-active]="isActive"
+      aria-label="menu"
+      aria-expanded="false"
+      data-target="navbarBasicExample"
+      (click)="isActive = !isActive"
+    >
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarBasicExample" class="navbar-menu" [class.is-active]="isActive">
+    <div class="navbar-end">
+      <a
+        class="navbar-item"
+        routerLink="/recipes"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        >Recipes</a
+      >
+      <a
+        class="navbar-item"
+        routerLink="/recipemaker"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        >Make one yourself</a
+      >
+    </div>
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <div class="buttons" *ngIf="user$ | async">
+          <p class="greetings">
+            Welcome, &#64;{{ (user$ | async)?.username }}!
+          </p>
+          <button class="button is-primary" (click)="logoutUser()">
+            <strong>Log out</strong>
+          </button>
+        </div>
+        <div class="buttons" *ngIf="!(user$ | async)">
+          <a
+            class="button is-primary"
+            routerLink="/signup"
+            [queryParams]="returnUrl"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+          >
+            <strong>Sign up</strong>
+          </a>
+          <a
+            class="button is-primary is-dark"
+            routerLink="/login"
+            [queryParams]="returnUrl"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+          >
+            Log in
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

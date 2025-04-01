@@ -1,0 +1,123 @@
+<app-basepage heading="Latest Recipes">
+  <form class="pb-6" [formGroup]="searchForm" (ngSubmit)="onSearch()">
+    <h1 class="title is-4">Search</h1>
+    <div class="field">
+      <label for="title" class="label">By title</label>
+      <div class="control">
+        <input
+          id="title"
+          class="input"
+          placeholder="Title"
+          formControlName="title"
+        />
+      </div>
+    </div>
+    <div class="field">
+      <label for="ingredientName" class="label">By ingredient</label>
+      <div class="control">
+        <input
+          id="ingredientName"
+          class="input"
+          placeholder="Ingredient"
+          formControlName="ingredient"
+        />
+      </div>
+    </div>
+    <div class="field">
+      <div class="checkboxes">
+        <label class="checkbox">
+          <input id="breakfast" type="checkbox" formControlName="breakfast" />
+          Breakfast
+        </label>
+        <label class="checkbox">
+          <input id="brunch" type="checkbox" formControlName="brunch" />
+          Brunch
+        </label>
+        <label class="checkbox">
+          <input id="lunch" type="checkbox" formControlName="lunch" />
+          Lunch
+        </label>
+        <label class="checkbox">
+          <input id="dinner" type="checkbox" formControlName="dinner" />
+          Dinner
+        </label>
+        <label class="checkbox">
+          <input id="vegan" type="checkbox" formControlName="vegan" />
+          Vegan
+        </label>
+        <label class="checkbox">
+          <input id="glutenfree" type="checkbox" formControlName="glutenfree" />
+          Gluten free
+        </label>
+      </div>
+    </div>
+    <div class="field">
+      <div class="control">
+        <button
+          class="button is-primary is-fullwidth"
+          [class.is-loading]="isProcessing"
+          [disabled]="isProcessing"
+          type="submit"
+        >
+          Search
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <div class="columns is-multiline">
+    <div
+      class="column is-12-mobile is-6-tablet is-4-desktop"
+      *ngFor="let recipe of paginatedRecipes.results"
+    >
+      <a [routerLink]="'/recipes' + recipe.url.split('recipes')[1]">
+        <div class="card">
+          <div class="card-image">
+            <figure class="image is-4by3">
+              <img
+                [src]="recipe.image_url + '?tr=w-700'"
+                [alt]="recipe.title"
+                style="object-fit: cover"
+              />
+            </figure>
+          </div>
+          <div class="card-content">
+            <h1 class="title is-4 pb-2">{{ recipe.title }}</h1>
+            <p class="subtitle is-6">
+              By &#64;{{ recipe.created_by_username }}
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="pt-4 is-flex is-justify-content-center">
+    <div *ngIf="isProcessing">
+      <div class="loader" style="width: 2rem; height: 2rem"></div>
+    </div>
+    <button
+      *ngIf="!isProcessing && paginatedRecipes.next"
+      class="button fetch-more-recipe"
+      (click)="fetchMoreRecipes()"
+    >
+      Show more
+    </button>
+    <p
+      *ngIf="
+        !isProcessing &&
+        !paginatedRecipes.next &&
+        paginatedRecipes.results.length > 0
+      "
+      class="no-more-recipes"
+    >
+      That's all for now!
+    </p>
+    <p
+      *ngIf="!isProcessing && paginatedRecipes.results.length === 0"
+      class="empty-recipes"
+    >
+      No recipes found!
+    </p>
+  </div>
+</app-basepage>

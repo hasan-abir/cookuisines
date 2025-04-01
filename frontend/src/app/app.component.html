@@ -1,0 +1,21 @@
+<div class="container">
+  <app-navbar />
+  <div class="modal is-active" *ngIf="verifying$ | async">
+    <div
+      class="modal-background has-background-light is-flex is-justify-content-center is-align-items-center is-flex-direction-column"
+    >
+      <div class="loader"></div>
+      <h1 class="mt-4 title has-text-dark">Verifying user</h1>
+    </div>
+  </div>
+  <div
+    class="notification mx-6 py-2 is-warning"
+    style="z-index: 1000"
+    *ngIf="waiting$ | async"
+  >
+    Initially, the backend server might take a minute to load.
+  </div>
+  <div class="py-6 px-6">
+    <router-outlet> </router-outlet>
+  </div>
+</div>
